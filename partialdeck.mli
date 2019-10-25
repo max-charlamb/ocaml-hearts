@@ -3,35 +3,36 @@
 or as a full deck.
 *)
 
+exception DuplicateCard
+
+exception CardNotFound
+
+type suite = 
+  | Spade 
+  | Heart 
+  | Club 
+  | Diamond
+
+type rank = 
+  | Two 
+  | Three 
+  | Four 
+  | Five 
+  | Six 
+  | Seven 
+  | Eight 
+  | Nine
+  | Ten
+  | Jack
+  | Queen
+  | King
+  | Ace
+
+type card = Card of suite * rank
+
 module type PartialDeckSig = sig
 
-  exception DuplicateCard
 
-  exception CardNotFound
-
-  type suite = 
-    | Spade 
-    | Heart 
-    | Club 
-    | Diamond
-
-  type rank = 
-    | One 
-    | Two 
-    | Three 
-    | Four 
-    | Five 
-    | Six 
-    | Seven 
-    | Eight 
-    | Nine
-    | Ten
-    | Jack
-    | Queen
-    | King
-    | Ace
-
-  type card = Card of suite * rank
 
   type t
 
@@ -73,3 +74,5 @@ module type PartialDeckSig = sig
 
 
 end
+
+module PartialDeck:PartialDeckSig

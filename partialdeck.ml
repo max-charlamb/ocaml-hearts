@@ -1,33 +1,32 @@
 
+exception DuplicateCard
+
+exception CardNotFound
+
+type suite = 
+  | Spade 
+  | Heart 
+  | Club 
+  | Diamond
+
+type rank =  
+  | Two 
+  | Three 
+  | Four 
+  | Five 
+  | Six 
+  | Seven 
+  | Eight 
+  | Nine
+  | Ten
+  | Jack
+  | Queen
+  | King
+  | Ace
+
+type card = Card of suite * rank
+
 module type PartialDeckSig = sig
-
-  exception DuplicateCard
-
-  exception CardNotFound
-
-  type suite = 
-    | Spade 
-    | Heart 
-    | Club 
-    | Diamond
-
-  type rank = 
-    | One 
-    | Two 
-    | Three 
-    | Four 
-    | Five 
-    | Six 
-    | Seven 
-    | Eight 
-    | Nine
-    | Ten
-    | Jack
-    | Queen
-    | King
-    | Ace
-
-  type card = Card of suite * rank
 
   type t
 
@@ -54,34 +53,9 @@ module type PartialDeckSig = sig
 
 end
 
-module PartialDeck = struct
 
-  exception DuplicateCard
+module PartialDeck:PartialDeckSig = struct
 
-  exception CardNotFound
-
-  type suite = 
-    | Spade 
-    | Heart 
-    | Club 
-    | Diamond
-
-  type rank =  
-    | Two 
-    | Three 
-    | Four 
-    | Five 
-    | Six 
-    | Seven 
-    | Eight 
-    | Nine
-    | Ten
-    | Jack
-    | Queen
-    | King
-    | Ace
-
-  type card = Card of suite * rank
 
   type t = card list
 
@@ -96,10 +70,13 @@ module PartialDeck = struct
     | 11 -> Jack | 12 -> Queen  | 13 -> King | 14 -> Ace
     | _ -> failwith "not allowed value"
 
-  let empty = []
+  let mem card t = 
+    List.mem card t 
 
-  let insert card t = 
-    card :: t
+  let insert card (t:t) = 
+    if mem card t then raise DuplicateCard else card :: t
+
+  let empty = []
 
   let full = 
     let rec aux rank suite deck = 
@@ -112,6 +89,20 @@ module PartialDeck = struct
   let to_list t =
     t
 
+  let size t =
+    List.length t
 
+  let is_empty t = 
+    if size t = 0 then true else false
+
+  let remove card t = 
+    if List.mem card t then List.filter (fun x -> x <> card) t
+    else raise CardNotFound
+
+  let move card t1 t2 =
+    (remove card t1, insert card t2)
+
+  let random_card t =
+    if is_empty t then None else Some (List.nth t (Random.int (size t)))
 
 end
