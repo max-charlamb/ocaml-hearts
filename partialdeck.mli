@@ -1,34 +1,9 @@
+open Card
+
 (*
  A partial deck is a set of any number of cards. It can be created empty
 or as a full deck.
 *)
-
-exception DuplicateCard
-
-exception CardNotFound
-
-type suite = 
-  | Spade 
-  | Heart 
-  | Club 
-  | Diamond
-
-type rank = 
-  | Two 
-  | Three 
-  | Four 
-  | Five 
-  | Six 
-  | Seven 
-  | Eight 
-  | Nine
-  | Ten
-  | Jack
-  | Queen
-  | King
-  | Ace
-
-type card = Card of suite * rank
 
 module type PartialDeckSig = sig
 
