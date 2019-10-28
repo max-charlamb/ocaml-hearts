@@ -20,7 +20,7 @@ let get_first = function
   | h :: t -> h
 
 let get_rest = function 
-  | [] -> raise Empty
+  | [] -> raise Malformed
   | _ :: t -> t
 
 let rec get_words acc = function
@@ -32,22 +32,22 @@ let get_index ind =
   | exception Failure _ -> raise Malformed
   | _ -> int_of_string ind
 
-let make_play rest = 
-  match get_words [] rest with 
+let make_play lst = 
+  match get_words [] lst with 
   | h :: [] -> Play (get_index h)
   | _ -> raise Malformed
 
-let make_pass rest = 
-  match get_words [] rest with 
+let make_pass lst = 
+  match get_words [] lst with 
   | a :: b :: c :: [] -> Pass (get_index a, get_index b, get_index c)
   | _ -> raise Malformed
 
-let make_command rest = function
+let make_command lst = function
   | "quit" -> Quit
   | "help" -> Help
   | "restart" -> Restart
-  | "pass" -> make_pass rest
-  | "play" -> make_play rest
+  | "pass" -> make_pass lst
+  | "play" -> make_play lst
   | _ -> raise Malformed
 
 let parse s = 
