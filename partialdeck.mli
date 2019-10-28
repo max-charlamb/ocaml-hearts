@@ -7,8 +7,6 @@ or as a full deck.
 
 module type PartialDeckSig = sig
 
-
-
   type t
 
   (** [empty] is an empty partial deck. *)
@@ -43,6 +41,10 @@ module type PartialDeckSig = sig
   (** [random_card t] is a random card option in [t].
       None if [t] is empty. *)
   val random_card: t -> card option
+
+  (** [find n t] is the [n]th card of [t]. 
+      None if the list is not long enough. *)
+  val find: int -> t -> card option
 
   (** [to_list t] is a list of the cards in [t]. *)
   val to_list: t -> card list

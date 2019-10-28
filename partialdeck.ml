@@ -24,6 +24,8 @@ module type PartialDeckSig = sig
 
   val to_list: t -> card list
 
+  val find: int -> t -> card option
+
 
 end
 
@@ -68,4 +70,8 @@ module PartialDeck:PartialDeckSig = struct
   let random_card t =
     if is_empty t then None else Some (List.nth t (Random.int (size t)))
 
+  let rec find n t = 
+    match t with
+    | [] -> None
+    | h :: t -> if n = 0 then Some h else find (n-1) t
 end
