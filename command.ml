@@ -1,3 +1,4 @@
+
 type index = int
 
 type card_triple = index * index * index 
