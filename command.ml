@@ -8,6 +8,7 @@ type command =
   | Play of index
   | Help
   | Restart
+  | Score
 
 exception Empty
 
@@ -48,6 +49,7 @@ let make_command lst = function
   | "restart" -> Restart
   | "pass" -> make_pass lst
   | "play" -> make_play lst
+  | "score" -> Score
   | _ -> raise Malformed
 
 let parse s = 
