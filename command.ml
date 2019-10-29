@@ -19,7 +19,7 @@ exception InvalidIndex
 
 let get_first = function 
   | [] -> raise Empty
-  | h :: t -> h
+  | h :: t -> if h = "" then raise Empty else h
 
 let get_rest = function 
   | [] -> raise Empty
