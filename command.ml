@@ -56,4 +56,4 @@ module Command = struct
     let first = get_first lst in 
     let rest = get_rest lst in 
     make_command rest first
-end ke_command rest first
+end
