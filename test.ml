@@ -29,7 +29,7 @@ let partialdecktests = [
   "full" >:: (fun _ ->
       assert_equal 52 (PartialDeck.full |> PartialDeck.size));
   "insert" >:: (fun _ ->
-      assert_equal [{suite=Spade; rank=Queen}]
+      assert_equal [({suite=Spade; rank=Queen},1)]
         (PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=Queen} 
          |> PartialDeck.to_list));
   "move" >:: (fun _ ->
