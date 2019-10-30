@@ -1,3 +1,6 @@
+open ANSITerminal
+
+
 exception DuplicateCard
 
 exception CardNotFound
@@ -44,6 +47,27 @@ let int_to_rank = function
   | 7 -> Seven | 8 -> Eight | 9 -> Nine | 10 -> Ten 
   | 11 -> Jack | 12 -> Queen  | 13 -> King | 14 -> Ace
   | _ -> failwith "not allowed value"
+
+let suite_to_string = function
+  | Spade -> "♤"
+  | Heart -> "♡"
+  | Club -> "♧"
+  | Diamond -> "♢"
+
+let rank_to_string = function 
+  | Two -> "2" | Three -> "3" | Four -> "4" | Five -> "5" | Six -> "6"
+  | Seven -> "7" | Eight -> "8" | Nine -> "9" | Ten -> "10"
+  | Jack -> "J" | Queen -> "Q"  | King -> "K" | Ace -> "A"
+
+let card_to_string c = 
+  (suite_to_string c.suite) ^ (rank_to_string c.rank)
+
+let print_card c ?(background=on_white)= 
+  match c.suite with
+  | Heart
+  | Diamond -> print_string [red; background] (card_to_string c)
+  |Club 
+  |Spade -> print_string [black; background] (card_to_string c)
 
 let compare (x:card) (y:card) = 
   match (suite_to_int x.suite,suite_to_int y.suite) with
