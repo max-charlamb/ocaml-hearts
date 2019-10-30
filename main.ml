@@ -1,12 +1,19 @@
 open Unix
 open ANSITerminal
 open Command
+open Card
+open Partialdeck
 
 let erase print = 
   erase Screen;
   move_cursor 0 (-1);
-  print_string [] (print^"\n");
-  move_cursor 0 1
+  match PartialDeck.full |> PartialDeck.random_card with
+  | Some c -> print_card c;
+    move_cursor 0 1;
+    move_bol ();
+  | None -> failwith "error"
+(* print_string [] (print^"\n"); *)
+
 
 let rec read_line_safe () = 
   match parse (read_line ()) with 
@@ -18,7 +25,7 @@ let rec read_line_safe () =
 
 let rec home_loop state = 
   match read_line_safe () with 
-    c -> erase "Sucsess"; 
+    c -> erase "Succsess"; 
     home_loop state
 
 

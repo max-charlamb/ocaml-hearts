@@ -43,6 +43,6 @@ val rank_to_string: rank -> string
 
 val card_to_string: card -> string
 
-val print_card: card -> ?background:ANSITerminal.style -> unit
+val print_card: ?bckgnd:ANSITerminal.style -> card -> unit
 
 val compare: card -> card -> int

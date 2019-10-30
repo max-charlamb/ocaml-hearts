@@ -60,9 +60,9 @@ let rank_to_string = function
   | Jack -> "J" | Queen -> "Q"  | King -> "K" | Ace -> "A"
 
 let card_to_string c = 
-  (suite_to_string c.suite) ^ (rank_to_string c.rank)
+  (suite_to_string c.suite) ^ " " ^ (rank_to_string c.rank)
 
-let print_card c ?(background=on_white)= 
+let print_card ?bckgnd:(background=on_white) c = 
   match c.suite with
   | Heart
   | Diamond -> print_string [red; background] (card_to_string c)
