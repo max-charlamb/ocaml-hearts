@@ -43,7 +43,7 @@ module PartialDeck:PartialDeckSig = struct
   let to_list t =
     let rec aux t n =
       match t with 
-      | h::t -> (h, n)::[]
+      | h::t -> (h, n)::(aux t (n+1))
       | [] -> []
     in
     aux t 1
