@@ -31,10 +31,9 @@ module Bot : Player.PlayerSig = struct
     }
 
   let play_card player = 
-    let card = match PartialDeck.random_card player.hand with 
-      | None -> failwith ""
-      | x -> x  in 
-    (card, player)
+    match PartialDeck.random_card player.hand with 
+    | None -> failwith ""
+    | x -> x
 
   let pass_cards player = 
     failwith "unimplemented"
