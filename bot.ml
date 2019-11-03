@@ -1,16 +1,7 @@
 open Partialdeck
 open Card
 
-module type PlayerSig = sig 
-
-  type t 
-  val create : string -> t
-  val add_card : Card.card -> t -> t
-  val add_penalty_card : Card.card -> t -> t
-
-end
-
-module Player : PlayerSig = struct
+module Bot : Player.PlayerSig = struct
 
   type t = {
     name : string;
@@ -40,7 +31,10 @@ module Player : PlayerSig = struct
     }
 
   let play_card player = 
-    failwith "unimplemented"
+    let card = match PartialDeck.random_card player.hand with 
+      | None -> failwith ""
+      | x -> x  in 
+    (card, player)
 
   let pass_cards player = 
     failwith "unimplemented"

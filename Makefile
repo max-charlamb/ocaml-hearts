@@ -1,4 +1,4 @@
-MODULES=card partialdeck command
+MODULES=card partialdeck command player bot
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
