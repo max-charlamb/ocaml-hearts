@@ -29,6 +29,12 @@ module type PartialDeckSig = sig
       Raises DuplicateCare if [card] is already in [t2]. *)
   val move : card -> t -> t -> (t * t)
 
+  (** [move i t1 t2] is a tuple of ([t1],[t2]) where the card at index [i] 
+      is moved from [t1] to [t2].
+      Raises CardNotFound if [card] is not in [t1].
+      Raises DuplicateCare if [card] is already in [t2]. *)
+  val move_at_index : int -> t -> t -> (t * t)
+
   (** [mem card t] is true if [card] is in [t], otherwise false. *)
   val mem : card -> t -> bool
 
