@@ -76,6 +76,7 @@ module PartialDeck:PartialDeckSig = struct
     | None -> raise CardNotFound
 
   let random_card t =
+    Random.self_init ();
     if is_empty t then None else Some (List.nth t (Random.int (size t)))
 
   let rec find n t = 
