@@ -105,11 +105,18 @@ module Round:RoundSig = struct
     match deal_round players d with
     | d', p' -> if PartialDeck.is_empty d' then p' else deal_helper p' d'
 
-  let deal t = {
-    t with
-    players = deal_helper t.players PartialDeck.full
-  }
-
+  let deal t = 
+    let players' = deal_helper t.players PartialDeck.full in
+    let new_history = {
+      hands = List.map (fun player -> player.hand) players';
+      pile = t.pile;
+      description = "Cards were dealt."
+    } in
+    {
+      t with
+      players = players';
+      history = ListQueue.push new_history t.history;
+    }
   (** [hand_size t] is the hand size of all the players. Can only be
       called between tricks. If [debug] then fails if not all equal. *)
   let hand_size t = 
@@ -282,11 +289,11 @@ module Round:RoundSig = struct
     }
 
   let hand t id = 
-    let segment =  ListQueue.peek t.history in
-    List.nth segment.hands id
+    let person = List.nth t.players id in 
+    person.hand
 
   let pile t = 
-    (ListQueue.peek t.history).pile
+    t.pile
 
   let description t = 
     (ListQueue.peek t.history).description
