@@ -7,6 +7,7 @@ module type QueueSig = sig
   val pop : 'a t -> 'a t
   val peek : 'a t -> 'a
   val is_empty : 'a t -> bool
+  val size : 'a t -> int
 
 end
 
@@ -50,5 +51,7 @@ module ListQueue:QueueSig = struct
   let is_empty t =
     List.length t.in_list = 0 && List.length t.out_list = 0
 
+  let size t =
+    List.length t.in_list + List.length t.out_list
 
 end 

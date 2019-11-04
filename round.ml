@@ -245,6 +245,6 @@ module Round:RoundSig = struct
     (ListQueue.peek t.history).description
 
   let is_next t =
-    not (ListQueue.is_empty t.history)
+    ListQueue.size t.history > 1
 
 end

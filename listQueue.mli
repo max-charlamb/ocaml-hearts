@@ -18,6 +18,8 @@ module type QueueSig = sig
   (** [is_empty t] is true if [t] is empty, otherwise false. *)
   val is_empty : 'a t -> bool
 
+  (** [size t] is the number of elements in [t]. *)
+  val size : 'a t -> int
 
 end 
 
