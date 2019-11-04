@@ -10,6 +10,7 @@ type command =
   | Help
   | Restart
   | Score
+  | Back
 
 exception Empty
 
@@ -51,6 +52,7 @@ let make_command rest = function
   | "score" -> Score
   | "pass" -> make_pass rest
   | "play" -> make_play rest
+  | "back" -> Back
   | _ -> raise Malformed
 
 let parse s = 
