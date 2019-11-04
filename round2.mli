@@ -8,19 +8,20 @@ module type RoundSig = sig
   type player 
   type t
   type result
-  (* [init] is a new game. *)
-  val init : t
 
-  val add_player : t -> t
+  (** [new_round ()] is a new game. *)
+  val new_round : unit -> t
 
-  (* [deal] deals the cards from a partial deck to all the players. *)
-  val deal : t -> pDeck -> t
+  (* [deal t] deals the cards from a partial deck to all the players. *)
+  val deal : t -> result
 
   (*[play c p] plays the card [c] that player [p] chooses to play.*)
-  val play : int -> player -> t -> result
+  val play : card -> player -> t -> result
 
   (*[pass c p] plays the card [c] that player [p] chooses to play.*)
-  val pass : card list -> t
+  val pass : card list -> player -> t
+
+  val next_step : t -> result
 
 end
 

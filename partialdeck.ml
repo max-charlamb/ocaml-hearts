@@ -9,12 +9,13 @@ module type PartialDeckSig = sig
   val insert : card -> t -> t 
   val remove : card -> t -> t
   val move : card -> t -> t -> (t * t)
+  val move_at_index : int -> t -> t -> (t * t)
   val mem : card -> t -> bool
   val size: t -> int
   val is_empty: t -> bool
   val random_card: t -> card option
-  val to_list: t -> (card* int) list
-  val find: t -> int -> card option
+  val to_list: t -> (card * int) list
+  val find: int -> t -> card option
 
 end
 

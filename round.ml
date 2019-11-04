@@ -1,28 +1,23 @@
 open Card
 open Partialdeck
+open Player
+open Command
 
 module type RoundSig = sig
-  type pDeck
   type player 
   type t
   type result
-  val init : t
+  val new_round : unit -> t
   val add_player : t -> t
-  val deal : t -> pDeck -> t
-  val play : int -> player -> t -> result
-  val pass : card list -> t
+  val deal : t -> t
+  val play : command -> t -> result
+  val pass : command -> t -> result
 end
 
 
-module Round:RoundSig = struct
+module Round = struct
 
-  type pDeck = PartialDeck.t
-
-  type player = {
-    hand : pDeck;
-    score : int;
-    penalty_cards : pDeck;
-  }
+  type player = Player.t
 
   type t = {
     players : player list;
@@ -30,26 +25,17 @@ module Round:RoundSig = struct
     is_over : bool;
   }
 
-  type result = Valid of t | Invalid
+  type result = Valid of t | Invalid of string
 
-  let init = {
-    players = [];
+  let new_round () = {
+    players = [Player.create "Henry"; 
+               Player.create "Bot1"; 
+               Player.create "Bot2"; 
+               Player.create "Bot3"];
     pile = [];
     is_over = false
   }
 
-
-  let add_player t =
-    let p = {
-      hand = PartialDeck.empty;
-      score =  0;
-      penalty_cards = PartialDeck.empty;
-    } in 
-    {
-      players = p :: t.players;
-      pile = t.pile;
-      is_over = t.is_over;
-    }
 
   (* [insert_hand p c] is player [p] with the card [c] inserted into their hand.*)
   let insert_hand (p:player) c = 
@@ -84,9 +70,9 @@ module Round:RoundSig = struct
     match deal_round p d with
     | (p', d') -> if PartialDeck.is_empty d' then p else deal_helper p' d'
 
-  let deal t d = 
+  let deal t = 
     {
-      players = deal_helper t.players d ;
+      players = deal_helper t.players PartialDeck.full ;
       pile = t.pile;
       is_over = t.is_over;
     }

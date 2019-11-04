@@ -1,6 +1,5 @@
 
-MODULES=card partialdeck command game
-master
+MODULES=card partialdeck command round player 
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
