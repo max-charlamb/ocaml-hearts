@@ -18,6 +18,9 @@ module type PartialDeckSig = sig
   val find: int -> t -> card option
   val voided: suite -> t -> bool
   val count_points: t -> int
+  val merge: t -> t -> t
+  val contains_hearts: t -> bool
+  val string_of_partialdeck: t -> string
 
 end
 
@@ -95,5 +98,20 @@ module PartialDeck:PartialDeckSig = struct
          | _ -> acc
       )
       0 t
+
+  let merge t1 t2 =
+    List.fold_left (fun acc c -> insert c acc) t2 t1
+
+  let contains_hearts t = 
+    (t |> List.filter (fun c -> c.suite = Heart) |> List.length) <> 0
+
+  let string_of_partialdeck p = 
+    List.fold_left 
+      (fun acc (c,i) -> 
+         acc ^ "(" ^ (suite_to_string c.suite) ^ 
+         (rank_to_string c.rank) ^ "," ^ (string_of_int i) ^ ")" ^ "; "
+      )
+      ""
+      (to_list p)
 
 end
