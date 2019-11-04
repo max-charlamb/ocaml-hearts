@@ -16,6 +16,7 @@ type command =
   | Help
   | Restart
   | Score 
+  | Back
 
 (** Raised when the user inputs an empty command. *)
 exception Empty

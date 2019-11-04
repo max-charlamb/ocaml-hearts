@@ -82,6 +82,35 @@ module Round:RoundSig = struct
     history = ListQueue.empty;
   }
 
+
+  let insert_hand h p = 
+    {
+      p with
+      hand = h
+    }
+
+  let rec deal_round (players: player list) d = 
+    match (PartialDeck.random_card d, players) with
+    | None, _ -> d, players
+    | Some c, h :: t -> 
+      let changed_d = PartialDeck.move c d h.hand in 
+      let new_deck = changed_d |> fst in
+      let new_hand = changed_d |> snd in
+      let rec_call = deal_round t new_deck in
+      rec_call |> fst , 
+      insert_hand new_hand h :: (rec_call |> snd)
+    | Some _, [] -> d, players
+
+
+  let rec deal_helper players d = 
+    match deal_round players d with
+    | d', p' -> if PartialDeck.is_empty d' then p' else deal_helper p' d'
+
+  let deal t = {
+    t with
+    players = deal_helper t.players PartialDeck.full
+  }
+  
   (** [hand_size t] is the hand size of all the players. Can only be
       called between tricks. If [debug] then fails if not all equal. *)
   let hand_size t = 
@@ -91,9 +120,6 @@ module Round:RoundSig = struct
           (fun player -> PartialDeck.size player.hand = hand_size) t.players
       then hand_size else failwith "player hand sizes are not equal"
     else hand_size
-
-  let deal t = 
-    failwith "unimplemented"
 
   let id_to_name id t = 
     (List.nth t.players id).name
