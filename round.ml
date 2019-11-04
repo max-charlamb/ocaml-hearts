@@ -12,6 +12,9 @@ module type RoundSig = sig
   val deal : t -> t
   val play : command -> t -> result
   val pass : command -> t -> result
+  val hand : t -> int -> PartialDeck.t
+  val pile : t -> (card * int) list
+  val next : t -> t
 end
 
 
@@ -21,14 +24,14 @@ module Round = struct
   exception Default
   exception InvalidCardPlayed
 
+  type action = Play | Lead | Pass
+
   type player = {
     name : int;
     hand : PartialDeck.t;
     score : int;
     p_cards : PartialDeck.t;
   }
-
-  type action = Play | Lead | Pass
 
   type historySegment = {
     hands : PartialDeck.t list;
@@ -47,6 +50,7 @@ module Round = struct
   }
 
   type result = Valid of t | Invalid of string
+
 
   let create_player name = 
     {
@@ -73,7 +77,6 @@ module Round = struct
   let deal t = 
     failwith "unimplemented"
 
-
   let check_voided num card t =
     let user = List.nth t.players num in 
     let leading_suite = (List.hd t.pile |> fst).suite in
@@ -96,6 +99,14 @@ module Round = struct
       | {suite=Spade; rank=Queen}
       | {suite=Heart} -> raise InvalidCardPlayed
       | _ -> ()
+
+  let check_lead_in_turn num card t = 
+    if t.next_action <> Lead || t.next_player <> num then 
+      raise Default
+
+  let check_lead_first_round num card t =
+    if t.first_round && card <> {suite=Club;rank=Two} then 
+      raise Default
 
   let add_to_pile num card t = 
     let pile' = (card, num)::t.pile in
@@ -135,14 +146,17 @@ module Round = struct
         PartialDeck.empty t.pile in
     let hearts_broken' = t.hearts_broken || 
                          PartialDeck.contains_hearts pile_partialdeck in 
-    let players' = List.map 
-        (fun player -> if player.name = winner_name
-          then 
-            {
-              player with 
-              score = player.score + (PartialDeck.count_points pile_partialdeck)
-            } 
-          else player) t.players 
+    let players' = 
+      List.map 
+        (fun player -> 
+           if player.name = winner_name then 
+             {
+               player with 
+               score = player.score + 
+                       (PartialDeck.count_points pile_partialdeck);
+               p_cards = PartialDeck.merge pile_partialdeck player.p_cards;
+             } 
+           else player) t.players 
     in
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
@@ -159,15 +173,6 @@ module Round = struct
       hearts_broken = hearts_broken';
       history = ListQueue.push new_history t.history;
     }
-
-  let check_lead_in_turn num card t = 
-    if t.next_action <> Lead || t.next_player <> num then 
-      raise Default
-
-  let check_lead_first_round num card t =
-    if t.first_round && card <> {suite=Club;rank=Two} then 
-      raise Default
-
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
@@ -210,5 +215,18 @@ module Round = struct
 
 
   let pass c = failwith "uni"
+
+  let next t = 
+    {
+      t with 
+      history = ListQueue.pop t.history;
+    }
+
+  let hand num t = 
+    let segment =  ListQueue.peek t.history in
+    List.nth segment.hands num
+
+  let pile  t = 
+    (ListQueue.peek t.history).pile
 
 end
