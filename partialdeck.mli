@@ -58,6 +58,9 @@ module type PartialDeckSig = sig
   (** [voided suite t] is true if there are none of suite in [t]. *)
   val voided: suite -> t -> bool
 
+  (** [count_points t] is the number of points in partial deck [t]. *)
+  val count_points: t -> int
+
 end
 
 module PartialDeck:PartialDeckSig

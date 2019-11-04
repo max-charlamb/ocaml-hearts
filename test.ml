@@ -2,7 +2,6 @@ open OUnit2
 open Card
 open Partialdeck
 open Command
-open Game
 
 (* Card Tests *)
 
@@ -41,6 +40,12 @@ let partialdecktests = [
       assert_equal 2 (List.length (PartialDeck.to_list deck1)));
   "to_list02" >:: (fun _ ->
       assert_equal 52 (List.length (PartialDeck.to_list deck4)));
+  "count_points01" >:: (fun _ ->
+      assert_equal (PartialDeck.count_points PartialDeck.full) 16
+        ~printer:string_of_int);
+  "count_points02" >:: (fun _ ->
+      assert_equal (PartialDeck.count_points deck3) 0
+        ~printer:string_of_int);
 ]
 
 (* Command Tests *)
@@ -56,13 +61,6 @@ let commandtests = [
                         (fun () -> (parse "play t")));
 ]
 
-let game1 = SingleGame.init
-let game2 = SingleGame.add_player
-let game3 = SingleGame.add_player
-let game4 = SingleGame.add_player
-let game5 = SingleGame.add_player
-
-let gametests = []
 
 let suite =
   "test suite for Hearts"  >::: List.flatten [

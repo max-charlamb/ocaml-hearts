@@ -17,6 +17,7 @@ module type PartialDeckSig = sig
   val to_list: t -> (card * int) list
   val find: int -> t -> card option
   val voided: suite -> t -> bool
+  val count_points: t -> int
 
 end
 
@@ -83,5 +84,16 @@ module PartialDeck:PartialDeckSig = struct
     match List.filter (fun c -> c.suite = s) t |> List.length with
     | 0 -> true
     | _ -> false
+
+  let count_points t =
+    List.fold_left 
+      (fun acc card -> 
+         match card with 
+         | {suite=Heart} -> acc + 1
+         | {suite=Spade;rank=Queen} -> acc + 13
+         | {suite=Diamond; rank=Ten} -> acc - 10
+         | _ -> acc
+      )
+      0 t
 
 end
