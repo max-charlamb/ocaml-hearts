@@ -15,6 +15,7 @@ type command =
   | Play of index
   | Help
   | Restart
+  | Score 
 
 (** Raised when the user inputs an empty command. *)
 exception Empty

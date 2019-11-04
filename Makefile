@@ -1,4 +1,5 @@
-MODULES=card partialdeck game
+
+MODULES=card partialdeck command game
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)

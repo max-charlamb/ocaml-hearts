@@ -5,27 +5,16 @@ module type PartialDeckSig = sig
   type t
 
   val empty : t 
-
   val full : t
-
   val insert : card -> t -> t 
-
   val remove : card -> t -> t
-
   val move : card -> t -> t -> (t * t)
-
   val mem : card -> t -> bool
-
   val size: t -> int
-
   val is_empty: t -> bool
-
   val random_card: t -> card option
-
-  val to_list: t -> card list
-
-  val find: int -> t -> card option
-
+  val to_list: t -> (card* int) list
+  val find: t -> int -> card option
 
 end
 
@@ -39,7 +28,7 @@ module PartialDeck:PartialDeckSig = struct
     List.mem card t 
 
   let insert card (t:t) = 
-    if mem card t then raise DuplicateCard else card :: t
+    if mem card t then raise DuplicateCard else (card :: t) |> List.sort compare
 
   let empty = []
 
@@ -52,7 +41,15 @@ module PartialDeck:PartialDeckSig = struct
     aux 14 Spade empty |> aux 14 Heart |> aux 14 Diamond |> aux 14 Club
 
   let to_list t =
-    List.sort compare t
+    let rec aux t n =
+      match t with 
+      | h::t -> (h, n)::(aux t (n+1))
+      | [] -> []
+    in
+    aux t 1
+
+  let find t n = 
+    List.nth_opt t n
 
   let size t =
     List.length t

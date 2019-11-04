@@ -42,12 +42,12 @@ module type PartialDeckSig = sig
       None if [t] is empty. *)
   val random_card: t -> card option
 
-  (** [find n t] is the [n]th card of [t]. 
-      None if the list is not long enough. *)
-  val find: int -> t -> card option
+  (** [to_list t] is a list of the cards in [t] in a tuple with their index. *)
+  val to_list: t -> (card * int) list
 
-  (** [to_list t] is a list of the cards in [t]. *)
-  val to_list: t -> card list
+  (** [find t i] is the [i]th Some card, 
+      if the [i]th card does not exist, None.*)
+  val find: t -> int -> card option
 
 
 end
