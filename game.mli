@@ -2,12 +2,12 @@ open Card
 open Partialdeck
 
 
+
 module type SingleGameSig = sig
   type pDeck
   type player 
   type t
   type result
-
   (* [init] is a new game. *)
   val init : t
 
@@ -25,3 +25,5 @@ module type SingleGameSig = sig
 end
 
 module SingleGame:SingleGameSig
+
+

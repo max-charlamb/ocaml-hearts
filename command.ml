@@ -1,3 +1,4 @@
+
 type index = int
 
 type card_triple = index * index * index 
@@ -8,6 +9,7 @@ type command =
   | Play of index
   | Help
   | Restart
+  | Score
 
 exception Empty
 
@@ -17,7 +19,7 @@ exception InvalidIndex
 
 let get_first = function 
   | [] -> raise Empty
-  | h :: t -> h
+  | h :: t -> if h = "" then raise Empty else h
 
 let get_rest = function 
   | [] -> raise Empty
@@ -46,6 +48,7 @@ let make_command rest = function
   | "quit" -> Quit
   | "help" -> Help
   | "restart" -> Restart
+  | "score" -> Score
   | "pass" -> make_pass rest
   | "play" -> make_play rest
   | _ -> raise Malformed

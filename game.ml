@@ -1,18 +1,18 @@
 open Card
 open Partialdeck
 
-module type SingleGameSig = sig
+module type GameSig = sig
   type pDeck
   type player 
   type t
   type result
-
   val init : t
   val add_player : t -> t
   val deal : t -> pDeck -> t
   val play : int -> player -> t -> result
   val pass : card list -> t
 end
+
 
 module SingleGame:SingleGameSig = struct
 
@@ -37,6 +37,7 @@ module SingleGame:SingleGameSig = struct
     pile = [];
     is_over = false
   }
+
 
   let add_player t =
     let p = {
@@ -102,7 +103,3 @@ module SingleGame:SingleGameSig = struct
       pile = (c,p) :: g.pile;
       is_over = g.is_over;
      } *)
-
-  let pass c = failwith "unImplemented"
-
-end
