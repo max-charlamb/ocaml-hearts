@@ -2,6 +2,7 @@ open OUnit2
 open Card
 open Partialdeck
 open Command
+open Game
 
 (* Card Tests *)
 
@@ -55,6 +56,13 @@ let commandtests = [
                         (fun () -> (parse "play t")));
 ]
 
+let game1 = SingleGame.init
+let game2 = SingleGame.add_player
+let game3 = SingleGame.add_player
+let game4 = SingleGame.add_player
+let game5 = SingleGame.add_player
+
+let gametests = []
 
 let suite =
   "test suite for Hearts"  >::: List.flatten [
