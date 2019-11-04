@@ -30,12 +30,12 @@ module Bot : Player.PlayerSig = struct
       penalty_cards = PartialDeck.insert card player.penalty_cards
     }
 
-  let play_card player = 
+  let play_card player index = 
     match PartialDeck.random_card player.hand with 
     | None -> failwith ""
     | Some x -> x
 
-  let pass_cards player = 
+  let pass_cards player index = 
     failwith "unimplemented"
 
 end

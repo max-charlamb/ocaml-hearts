@@ -7,8 +7,8 @@ module type PlayerSig = sig
   val create : string -> t
   val add_card : Card.card -> t -> t
   val add_penalty_card : Card.card -> t -> t
-  val play_card : t -> Card.card 
-  val pass_cards : t -> (Card.card * Card.card * Card.card)
+  val play_card : t -> int -> Card.card 
+  val pass_cards : t -> (int * int *int) -> (Card.card * Card.card * Card.card)
 
 
 end
@@ -42,10 +42,10 @@ module Player : PlayerSig = struct
       penalty_cards = PartialDeck.insert card player.penalty_cards
     }
 
-  let play_card player = 
+  let play_card player index = 
     failwith "unimplemented"
 
-  let pass_cards player = 
+  let pass_cards player inds = 
     failwith "unimplemented"
 
 end

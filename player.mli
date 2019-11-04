@@ -15,13 +15,13 @@ module type PlayerSig = sig
       its penalty hand. *)
   val add_penalty_card : Card.card -> t -> t
 
-  (** [play_card player] is a card from the hand of [player]. *)
-  val play_card : t -> Card.card
+  (** [play_card player index] is a card from the hand of [player]. *)
+  val play_card : t -> int -> Card.card 
 
 
-  (** [pass_cards player] is a triple of cards that [player] has elected to 
-      pass. *)
-  val pass_cards : t -> (Card.card * Card.card * Card.card)
+  (** [pass_cards player inds] is a triple of cards that [player] has 
+      elected to pass. *)
+  val pass_cards : t -> (int * int *int) -> (Card.card * Card.card * Card.card)
 
 end
 
