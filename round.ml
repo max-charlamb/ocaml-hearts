@@ -4,23 +4,24 @@ open Command
 open Bot
 open ListQueue
 
+
+
 module type RoundSig = sig
-  type player 
   type t
-  type result
-  val new_round : unit -> t
+  type result = Valid of t | Invalid of string
+  val new_round : t
   val deal : t -> t
-  val play : command -> t -> result
-  val pass : command -> t -> result
+  val play : card -> t -> result
+  val pass : card list -> t -> result
   val hand : t -> int -> PartialDeck.t
   val pile : t -> (card * int) list
   val next : t -> t
   val description : t -> string
+  val is_next : t -> bool
 end
 
 
-
-module Round = struct
+module Round:RoundSig = struct
 
   exception Default
   exception InvalidCardPlayed
@@ -64,7 +65,7 @@ module Round = struct
       p_cards = PartialDeck.empty;
     }
 
-  let new_round () = {
+  let new_round = {
     players = [create_player "Henry" 0; 
                create_player "Bot1" 1; 
                create_player "Bot2" 2; 
@@ -233,7 +234,7 @@ module Round = struct
       history = ListQueue.pop t.history;
     }
 
-  let hand id t = 
+  let hand t id = 
     let segment =  ListQueue.peek t.history in
     List.nth segment.hands id
 
@@ -242,5 +243,8 @@ module Round = struct
 
   let description t = 
     (ListQueue.peek t.history).description
+
+  let is_next t =
+    not (ListQueue.is_empty t.history)
 
 end

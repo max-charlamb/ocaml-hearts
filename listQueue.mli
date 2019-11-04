@@ -1,5 +1,5 @@
 
-module type ListQueueSig = sig
+module type QueueSig = sig
 
   type 'a t
 
@@ -22,4 +22,4 @@ module type ListQueueSig = sig
 end 
 
 
-module ListQueue:ListQueueSig
+module ListQueue:QueueSig
