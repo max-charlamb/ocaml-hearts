@@ -3,7 +3,7 @@ open Partialdeck
 
 
 
-module type SingleGameSig = sig
+module type RoundSig = sig
   type pDeck
   type player 
   type t
@@ -24,6 +24,6 @@ module type SingleGameSig = sig
 
 end
 
-module SingleGame:SingleGameSig
+module Round:RoundSig
 
 

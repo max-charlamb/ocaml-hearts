@@ -1,7 +1,7 @@
 open Card
 open Partialdeck
 
-module type GameSig = sig
+module type RoundSig = sig
   type pDeck
   type player 
   type t
@@ -14,7 +14,7 @@ module type GameSig = sig
 end
 
 
-module SingleGame:SingleGameSig = struct
+module Round:RoundSig = struct
 
   type pDeck = PartialDeck.t
 
@@ -103,3 +103,7 @@ module SingleGame:SingleGameSig = struct
       pile = (c,p) :: g.pile;
       is_over = g.is_over;
      } *)
+
+  let pass c = failwith"uni"
+
+end
