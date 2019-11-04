@@ -15,6 +15,7 @@ module type RoundSig = sig
   val hand : t -> int -> PartialDeck.t
   val pile : t -> (card * int) list
   val next : t -> t
+  val description : t -> string
 end
 
 
@@ -27,7 +28,8 @@ module Round = struct
   type action = Play | Lead | Pass
 
   type player = {
-    name : int;
+    name : string;
+    id : int;
     hand : PartialDeck.t;
     score : int;
     p_cards : PartialDeck.t;
@@ -36,6 +38,7 @@ module Round = struct
   type historySegment = {
     hands : PartialDeck.t list;
     pile : (card * int) list;
+    description : string;
   }
 
   type t = {
@@ -52,19 +55,20 @@ module Round = struct
   type result = Valid of t | Invalid of string
 
 
-  let create_player name = 
+  let create_player name id = 
     {
       name = name;
+      id = id;
       hand = PartialDeck.empty;
       score = 0;
       p_cards = PartialDeck.empty;
     }
 
   let new_round () = {
-    players = [create_player 0; 
-               create_player 1; 
-               create_player 2; 
-               create_player 3];
+    players = [create_player "Henry" 0; 
+               create_player "Bot1" 1; 
+               create_player "Bot2" 2; 
+               create_player "Bot3" 3];
     pile = [];
     is_over = false;
     hearts_broken = false;
@@ -77,41 +81,44 @@ module Round = struct
   let deal t = 
     failwith "unimplemented"
 
-  let check_voided num card t =
-    let user = List.nth t.players num in 
+  let id_to_name id t = 
+    (List.nth t.players id).name
+
+  let check_voided id card t =
+    let user = List.nth t.players id in 
     let leading_suite = (List.hd t.pile |> fst).suite in
     if card.suite <> leading_suite && 
        not (PartialDeck.voided leading_suite user.hand) then 
       raise Default
 
-  let check_in_hand num card t =
-    let user = List.nth t.players num in 
+  let check_in_hand id card t =
+    let user = List.nth t.players id in 
     if PartialDeck.mem card user.hand then
       raise Default
 
-  let check_play_in_turn num card t = 
-    if t.next_player <> num || t.next_action <> Play then 
+  let check_play_in_turn id card t = 
+    if t.next_player <> id || t.next_action <> Play then 
       raise Default
 
-  let check_play_first_round num card t = 
+  let check_play_first_round id card t = 
     if t.first_round then 
       match card with
       | {suite=Spade; rank=Queen}
       | {suite=Heart} -> raise InvalidCardPlayed
       | _ -> ()
 
-  let check_lead_in_turn num card t = 
-    if t.next_action <> Lead || t.next_player <> num then 
+  let check_lead_in_turn id card t = 
+    if t.next_action <> Lead || t.next_player <> id then 
       raise Default
 
-  let check_lead_first_round num card t =
+  let check_lead_first_round id card t =
     if t.first_round && card <> {suite=Club;rank=Two} then 
       raise Default
 
-  let add_to_pile num card t = 
-    let pile' = (card, num)::t.pile in
+  let add_to_pile id card t = 
+    let pile' = (card, id)::t.pile in
     let players' = List.map 
-        (fun player -> if player.name = num then 
+        (fun player -> if player.id = id then 
             {
               player with
               hand = PartialDeck.remove card player.hand
@@ -119,6 +126,8 @@ module Round = struct
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = pile';
+      description = (id_to_name id t) ^ " played the " 
+                    ^ card_to_string card ^ "."
     } in
     {
       t with 
@@ -138,9 +147,9 @@ module Round = struct
 
   let clean_up_trick t = 
     let leading_suite = (List.hd t.pile |> fst).suite in
-    let winner_name = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
-                      |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
-                      |> List.rev |> List.hd |> snd in
+    let winner = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
+                 |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
+                 |> List.rev |> List.hd in
     let pile_partialdeck = List.fold_left 
         (fun p (c,_) -> PartialDeck.insert c p) 
         PartialDeck.empty t.pile in
@@ -149,7 +158,7 @@ module Round = struct
     let players' = 
       List.map 
         (fun player -> 
-           if player.name = winner_name then 
+           if player.id = snd winner then 
              {
                player with 
                score = player.score + 
@@ -161,6 +170,8 @@ module Round = struct
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = [];
+      description = (id_to_name (snd winner) t) ^ " won the trick with a " 
+                    ^ card_to_string (fst winner) ^ ".";
     }
     in
     {
@@ -168,7 +179,7 @@ module Round = struct
       pile = [];
       players = players';
       next_action = Lead;
-      next_player = winner_name;
+      next_player = snd winner;
       first_round = false;
       hearts_broken = hearts_broken';
       history = ListQueue.push new_history t.history;
@@ -181,21 +192,21 @@ module Round = struct
     | (Lead,_) -> internal_play t.next_player (Bot.lead t) t
     | (Pass,_) -> t
   and 
-    internal_play num card t =
-    check_play_in_turn num card t; 
-    check_in_hand num card t;
-    check_voided num card t;
-    check_play_first_round num card t;
-    let t' = add_to_pile num card t in
+    internal_play id card t =
+    check_play_in_turn id card t; 
+    check_in_hand id card t;
+    check_voided id card t;
+    check_play_first_round id card t;
+    let t' = add_to_pile id card t in
     if List.length t'.pile >= 4
     then clean_up_trick t' |> bot_actions 
     else increment_actions_play t' |> bot_actions
   and 
-    internal_lead num card t = 
-    check_lead_in_turn num card t;
-    check_lead_first_round num card t;
-    check_in_hand num card t;
-    let t' = add_to_pile num card t in
+    internal_lead id card t = 
+    check_lead_in_turn id card t;
+    check_lead_first_round id card t;
+    check_in_hand id card t;
+    let t' = add_to_pile id card t in
     if List.length t'.pile >= 4
     then clean_up_trick t' |> bot_actions 
     else increment_actions_play t' |> bot_actions
@@ -222,11 +233,14 @@ module Round = struct
       history = ListQueue.pop t.history;
     }
 
-  let hand num t = 
+  let hand id t = 
     let segment =  ListQueue.peek t.history in
-    List.nth segment.hands num
+    List.nth segment.hands id
 
-  let pile  t = 
+  let pile t = 
     (ListQueue.peek t.history).pile
+
+  let description t = 
+    (ListQueue.peek t.history).description
 
 end
