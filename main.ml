@@ -98,6 +98,8 @@ let rec display_history state =
     print_hand (match Round.hand new_state 0 with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
+    set_cursor (w/2) (h/2);
+    print_string [on_black; white] (Round.description new_state);
     set_cursor (1) (2*h/3);
     display_history new_state;
   else ()
@@ -161,7 +163,7 @@ let rec home_loop state =
   | Start -> erase "Start"; let (w,h) = size () in 
     print_pile (match Round.pile state with 
         | exception Failure _ -> []
-        | x -> let () = print_int (List.length x) in x ) (w/2) (2*h/3);
+        | x ->  x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
     print_hand (match Round.hand state 0 with 
