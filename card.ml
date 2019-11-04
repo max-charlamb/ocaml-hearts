@@ -77,10 +77,11 @@ let print_card ?bckgnd:(background=on_white) c =
 
 let print_card_tall c = 
   let x, y = pos_cursor () in
-  print_string [on_white] "     ";
-  move_cursor (-5) 1;
+  print_string [on_white] "    ";
+  move_cursor (-4) 1;
   print_card c;
-  print_string [on_white] "     ";
+  move_cursor (-4) 1;
+  print_string [on_white] "    ";
   set_cursor x y
 
 

@@ -39,8 +39,7 @@ let print_pile lst_cards x y =
   let rec aux lst_cards = 
     match lst_cards with 
     | (c, i) :: t -> let () = let (w, h) = size () in adjust_cursor w h i in
-      print_card c;
-      print_string [on_white;black] (" ");
+      print_card_tall c;
       aux t 
     | [] -> ()
   in save_cursor ();
