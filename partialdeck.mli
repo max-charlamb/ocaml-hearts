@@ -7,8 +7,6 @@ or as a full deck.
 
 module type PartialDeckSig = sig
 
-
-
   type t
 
   (** [empty] is an empty partial deck. *)
@@ -31,6 +29,12 @@ module type PartialDeckSig = sig
       Raises DuplicateCare if [card] is already in [t2]. *)
   val move : card -> t -> t -> (t * t)
 
+  (** [move i t1 t2] is a tuple of ([t1],[t2]) where the card at index [i] 
+      is moved from [t1] to [t2].
+      Raises CardNotFound if [card] is not in [t1].
+      Raises DuplicateCare if [card] is already in [t2]. *)
+  val move_at_index : int -> t -> t -> (t * t)
+
   (** [mem card t] is true if [card] is in [t], otherwise false. *)
   val mem : card -> t -> bool
 
@@ -45,7 +49,7 @@ module type PartialDeckSig = sig
   val random_card: t -> card option
 
   (** [to_list t] is a list of the cards in [t] in a tuple with their index. *)
-  val to_list: t -> (card* int) list
+  val to_list: t -> (card * int) list
 
   (** [find t i] is the [i]th Some card, 
       if the [i]th card does not exist, None.*)
