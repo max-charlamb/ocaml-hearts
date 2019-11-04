@@ -1,6 +1,7 @@
 open Card
 open Partialdeck
 open Command
+open Bot
 
 module type RoundSig = sig
   type player 
@@ -14,30 +15,52 @@ module type RoundSig = sig
 end
 
 
+
 module Round = struct
 
+  exception Default
+  exception InvalidCardPlayed
+
   type player = {
-    name : string;
+    name : int;
     hand : PartialDeck.t;
     score : int;
     p_cards : PartialDeck.t;
   }
 
+  type action = Play | Lead | Pass
+
   type t = {
     players : player list;
-    pile : (card * player) list;
+    pile : (card * int) list;
     is_over : bool;
+    hearts_played: bool;
+    first_round: bool;
+    next_player: int;
+    next_action: action;
   }
 
   type result = Valid of t | Invalid of string
 
+  let create_player name = 
+    {
+      id = name;
+      hand = PartialDeck.empty;
+      score = 0;
+      p_cards = PartialDeck.empty;
+    }
+
   let new_round () = {
-    players = [Player.create "Henry"; 
-               Player.create "Bot1"; 
-               Player.create "Bot2"; 
-               Player.create "Bot3"];
+    players = [create_player 0; 
+               create_player 1; 
+               create_player 2; 
+               create_player 3];
     pile = [];
-    is_over = false
+    is_over = false;
+    hearts_played = false;
+    first_round = true;
+    next_player = 0;
+    next_action = Lead;
   }
 
 
@@ -83,12 +106,86 @@ module Round = struct
 
   let player_helper = ""
 
-  let play card t = 
-    let user = List.nth t.players 0 in 
-    if List.
+
+  let check_voided num card t =
+    let user = List.nth t.players num in 
+    let leading_suite = (List.hd t.pile |> fst).suite in
+    if card.suite <> leading_suite && 
+       not (PartialDeck.voided leading_suite user.hand) then 
+      raise Default
+
+  let check_in_hand num card t =
+    let user = List.nth t.players num in 
+    if PartialDeck.mem card user.hand then
+      raise Default
+
+  let check_play_in_turn num card t = 
+    if t.next_player <> num || t.next_action <> Play then 
+      raise Default
+
+  let check_first_round num card t = 
+    if t.first_round then 
+      match card with
+      | {suite=Spade; rank=Queen}
+      | {suite=Heart} -> raise InvalidCardPlayed
+      | _ -> ()
+
+  let add_to_pile num card t = 
+    let players' = List.map 
+        (fun player -> if player.id = num then 
+            {
+              player with
+              hand = PartialDeck.remove card player.hand
+            } else player) t.players in
+    let pile' = (card, num)::t.pile in
+    {
+      t with 
+      pile = pile';
+      players = players';
+    }
+
+  let increment_actions_play t = 
+    match t.next_player with 
+    | 3 when List.length t.pile < 4 -> 
+      {t with next_player=0}
+    | _ when List.length t.pile < 4 ->  
+      {t with next_player=(t.next_player + 1)}
+    | _ -> 
+      raise Default
+
+  let clean_up_trick t = 
+    t
+
+  let rec bot_actions t = 
+    match t.next_action,t.next_player with 
+    | (_,0) -> t
+    | (Play,_) -> internal_play t.next_player (Bot.play t) t
+    | (Lead,_) -> t
+    | (Pass,_) -> t
+  and 
+    internal_play num card t =
+    check_play_in_turn num card t; 
+    check_in_hand num card t;
+    check_voided num card t;
+    check_first_round num card t;
+    let t' = add_to_pile num card t in
+    if List.length t'.pile >= 4
+    then clean_up_trick t' |> bot_actions 
+    else increment_actions_play t' |> bot_actions
+
+  let play ?user:(num=0) card t =
+    match internal_play num card t with 
+    | exception Default -> Invalid "somethign went wrong" 
+    | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
+    | t -> Valid t
 
 
 
-         let pass c = failwith "uni"
+
+  let lead card t = failwith "uni"
+
+
+
+  let pass c = failwith "uni"
 
 end

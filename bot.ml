@@ -7,6 +7,6 @@ module Bot = struct
     Command.Pass (1,2,3)
 
   let play state = 
-    Command.Play (1)
+    {suite=Heart;rank=King}
 
 end

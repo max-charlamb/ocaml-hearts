@@ -1,5 +1,5 @@
 
-MODULES=card partialdeck command round player 
+MODULES=card partialdeck command round player bot
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)

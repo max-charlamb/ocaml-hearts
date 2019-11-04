@@ -55,6 +55,8 @@ module type PartialDeckSig = sig
       if the [i]th card does not exist, None.*)
   val find: int -> t -> card option
 
+  (** [voided suite t] is true if there are none of suite in [t]. *)
+  val voided: suite -> t -> bool
 
 end
 

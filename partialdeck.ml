@@ -16,6 +16,7 @@ module type PartialDeckSig = sig
   val random_card: t -> card option
   val to_list: t -> (card * int) list
   val find: int -> t -> card option
+  val voided: suite -> t -> bool
 
 end
 
@@ -77,4 +78,10 @@ module PartialDeck:PartialDeckSig = struct
     match t with
     | [] -> None
     | h :: t -> if n = 0 then Some h else find (n-1) t
+
+  let voided s t =
+    match List.filter (fun c -> c.suite = s) t |> List.length with
+    | 0 -> true
+    | _ -> false
+
 end
