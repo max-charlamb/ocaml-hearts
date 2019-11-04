@@ -1,6 +1,5 @@
 open Card
 open Partialdeck
-open Player
 open Command
 
 module type RoundSig = sig
@@ -17,7 +16,12 @@ end
 
 module Round = struct
 
-  type player = Player.t
+  type player = {
+    name : string;
+    hand : PartialDeck.t;
+    score : int;
+    p_cards : PartialDeck.t;
+  }
 
   type t = {
     players : player list;
@@ -79,17 +83,12 @@ module Round = struct
 
   let player_helper = ""
 
-  let play n p g = Invalid
-  (* match PartialDeck.find n p.hand with 
-     | None -> Invalid
-     | Some c -> 
-     let new_hand = PartialDeck.remove c p.hand in
-     Valid {
-      players = g.players;
-      pile = (c,p) :: g.pile;
-      is_over = g.is_over;
-     } *)
+  let play card t = 
+    let user = List.nth t.players 0 in 
+    if List.
 
-  let pass c = failwith"uni"
+
+
+         let pass c = failwith "uni"
 
 end
