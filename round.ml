@@ -82,6 +82,7 @@ module Round:RoundSig = struct
     history = ListQueue.empty;
   }
 
+
   let insert_hand h p = 
     {
       p with
@@ -109,10 +110,10 @@ module Round:RoundSig = struct
     t with
     players = deal_helper t.players PartialDeck.full
   }
-
-  (** [get_hand_size t] is the hand size of all the players. Can only be
+  
+  (** [hand_size t] is the hand size of all the players. Can only be
       called between tricks. If [debug] then fails if not all equal. *)
-  let get_hand_size t = 
+  let hand_size t = 
     let hand_size = PartialDeck.size (List.hd t.players).hand in
     if debug then 
       if List.for_all 
@@ -189,7 +190,8 @@ module Round:RoundSig = struct
       t 
       (* TODO: implement what to do when hand size is over*)
     else
-      let leading_suite = (List.nth pile ((List.length pile) - 1) |> fst).suite in
+      let leading_suite = 
+        (List.nth t.pile ((List.length t.pile) - 1) |> fst).suite in
       let winner = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
                    |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
                    |> List.rev |> List.hd in
@@ -231,8 +233,12 @@ module Round:RoundSig = struct
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
     | (_,0) -> t
-    | (Play,id) -> internal_play t.next_player (Bot.play t id) t
-    | (Lead,id) -> internal_play t.next_player (Bot.lead t id) t
+    | (Play,id) -> 
+      internal_play t.next_player 
+        (Bot.play (List.nth t.players id).hand t.pile) t
+    | (Lead,id) -> 
+      internal_lead t.next_player 
+        (Bot.lead (List.nth t.players id).hand t.pile) t
     | (Pass,_) -> t
   and 
     internal_play id card t =

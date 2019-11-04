@@ -1,19 +1,16 @@
 open Partialdeck
 open Card
-open Round
 
 module type BotSig = sig 
 
-  val play : Round.t -> int -> card
-  val lead : Round.t -> int -> card
+  val play : PartialDeck.t -> (card * int) list -> card
+  val lead : PartialDeck.t -> (card * int) list -> card
 
 end
 
-module Bot = struct
+module Bot:BotSig = struct
 
-  let play state id = 
-    let hand = Round.bot_hand state id in
-    let pile = Round.bot_pile state in
+  let play hand pile = 
     let pile_suite = (List.nth pile ((List.length pile) - 1) |> fst).suite in
     match PartialDeck.lowest hand pile_suite with
     | exception CardNotFound ->
@@ -41,8 +38,7 @@ module Bot = struct
     | c -> c
 
 
-  let lead state id = 
-    let hand = Round.bot_hand state id in
+  let lead hand pile = 
     match PartialDeck.lowest hand Club with
     | exception CardNotFound ->
       begin 
