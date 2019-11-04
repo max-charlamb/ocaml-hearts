@@ -79,8 +79,33 @@ module Round:RoundSig = struct
     history = ListQueue.empty;
   }
 
-  let deal t = 
-    failwith "unimplemented"
+  let insert_hand h p = 
+    {
+      p with
+      hand = h
+    }
+
+  let rec deal_round (players: player list) d = 
+    match (PartialDeck.random_card d, players) with
+    | None, _ -> d, players
+    | Some c, h :: t -> 
+      let changed_d = PartialDeck.move c d h.hand in 
+      let new_deck = changed_d |> fst in
+      let new_hand = changed_d |> snd in
+      let rec_call = deal_round t new_deck in
+      rec_call |> fst , 
+      insert_hand new_hand h :: (rec_call |> snd)
+    | Some _, [] -> d, players
+
+
+  let rec deal_helper players d = 
+    match deal_round players d with
+    | d', p' -> if PartialDeck.is_empty d' then p' else deal_helper p' d'
+
+  let deal t = {
+    t with
+    players = deal_helper t.players PartialDeck.full
+  }
 
   let id_to_name id t = 
     (List.nth t.players id).name
