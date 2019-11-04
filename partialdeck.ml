@@ -64,6 +64,11 @@ module PartialDeck:PartialDeckSig = struct
   let move card t1 t2 =
     (remove card t1, insert card t2)
 
+  let move_at_index i t1 t2 =
+    match List.nth_opt (to_list t1) (i-1) with
+    | Some (card, index) -> (remove card t1, insert card t2)
+    | None -> raise CardNotFound
+
   let random_card t =
     if is_empty t then None else Some (List.nth t (Random.int (size t)))
 
