@@ -44,7 +44,7 @@ module Round = struct
 
   let create_player name = 
     {
-      id = name;
+      name = name;
       hand = PartialDeck.empty;
       score = 0;
       p_cards = PartialDeck.empty;
@@ -154,7 +154,30 @@ module Round = struct
       raise Default
 
   let clean_up_trick t = 
-    t
+    let leading_suite = (List.hd t.pile |> fst).suite in
+    let winner_name = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
+                      |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
+                      |> List.rev |> List.hd |> snd in
+    let p = List.fold_left 
+        (fun p (c,_) -> PartialDeck.insert c p) 
+        PartialDeck.empty t.pile in
+    let players' = List.map 
+        (fun player -> if player.name = winner_name
+          then 
+            {
+              player with 
+              score = player.score + (PartialDeck.count_points p)
+            } 
+          else player) 
+    in
+    {
+      t with
+      pile = [];
+      players = players';
+      next_action = Lead;
+      next_player = winner_name;
+    }
+
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
@@ -173,8 +196,8 @@ module Round = struct
     then clean_up_trick t' |> bot_actions 
     else increment_actions_play t' |> bot_actions
 
-  let play ?user:(num=0) card t =
-    match internal_play num card t with 
+  let play card t =
+    match internal_play 0 card t with 
     | exception Default -> Invalid "somethign went wrong" 
     | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
     | t -> Valid t
