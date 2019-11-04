@@ -3,6 +3,7 @@ open ANSITerminal
 open Command
 open Card
 open Partialdeck
+open Round
 
 
 let hand = PartialDeck.empty |> PartialDeck.insert {rank = Three; suite = Spade}
@@ -24,16 +25,19 @@ let print_hand d x y =
   aux (PartialDeck.to_list d);
   restore_cursor ()
 
+
+let adjust_cursor w h i = 
+  match i with 
+  | 0 -> set_cursor (w/2) (h/2)
+  | 1 -> set_cursor (w/3) (h/3)
+  | 2 -> set_cursor (w/2) (h/4)
+  | 3 -> set_cursor (2*w/3) (h/3)
+  | _ -> failwith ""
+
 let print_pile lst_cards x y = 
   let rec aux lst_cards = 
     match lst_cards with 
-    | (c, i) :: t -> let () = let (w, h) = size () in match i with 
-      | 0 -> set_cursor (w/2) (h/2)
-      | 1 -> set_cursor (w/3) (h/3)
-      | 2 -> set_cursor (w/2) (h/4)
-      | 3 -> set_cursor (2*w/3) (h/3)
-      | _ -> failwith ""
-      in
+    | (c, i) :: t -> let () = let (w, h) = size () in adjust_cursor w h i in
       print_card c;
       print_string [on_white;black] (" ");
       aux t 
@@ -56,7 +60,8 @@ let print_help_menu () =
   set_cursor (1) (h/3);
   print_string [red; on_white] "\nRules of Hearts: ";
   set_cursor (1) (h/5);
-  print_string [red; on_white] "Commands: \n    score, restart, quit, help, back, play [index]";
+  print_string [red; on_white] 
+    "Commands: \n    score, restart, quit, help, back, play [index]";
   set_cursor 1 (h/2)
 
 
@@ -92,10 +97,10 @@ let rec home_loop state =
     home_loop  state
   | Play (i) -> erase "Play";
     let (w,h) = size () in 
-    print_pile midpile (w/2) (h/2);
+    print_pile (Round.pile state) (w/2) (h/2);
     let (w,h) = size () in
     set_cursor (1) (h/2);
-    print_hand hand i 1;
+    print_hand (Round.hand state 0) i 1;
     let (w,h) = size () in
     set_cursor (1) (h/2);
     home_loop state
@@ -125,7 +130,7 @@ let main () =
   print_start_menu ();
   Unix.sleep 1;
   ANSITerminal.erase Screen;
-  home_loop 1
+  Round.new_round |> Round.deal |> home_loop
 
 
 let () = main ()
