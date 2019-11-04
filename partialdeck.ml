@@ -21,7 +21,7 @@ module type PartialDeckSig = sig
   val merge: t -> t -> t
   val contains_hearts: t -> bool
   val string_of_partialdeck: t -> string
-
+  val lowest: t -> suite -> card
 end
 
 
@@ -113,5 +113,10 @@ module PartialDeck:PartialDeckSig = struct
       )
       ""
       (to_list p)
+
+  let lowest t s =
+    match (List.filter (fun card -> card.suite = s) t) with
+    | h::t -> h
+    | [] -> raise CardNotFound
 
 end
