@@ -248,19 +248,19 @@ module Round:RoundSig = struct
     | (Pass,_) -> t
   and 
     internal_play id card t =
-    check_play_in_turn id card t; 
-    check_in_hand id card t;
-    check_voided id card t;
-    check_play_first_round id card t;
+    (* check_play_in_turn id card t; 
+       check_in_hand id card t;
+       check_voided id card t;
+       check_play_first_round id card t; *)
     let t' = add_to_pile id card t in
     if List.length t'.pile >= 4
     then clean_up_trick t' |> bot_actions 
     else increment_actions_play t' |> bot_actions
   and 
     internal_lead id card t = 
-    check_lead_in_turn id card t;
-    check_lead_first_round id card t;
-    check_in_hand id card t;
+    (* check_lead_in_turn id card t;
+       check_lead_first_round id card t;
+       check_in_hand id card t; *)
     let t' = add_to_pile id card t in
     if List.length t'.pile >= 4
     then clean_up_trick t' |> bot_actions 

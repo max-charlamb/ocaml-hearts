@@ -110,7 +110,7 @@ let get_card i state =
 let rec home_loop state =
   display_history state;
   let (w,h) = size () in
-  set_cursor (1) (2*h/3);
+  set_cursor (1) (h);
   match read_line_safe () with 
   | Quit -> erase "Quit";
     set_cursor (1) (2*h/3);
@@ -123,15 +123,9 @@ let rec home_loop state =
       | Invalid x -> failwith x
       | Valid t -> t in 
     let (w,h) = size () in 
-    print_pile (match Round.pile state with 
-        | exception Failure _ -> []
-        | x -> x ) (w/2) (2*h/3);
+    print_pile (Round.pile state) (w/2) (2*h/3);
     let (w,h) = size () in
-    set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state 0 with 
-        | exception Failure _ -> PartialDeck.empty
-        | x -> x) 1 1;
-    set_cursor (1) (2*h/3);
+    print_hand (Round.hand state 0) 1 1;
     home_loop new_st'
   | Help ->
     erase "Help";
