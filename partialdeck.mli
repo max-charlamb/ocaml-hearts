@@ -7,8 +7,6 @@ or as a full deck.
 
 module type PartialDeckSig = sig
 
-
-
   type t
 
   (** [empty] is an empty partial deck. *)
