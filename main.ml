@@ -86,42 +86,51 @@ let rec read_line_safe () =
   | c -> c
 
 let rec home_loop state =
+  let (w,h) = size () in
+  set_cursor (1) (h/2);
   match read_line_safe () with 
   | Quit -> erase "Quit";
-    let (w,h) = size () in
     set_cursor (1) (h/2);
     exit 0
   | Pass (i1,i2,i3) -> erase "Pass";
-    let (w,h) = size () in
     set_cursor (1) (h/2);
     home_loop  state
   | Play (i) -> erase "Play";
     let (w,h) = size () in 
-    print_pile (Round.pile state) (w/2) (h/2);
+    print_pile (match Round.pile state with 
+        | exception Failure _ -> []
+        | x -> x ) (w/2) (h/2);
     let (w,h) = size () in
     set_cursor (1) (h/2);
-    print_hand (Round.hand state 0) i 1;
-    let (w,h) = size () in
+    print_hand (match Round.hand state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
     set_cursor (1) (h/2);
     home_loop state
   | Help ->
     erase "Help";
-    let (w,h) = size () in
     set_cursor (1) (h/2);
     print_help_menu ();
     home_loop state
   | Restart ->
     erase "Restart";
-    let (w,h) = size () in
     set_cursor (1) (h/2);
     home_loop state
   | Score ->
     erase "Score";
-    let (w,h) = size () in
     set_cursor (1) (h/2);
     home_loop state
   | Back -> erase "Back";
+    let (w,h) = size () in 
+    print_pile (match Round.pile state with 
+        | exception Failure _ -> []
+        | x -> x ) (w/2) (h/2);
     let (w,h) = size () in
+    set_cursor (1) (h/2);
+    print_hand (match Round.hand state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
+    set_cursor (1) (h/2);
     set_cursor (1) (h/2);
     home_loop state
 
@@ -130,7 +139,7 @@ let main () =
   print_start_menu ();
   Unix.sleep 1;
   ANSITerminal.erase Screen;
-  Round.new_round |> Round.deal |> home_loop
+  Round.new_round |> home_loop
 
 
 let () = main ()
