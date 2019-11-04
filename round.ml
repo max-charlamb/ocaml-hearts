@@ -289,11 +289,10 @@ module Round:RoundSig = struct
     }
 
   let hand t id = 
-    let person = List.nth t.players id in 
-    person.hand
+    List.nth (ListQueue.peek t.history).hands id
 
   let pile t = 
-    t.pile
+    (ListQueue.peek t.history).pile
 
   let description t = 
     (ListQueue.peek t.history).description
