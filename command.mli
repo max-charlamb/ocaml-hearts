@@ -17,6 +17,7 @@ type command =
   | Restart
   | Score 
   | Back
+  | Start
 
 (** Raised when the user inputs an empty command. *)
 exception Empty

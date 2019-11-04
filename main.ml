@@ -99,8 +99,8 @@ let rec display_history state =
     set_cursor (1) (h/2);
     Unix.sleep 1;
     display_history new_state;
-
   else ()
+
 let get_card i state = 
   match PartialDeck.find i (Round.hand state 0) with 
   | None -> failwith ""
@@ -158,13 +158,25 @@ let rec home_loop state =
         | x -> x) 1 1;
     set_cursor (1) (h/2);
     home_loop state
+  | Start -> erase "Start"; let (w,h) = size () in 
+
+    print_pile (match Round.pile state with 
+        | exception Failure _ -> []
+        | x -> let () = print_int (List.length x) in x ) (w/2) (h/2);
+    let (w,h) = size () in
+    set_cursor (1) (h/2);
+    print_hand (match Round.hand state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
+    set_cursor (1) (h/2);
+    home_loop state
 
 
 let main () = 
   print_start_menu ();
   Unix.sleep 1;
   ANSITerminal.erase Screen;
-  Round.new_round |> home_loop
+  Round.new_round |> Round.deal |> home_loop
 
 
 let () = main ()
