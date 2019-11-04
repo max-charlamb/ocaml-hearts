@@ -57,6 +57,7 @@ module Round:RoundSig = struct
 
   type result = Valid of t | Invalid of string
 
+  let debug = true
 
   let create_player name id = 
     {
@@ -80,6 +81,16 @@ module Round:RoundSig = struct
     next_action = Lead;
     history = ListQueue.empty;
   }
+
+  (** [get_hand_size t] is the hand size of all the players. Can only be
+      called between tricks. If [debug] then fails if not all equal. *)
+  let get_hand_size t = 
+    let hand_size = PartialDeck.size (List.hd t.players).hand in
+    if debug then 
+      if List.for_all 
+          (fun player -> PartialDeck.size player.hand = hand_size) t.players
+      then hand_size else failwith "player hand sizes are not equal"
+    else hand_size
 
   let deal t = 
     failwith "unimplemented"
@@ -149,44 +160,48 @@ module Round:RoundSig = struct
       raise Default
 
   let clean_up_trick t = 
-    let leading_suite = (List.hd t.pile |> fst).suite in
-    let winner = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
-                 |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
-                 |> List.rev |> List.hd in
-    let pile_partialdeck = List.fold_left 
-        (fun p (c,_) -> PartialDeck.insert c p) 
-        PartialDeck.empty t.pile in
-    let hearts_broken' = t.hearts_broken || 
-                         PartialDeck.contains_hearts pile_partialdeck in 
-    let players' = 
-      List.map 
-        (fun player -> 
-           if player.id = snd winner then 
-             {
-               player with 
-               score = player.score + 
-                       (PartialDeck.count_points pile_partialdeck);
-               p_cards = PartialDeck.merge pile_partialdeck player.p_cards;
-             } 
-           else player) t.players 
-    in
-    let new_history = {
-      hands = List.map (fun player -> player.hand) players';
-      pile = [];
-      description = (id_to_name (snd winner) t) ^ " won the trick with a " 
-                    ^ card_to_string (fst winner) ^ ".";
-    }
-    in
-    {
-      t with
-      pile = [];
-      players = players';
-      next_action = Lead;
-      next_player = snd winner;
-      first_round = false;
-      hearts_broken = hearts_broken';
-      history = ListQueue.push new_history t.history;
-    }
+    if hand_size t = 0 then 
+      t 
+      (* TODO: implement what to do when hand size is over*)
+    else
+      let leading_suite = (List.nth pile ((List.length pile) - 1) |> fst).suite in
+      let winner = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
+                   |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
+                   |> List.rev |> List.hd in
+      let pile_partialdeck = List.fold_left 
+          (fun p (c,_) -> PartialDeck.insert c p) 
+          PartialDeck.empty t.pile in
+      let hearts_broken' = t.hearts_broken || 
+                           PartialDeck.contains_hearts pile_partialdeck in 
+      let players' = 
+        List.map 
+          (fun player -> 
+             if player.id = snd winner then 
+               {
+                 player with 
+                 score = player.score + 
+                         (PartialDeck.count_points pile_partialdeck);
+                 p_cards = PartialDeck.merge pile_partialdeck player.p_cards;
+               } 
+             else player) t.players 
+      in
+      let new_history = {
+        hands = List.map (fun player -> player.hand) players';
+        pile = [];
+        description = (id_to_name (snd winner) t) ^ " won the trick with a " 
+                      ^ card_to_string (fst winner) ^ ".";
+      }
+      in
+      {
+        t with
+        pile = [];
+        players = players';
+        next_action = Lead;
+        next_player = snd winner;
+        first_round = false;
+        hearts_broken = hearts_broken';
+        history = ListQueue.push new_history t.history;
+      }
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
