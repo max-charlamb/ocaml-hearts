@@ -88,51 +88,47 @@ let rec read_line_safe () =
 let rec home_loop state =
   let (w,h) = size () in
   set_cursor (1) (h/2);
-  match read_line_safe () with 
-  | Quit -> erase "Quit";
-    set_cursor (1) (h/2);
-    exit 0
-  | Pass (i1,i2,i3) -> erase "Pass";
-    set_cursor (1) (h/2);
-    home_loop  state
-  | Play (i) -> erase "Play";
-    let (w,h) = size () in 
-    print_pile (match Round.pile state with 
-        | exception Failure _ -> []
-        | x -> x ) (w/2) (h/2);
-    let (w,h) = size () in
-    set_cursor (1) (h/2);
-    print_hand (match Round.hand state 0 with 
-        | exception Failure _ -> PartialDeck.empty
-        | x -> x) 1 1;
-    set_cursor (1) (h/2);
-    home_loop state
-  | Help ->
-    erase "Help";
-    set_cursor (1) (h/2);
-    print_help_menu ();
-    home_loop state
-  | Restart ->
-    erase "Restart";
-    set_cursor (1) (h/2);
-    home_loop state
-  | Score ->
-    erase "Score";
-    set_cursor (1) (h/2);
-    home_loop state
-  | Back -> erase "Back";
-    let (w,h) = size () in 
-    print_pile (match Round.pile state with 
-        | exception Failure _ -> []
-        | x -> x ) (w/2) (h/2);
-    let (w,h) = size () in
-    set_cursor (1) (h/2);
-    print_hand (match Round.hand state 0 with 
-        | exception Failure _ -> PartialDeck.empty
-        | x -> x) 1 1;
-    set_cursor (1) (h/2);
-    set_cursor (1) (h/2);
-    home_loop state
+  let () = 
+    match read_line_safe () with 
+    | Quit -> erase "Quit";
+      set_cursor (1) (h/2);
+      exit 0
+    | Pass (i1,i2,i3) -> erase "Pass";
+      set_cursor (1) (h/2);
+    | Play (i) -> erase "Play";
+      let (w,h) = size () in 
+      print_pile (match Round.pile state with 
+          | exception Failure _ -> []
+          | x -> x ) (w/2) (h/2);
+      let (w,h) = size () in
+      set_cursor (1) (h/2);
+      print_hand (match Round.hand state 0 with 
+          | exception Failure _ -> PartialDeck.empty
+          | x -> x) 1 1;
+      set_cursor (1) (h/2);
+    | Help ->
+      erase "Help";
+      set_cursor (1) (h/2);
+      print_help_menu ();
+    | Restart ->
+      erase "Restart";
+      set_cursor (1) (h/2);
+    | Score ->
+      erase "Score";
+      set_cursor (1) (h/2);
+    | Back -> erase "Back";
+      let (w,h) = size () in 
+      print_pile (match Round.pile state with 
+          | exception Failure _ -> []
+          | x -> x ) (w/2) (h/2);
+      let (w,h) = size () in
+      set_cursor (1) (h/2);
+      print_hand (match Round.hand state 0 with 
+          | exception Failure _ -> PartialDeck.empty
+          | x -> x) 1 1;
+      set_cursor (1) (h/2);
+  in if Round.is_next state then home_loop (Round.next state) 
+  else home_loop state
 
 
 let main () = 
