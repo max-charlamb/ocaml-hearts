@@ -12,9 +12,11 @@ let print_hand d x y =
   let rec aux hand_lst=
     match hand_lst with
     | (c, i)::t -> 
+      let cx,cy = pos_cursor () in
       print_card c;
-      print_string [on_white;black] (" "^(string_of_int i));
-      move_cursor (-5) (1);
+      print_string [on_white;black] (" "^(string_of_int i)); 
+      set_cursor cx cy;
+      move_cursor 0 (1);
       aux t
     | [] -> ()
   in
@@ -55,7 +57,7 @@ let rec home_loop state =
   | Pass (i1,i2,i3) -> erase "Pass";
     home_loop  state
   | Play (i) ->
-    print_hand hand i 1;
+    print_hand PartialDeck.full i 1;
     home_loop state
   | Help ->
     erase "Help";
