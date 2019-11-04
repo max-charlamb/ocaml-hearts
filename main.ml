@@ -85,50 +85,79 @@ let rec read_line_safe () =
     read_line_safe ()
   | c -> c
 
+let rec display_history state = 
+  if Round.is_next state then 
+    let new_state = Round.next state in 
+    let (w,h) = size () in 
+    print_pile (match Round.pile new_state with 
+        | exception Failure _ -> []
+        | x -> x ) (w/2) (h/2);
+    set_cursor (1) (h/2);
+    print_hand (match Round.hand new_state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
+    set_cursor (1) (h/2);
+    Unix.sleep 1;
+    display_history new_state;
+
+  else ()
+let get_card i state = 
+  match PartialDeck.find i (Round.hand state 0) with 
+  | None -> failwith ""
+  | Some x -> x
+
 let rec home_loop state =
+  display_history state;
   let (w,h) = size () in
   set_cursor (1) (h/2);
-  let () = 
-    match read_line_safe () with 
-    | Quit -> erase "Quit";
-      set_cursor (1) (h/2);
-      exit 0
-    | Pass (i1,i2,i3) -> erase "Pass";
-      set_cursor (1) (h/2);
-    | Play (i) -> erase "Play";
-      let (w,h) = size () in 
-      print_pile (match Round.pile state with 
-          | exception Failure _ -> []
-          | x -> x ) (w/2) (h/2);
-      let (w,h) = size () in
-      set_cursor (1) (h/2);
-      print_hand (match Round.hand state 0 with 
-          | exception Failure _ -> PartialDeck.empty
-          | x -> x) 1 1;
-      set_cursor (1) (h/2);
-    | Help ->
-      erase "Help";
-      set_cursor (1) (h/2);
-      print_help_menu ();
-    | Restart ->
-      erase "Restart";
-      set_cursor (1) (h/2);
-    | Score ->
-      erase "Score";
-      set_cursor (1) (h/2);
-    | Back -> erase "Back";
-      let (w,h) = size () in 
-      print_pile (match Round.pile state with 
-          | exception Failure _ -> []
-          | x -> x ) (w/2) (h/2);
-      let (w,h) = size () in
-      set_cursor (1) (h/2);
-      print_hand (match Round.hand state 0 with 
-          | exception Failure _ -> PartialDeck.empty
-          | x -> x) 1 1;
-      set_cursor (1) (h/2);
-  in if Round.is_next state then home_loop (Round.next state) 
-  else home_loop state
+  match read_line_safe () with 
+  | Quit -> erase "Quit";
+    set_cursor (1) (h/2);
+    exit 0
+  | Pass (i1,i2,i3) -> erase "Pass";
+    set_cursor (1) (h/2);
+    home_loop state
+  | Play (i) -> let new_st = Round.play (get_card i state) state in 
+    let new_st' = match new_st with 
+      | Invalid _ -> failwith ""
+      | Valid t -> t in 
+    erase "Play";
+    let (w,h) = size () in 
+    print_pile (match Round.pile state with 
+        | exception Failure _ -> []
+        | x -> x ) (w/2) (h/2);
+    let (w,h) = size () in
+    set_cursor (1) (h/2);
+    print_hand (match Round.hand state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
+    set_cursor (1) (h/2);
+    home_loop new_st'
+  | Help ->
+    erase "Help";
+    set_cursor (1) (h/2);
+    print_help_menu ();
+    home_loop state
+  | Restart ->
+    erase "Restart";
+    set_cursor (1) (h/2);
+    home_loop state
+  | Score ->
+    erase "Score";
+    set_cursor (1) (h/2);
+    home_loop state
+  | Back -> erase "Back";
+    let (w,h) = size () in 
+    print_pile (match Round.pile state with 
+        | exception Failure _ -> []
+        | x -> x ) (w/2) (h/2);
+    let (w,h) = size () in
+    set_cursor (1) (h/2);
+    print_hand (match Round.hand state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
+    set_cursor (1) (h/2);
+    home_loop state
 
 
 let main () = 
