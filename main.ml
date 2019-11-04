@@ -85,7 +85,25 @@ let rec read_line_safe () =
     read_line_safe ()
   | c -> c
 
+let rec display_history state = 
+  if Round.is_next state then 
+    let new_state = Round.next state in 
+    let (w,h) = size () in 
+    print_pile (match Round.pile new_state with 
+        | exception Failure _ -> []
+        | x -> x ) (w/2) (h/2);
+    set_cursor (1) (h/2);
+    print_hand (match Round.hand new_state 0 with 
+        | exception Failure _ -> PartialDeck.empty
+        | x -> x) 1 1;
+    set_cursor (1) (h/2);
+    Unix.sleep 1;
+    display_history new_state;
+
+  else ()
+
 let rec home_loop state =
+  display_history state;
   let (w,h) = size () in
   set_cursor (1) (h/2);
   let () = 
@@ -127,8 +145,7 @@ let rec home_loop state =
           | exception Failure _ -> PartialDeck.empty
           | x -> x) 1 1;
       set_cursor (1) (h/2);
-  in if Round.is_next state then home_loop (Round.next state) 
-  else home_loop state
+  in home_loop state
 
 
 let main () = 
