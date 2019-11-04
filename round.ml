@@ -18,6 +18,8 @@ module type RoundSig = sig
   val next : t -> t
   val description : t -> string
   val is_next : t -> bool
+  val bot_hand : t -> int -> PartialDeck.t
+  val bot_pile : t -> (card * int) list
 end
 
 
@@ -189,8 +191,8 @@ module Round:RoundSig = struct
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
     | (_,0) -> t
-    | (Play,_) -> internal_play t.next_player (Bot.play t) t
-    | (Lead,_) -> internal_play t.next_player (Bot.lead t) t
+    | (Play,id) -> internal_play t.next_player (Bot.play t id) t
+    | (Lead,id) -> internal_play t.next_player (Bot.lead t id) t
     | (Pass,_) -> t
   and 
     internal_play id card t =
@@ -246,5 +248,11 @@ module Round:RoundSig = struct
 
   let is_next t =
     ListQueue.size t.history > 1
+
+  let bot_hand t id =
+    (List.nth t.players id).hand
+
+  let bot_pile t = 
+    t.pile
 
 end

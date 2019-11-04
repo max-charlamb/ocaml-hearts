@@ -33,6 +33,14 @@ module type RoundSig = sig
   (** [is_next t] is true if there is a next state, otherwise false. *)
   val is_next : t -> bool
 
+  (** [bot_hand t id] is bot [id]'s current hand. 
+      Meant only for use with bots. *)
+  val bot_hand : t -> int -> PartialDeck.t
+
+  (** [bot_pile t] is the current pile. 
+      Meant only for use with bots. *)
+  val bot_pile : t -> (card * int) list
+
 end
 
 module Round:RoundSig
