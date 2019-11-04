@@ -7,6 +7,9 @@ module type PlayerSig = sig
   val create : string -> t
   val add_card : Card.card -> t -> t
   val add_penalty_card : Card.card -> t -> t
+  val play_card : t -> Card.card 
+  val pass_cards : t -> (Card.card * Card.card * Card.card)
+
 
 end
 
