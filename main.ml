@@ -118,7 +118,7 @@ let rec home_loop state =
   | Pass (i1,i2,i3) -> erase "Pass";
     set_cursor (1) (2*h/3);
     home_loop state
-  | Play (i) -> let new_st = Round.play (get_card (i - 1) state) state in 
+  | Play (i) -> let new_st = Round.play (get_card i state) state in 
     let new_st' = match new_st with 
       | Invalid x -> failwith x
       | Valid t -> t in 

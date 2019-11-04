@@ -82,7 +82,7 @@ module PartialDeck:PartialDeckSig = struct
   let rec find n t = 
     match t with
     | [] -> None
-    | h :: t -> if n = 0 then Some h else find (n-1) t
+    | h :: t -> if n = 1 then Some h else find (n-1) t
 
   let voided s t =
     match List.filter (fun c -> c.suite = s) t |> List.length with
