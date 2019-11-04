@@ -2,13 +2,13 @@ open Card
 open Partialdeck
 open Command
 open Bot
+open ListQueue
 
 module type RoundSig = sig
   type player 
   type t
   type result
   val new_round : unit -> t
-  val add_player : t -> t
   val deal : t -> t
   val play : command -> t -> result
   val pass : command -> t -> result
@@ -30,14 +30,20 @@ module Round = struct
 
   type action = Play | Lead | Pass
 
+  type historySegment = {
+    hands : PartialDeck.t list;
+    pile : (card * int) list;
+  }
+
   type t = {
     players : player list;
     pile : (card * int) list;
     is_over : bool;
-    hearts_played: bool;
+    hearts_broken : bool;
     first_round: bool;
     next_player: int;
     next_action: action;
+    history : historySegment ListQueue.t;
   }
 
   type result = Valid of t | Invalid of string
@@ -57,54 +63,15 @@ module Round = struct
                create_player 3];
     pile = [];
     is_over = false;
-    hearts_played = false;
+    hearts_broken = false;
     first_round = true;
     next_player = 0;
     next_action = Lead;
+    history = ListQueue.empty;
   }
 
-
-  (* [insert_hand p c] is player [p] with the card [c] inserted into their hand.*)
-  let insert_hand (p:player) c = 
-    match PartialDeck.insert c p.hand with
-    | exception (DuplicateCard) -> p
-    | h -> {
-        hand = h;
-        score = p.score;
-        penalty_cards = p.penalty_cards;
-      }
-
-  (* [deal_ round p d] deals one card from [d] to all the players [p].*)
-  let rec deal_round p d = 
-    match (PartialDeck.random_card d, p) with
-    | None, _ -> p, d
-    | Some c, h::t -> 
-      (match PartialDeck.move c d h.hand with 
-       | (d' , h') -> 
-         let new_player = {
-           hand = h';
-           score = h.score;
-           penalty_cards = h.penalty_cards;
-         } in
-         new_player :: (deal_round t d' |> fst), 
-         deal_round t d' |> snd)
-    | Some c, [] -> 
-      let d' = PartialDeck.remove c d in 
-      p , d' 
-
-  (* [deal_ helper p d] deals all the cards from [d] to the players [p]. *)
-  let rec deal_helper p d = 
-    match deal_round p d with
-    | (p', d') -> if PartialDeck.is_empty d' then p else deal_helper p' d'
-
   let deal t = 
-    {
-      players = deal_helper t.players PartialDeck.full ;
-      pile = t.pile;
-      is_over = t.is_over;
-    }
-
-  let player_helper = ""
+    failwith "unimplemented"
 
 
   let check_voided num card t =
@@ -123,7 +90,7 @@ module Round = struct
     if t.next_player <> num || t.next_action <> Play then 
       raise Default
 
-  let check_first_round num card t = 
+  let check_play_first_round num card t = 
     if t.first_round then 
       match card with
       | {suite=Spade; rank=Queen}
@@ -131,17 +98,22 @@ module Round = struct
       | _ -> ()
 
   let add_to_pile num card t = 
+    let pile' = (card, num)::t.pile in
     let players' = List.map 
-        (fun player -> if player.id = num then 
+        (fun player -> if player.name = num then 
             {
               player with
               hand = PartialDeck.remove card player.hand
             } else player) t.players in
-    let pile' = (card, num)::t.pile in
+    let new_history = {
+      hands = List.map (fun player -> player.hand) players';
+      pile = pile';
+    } in
     {
       t with 
       pile = pile';
       players = players';
+      history = ListQueue.push new_history t.history;
     }
 
   let increment_actions_play t = 
@@ -158,17 +130,24 @@ module Round = struct
     let winner_name = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
                       |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
                       |> List.rev |> List.hd |> snd in
-    let p = List.fold_left 
+    let pile_partialdeck = List.fold_left 
         (fun p (c,_) -> PartialDeck.insert c p) 
         PartialDeck.empty t.pile in
+    let hearts_broken' = t.hearts_broken || 
+                         PartialDeck.contains_hearts pile_partialdeck in 
     let players' = List.map 
         (fun player -> if player.name = winner_name
           then 
             {
               player with 
-              score = player.score + (PartialDeck.count_points p)
+              score = player.score + (PartialDeck.count_points pile_partialdeck)
             } 
-          else player) 
+          else player) t.players 
+    in
+    let new_history = {
+      hands = List.map (fun player -> player.hand) players';
+      pile = [];
+    }
     in
     {
       t with
@@ -176,37 +155,58 @@ module Round = struct
       players = players';
       next_action = Lead;
       next_player = winner_name;
+      first_round = false;
+      hearts_broken = hearts_broken';
+      history = ListQueue.push new_history t.history;
     }
+
+  let check_lead_in_turn num card t = 
+    if t.next_action <> Lead || t.next_player <> num then 
+      raise Default
+
+  let check_lead_first_round num card t =
+    if t.first_round && card <> {suite=Club;rank=Two} then 
+      raise Default
 
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
     | (_,0) -> t
     | (Play,_) -> internal_play t.next_player (Bot.play t) t
-    | (Lead,_) -> t
+    | (Lead,_) -> internal_play t.next_player (Bot.lead t) t
     | (Pass,_) -> t
   and 
     internal_play num card t =
     check_play_in_turn num card t; 
     check_in_hand num card t;
     check_voided num card t;
-    check_first_round num card t;
+    check_play_first_round num card t;
+    let t' = add_to_pile num card t in
+    if List.length t'.pile >= 4
+    then clean_up_trick t' |> bot_actions 
+    else increment_actions_play t' |> bot_actions
+  and 
+    internal_lead num card t = 
+    check_lead_in_turn num card t;
+    check_lead_first_round num card t;
+    check_in_hand num card t;
     let t' = add_to_pile num card t in
     if List.length t'.pile >= 4
     then clean_up_trick t' |> bot_actions 
     else increment_actions_play t' |> bot_actions
 
+
   let play card t =
-    match internal_play 0 card t with 
-    | exception Default -> Invalid "somethign went wrong" 
-    | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
-    | t -> Valid t
-
-
-
-
-  let lead card t = failwith "uni"
-
+    if List.length t.pile > 0 then 
+      match internal_play 0 card t with 
+      | exception Default -> Invalid "somethign went wrong" 
+      | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
+      | t -> Valid t
+    else 
+      match internal_lead 0 card t with 
+      | exception Default -> Invalid "somethign went wrong" 
+      | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
+      | t -> Valid t
 
 
   let pass c = failwith "uni"
