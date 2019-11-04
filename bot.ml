@@ -9,4 +9,7 @@ module Bot = struct
   let play state = 
     {suite=Heart;rank=King}
 
+  let lead state = 
+    {suite=Heart;rank=King}
+
 end

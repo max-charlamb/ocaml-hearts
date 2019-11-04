@@ -23,6 +23,7 @@ let deck1 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=Queen}
 let deck2 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=Queen}
 let deck3 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=King}
 let deck4 = PartialDeck.full
+let deck5 = PartialDeck.empty |> PartialDeck.insert {suite=Heart; rank=Two}
 
 let partialdecktests = [
   "empty" >:: (fun _ -> 
@@ -46,6 +47,13 @@ let partialdecktests = [
   "count_points02" >:: (fun _ ->
       assert_equal (PartialDeck.count_points deck3) 0
         ~printer:string_of_int);
+  "merge01" >:: (fun _ ->
+      assert_equal deck1 (PartialDeck.merge deck2 deck3)
+        ~printer:PartialDeck.string_of_partialdeck);
+  "contains_hearts01" >:: (fun _ ->
+      assert_equal (PartialDeck.contains_hearts deck5) true);
+  "contains_hearts02" >:: (fun _ ->
+      assert_equal (PartialDeck.contains_hearts deck1) false);
 ]
 
 (* Command Tests *)
