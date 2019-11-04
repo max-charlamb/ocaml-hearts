@@ -45,4 +45,6 @@ val card_to_string: card -> string
 
 val print_card: ?bckgnd:ANSITerminal.style -> card -> unit
 
+val print_card_tall : card -> unit
+
 val compare: card -> card -> int
