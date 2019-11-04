@@ -70,6 +70,9 @@ module type PartialDeckSig = sig
   (** [string_of_partialdeck t] is a string representing the deck [t]. *)
   val string_of_partialdeck: t -> string
 
+  (** [lowest t suite] is the lowest card in [t] of [suite]. *)
+  val lowest: t -> suite -> card
+
 end
 
 module PartialDeck:PartialDeckSig
