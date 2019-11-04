@@ -45,7 +45,7 @@ module type PartialDeckSig = sig
   val random_card: t -> card option
 
   (** [to_list t] is a list of the cards in [t] in a tuple with their index. *)
-  val to_list: t -> (card* int) list
+  val to_list: t -> (card * int) list
 
   (** [find t i] is the [i]th Some card, 
       if the [i]th card does not exist, None.*)

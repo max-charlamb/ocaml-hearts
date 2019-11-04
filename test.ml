@@ -22,6 +22,7 @@ let deck1 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=Queen}
             |> PartialDeck.insert {suite=Spade; rank=King}
 let deck2 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=Queen}
 let deck3 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=King}
+let deck4 = PartialDeck.full
 
 let partialdecktests = [
   "empty" >:: (fun _ -> 
@@ -35,6 +36,10 @@ let partialdecktests = [
   "move" >:: (fun _ ->
       assert_equal (deck2,deck3) 
         (PartialDeck.move {suite=Spade; rank=King} deck1 PartialDeck.empty));
+  "to_list01" >:: (fun _ ->
+      assert_equal 2 (List.length (PartialDeck.to_list deck1)));
+  "to_list02" >:: (fun _ ->
+      assert_equal 52 (List.length (PartialDeck.to_list deck4)));
 ]
 
 (* Command Tests *)
