@@ -185,9 +185,9 @@ module Round:RoundSig = struct
   let increment_actions_play t = 
     match t.next_player with 
     | 3 when List.length t.pile < 4 -> 
-      {t with next_player=0}
+      {t with next_player=0; next_action=Play;}
     | _ when List.length t.pile < 4 ->  
-      {t with next_player=(t.next_player + 1)}
+      {t with next_player=(t.next_player + 1); next_action=Play;}
     | _ -> 
       raise Default
 
@@ -262,9 +262,7 @@ module Round:RoundSig = struct
        check_lead_first_round id card t;
        check_in_hand id card t; *)
     let t' = add_to_pile id card t in
-    if List.length t'.pile >= 4
-    then clean_up_trick t' |> bot_actions 
-    else increment_actions_play t' |> bot_actions
+    increment_actions_play t' |> bot_actions
 
 
   let play card t =
