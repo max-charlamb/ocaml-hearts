@@ -1,6 +1,4 @@
 #require "oUnit";;
-#require "Lwt";;
-#require "lwt.unix";;
 #require "ANSITerminal";;
 #directory "_build";;
 #load_rec "card.cmo";;
