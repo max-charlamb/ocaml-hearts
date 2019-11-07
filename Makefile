@@ -27,7 +27,7 @@ finalcheck: check
 	bash finalcheck.sh
 
 zip:
-	zip adventure.zip *.ml* *.json _tags Makefile
+	zip src.zip *.ml* _tags Makefile *.md
 	
 docs: docs-public docs-private
 	
