@@ -10,10 +10,10 @@ end
 
 module Bot:BotSig = struct
 
-  let play hand pile = 
-    let pile_suite = (List.nth pile ((List.length pile) - 1) |> fst).suite in
+  let play hand pile =
+    let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     match PartialDeck.lowest hand pile_suite with
-    | exception CardNotFound ->
+    | exception CardNotFound -> 
       begin
         match PartialDeck.lowest hand Club with
         | exception CardNotFound ->

@@ -60,14 +60,30 @@ let rank_to_string = function
   | Jack -> "J" | Queen -> "Q"  | King -> "K" | Ace -> "A"
 
 let card_to_string c = 
-  (suite_to_string c.suite) ^ " " ^ (rank_to_string c.rank)
+  let len = String.length ((suite_to_string c.suite)^(rank_to_string c.rank))
+  in
+  match len with 
+  | 4 -> (suite_to_string c.suite) ^ "  " ^ (rank_to_string c.rank)
+  | 5 -> (suite_to_string c.suite) ^ " " ^ (rank_to_string c.rank)
+  | x -> failwith "error in card_to_string"
+
 
 let print_card ?bckgnd:(background=on_white) c = 
   match c.suite with
   | Heart
   | Diamond -> print_string [red; background] (card_to_string c)
-  |Club 
-  |Spade -> print_string [black; background] (card_to_string c)
+  | Club 
+  | Spade -> print_string [black; background] (card_to_string c)
+
+let print_card_tall c = 
+  let x, y = pos_cursor () in
+  print_string [on_white] "    ";
+  move_cursor (-4) 1;
+  print_card c;
+  move_cursor (-4) 1;
+  print_string [on_white] "    ";
+  set_cursor x y
+
 
 let compare (x:card) (y:card) = 
   match (suite_to_int x.suite,suite_to_int y.suite) with
