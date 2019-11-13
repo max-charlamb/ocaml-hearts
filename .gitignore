@@ -20,3 +20,7 @@ setup.data
 setup.log
 
 # Merlin configuring file for Vim and Emacs
+
+# zip files that we submit
+
+*.zip
