@@ -92,14 +92,17 @@ let erase_print print =
   move_cursor 0 2;
   move_bol ()
 
-let rec read_line_safe () = 
-  match parse (read_line ()) with 
+let rec read_line_safe state = 
+  match parse (print_string [on_default] "> "; read_line ()) with 
   | exception Empty
   | exception Malformed -> 
     erase_print "Error";
+    score_table state;
     let (w,h) = size () in
-    set_cursor (1) (2*h/3);
-    read_line_safe ()
+    print_pile (Round.pile state) (w/2) (2*h/3);
+    print_hand (Round.hand state 0) 1 1;
+    set_cursor (1) (h);
+    read_line_safe state
   | c -> c
 
 let rec display_history state = 
@@ -127,25 +130,34 @@ let get_card i state =
 
 let rec home_loop state =
   let state' = display_history state in
+  score_table state';
+  let (w,h) = size () in
+  print_pile (Round.pile state') (w/2) (2*h/3);
+  print_hand (Round.hand state' 0) 1 1;
+  set_cursor (1) (h);
   let (w,h) = size () in
   set_cursor (1) (h);
-  match read_line_safe () with 
+  match read_line_safe state with 
   | Quit -> erase_print "Quit";
-    set_cursor (1) (2*h/3);
+    set_cursor (1) (h);
     exit 0
   | Pass (i1,i2,i3) -> erase_print "Pass";
-    set_cursor (1) (2*h/3);
+    set_cursor (1) (h);
     home_loop state
-  | Play (i) -> let new_st = Round.play (get_card i state') state' in 
-    let new_st' = match new_st with 
-      | Invalid x -> failwith x
-      | Valid t -> t in 
-    let (w,h) = size () in 
-    score_table new_st';
-    print_pile (Round.pile state') (w/2) (2*h/3);
-    let (w,h) = size () in
-    print_hand (Round.hand state' 0) 1 1;
-    home_loop new_st'
+  | Play (i) -> begin let new_st = Round.play (get_card i state') state' in 
+      match new_st with 
+      | Invalid msg -> 
+        erase_print msg;
+        score_table state';
+        print_pile (Round.pile state') (w/2) (2*h/3);
+        print_hand (Round.hand state' 0) 1 1;
+        home_loop state'
+      | Valid t -> 
+        score_table t;
+        print_pile (Round.pile state') (w/2) (2*h/3);
+        print_hand (Round.hand state' 0) 1 1;
+        home_loop t
+    end
   | Help ->
     erase_print "Help";
     set_cursor (1) (2*h/3);
