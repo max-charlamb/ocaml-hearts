@@ -22,6 +22,7 @@ module type RoundSig = sig
   val bot_pile : t -> (card * int) list
   val score : t -> int
   val end_of_round_score : t -> int list 
+  val names : t -> string list
 end
 
 
@@ -318,5 +319,8 @@ module Round:RoundSig = struct
 
   let bot_pile t = 
     t.pile
+
+  let names t = 
+    List.map (fun player -> player.name) t.players
 
 end

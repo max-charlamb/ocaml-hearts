@@ -48,6 +48,9 @@ module type RoundSig = sig
       In order of their id. *)
   val end_of_round_score : t -> int list 
 
+  (** [names t] is the names of the players in id order.*)
+  val names : t -> string list
+
 end
 
 module Round:RoundSig

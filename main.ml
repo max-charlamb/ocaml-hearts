@@ -75,14 +75,14 @@ let score_table t =
   move_cursor 2 (2);
   let rec aux_n = function
     | [] -> ""
-    | (a,_) :: [] -> a
-    | (a,_) :: t -> a ^ " | " ^ aux_n t in
-  print_string [on_default] (aux_n (Round.get_scores t));
+    | a :: [] -> a
+    | a :: t -> a ^ " | " ^ aux_n t in
+  print_string [on_default] (aux_n (Round.names t));
   set_cursor (3*w/5) (4*h/5);
   move_cursor 3 (3);
   let scores = 
-    List.fold_right (fun a acc -> " " ^ (snd a |> string_of_int) ^ "     " ^ acc) 
-      (Round.get_scores t) "" in
+    List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
+      (Round.end_of_round_score t) "" in
   print_string [on_default] scores
 
 let erase_print print = 
