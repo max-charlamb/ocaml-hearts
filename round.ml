@@ -25,8 +25,9 @@ end
 
 module Round:RoundSig = struct
 
-  exception Default
+  exception Default of string
   exception InvalidCardPlayed
+  exception BotError
 
   type action = Play | Lead | Pass
 
@@ -135,16 +136,16 @@ module Round:RoundSig = struct
     let leading_suite = (List.hd t.pile |> fst).suite in
     if card.suite <> leading_suite && 
        not (PartialDeck.voided leading_suite user.hand) then 
-      raise Default
+      raise (Default "problem in check_voided")
 
   let check_in_hand id card t =
     let user = List.nth t.players id in 
-    if PartialDeck.mem card user.hand then
-      raise Default
+    if not (PartialDeck.mem card user.hand) then
+      raise (Default "problem in check_in_hand")
 
   let check_play_in_turn id card t = 
     if t.next_player <> id || t.next_action <> Play then 
-      raise Default
+      raise (Default "problem in check_play_in_turn")
 
   let check_play_first_round id card t = 
     if t.first_round then 
@@ -155,11 +156,11 @@ module Round:RoundSig = struct
 
   let check_lead_in_turn id card t = 
     if t.next_action <> Lead || t.next_player <> id then 
-      raise Default
+      raise (Default "problem in check_lead_in_turn") else ()
 
   let check_lead_first_round id card t =
     if t.first_round && card <> {suite=Club;rank=Two} then 
-      raise Default
+      raise (Default "problem in check_lead_first_round") else ()
 
   let add_to_pile id card t = 
     let pile' = (card, id)::t.pile in
@@ -189,7 +190,7 @@ module Round:RoundSig = struct
     | _ when List.length t.pile < 4 ->  
       {t with next_player=(t.next_player + 1); next_action=Play;}
     | _ -> 
-      raise Default
+      raise (Default "error in incrementing")
 
   let clean_up_trick t = 
     if hand_size t = 0 then 
@@ -248,19 +249,19 @@ module Round:RoundSig = struct
     | (Pass,_) -> t
   and 
     internal_play id card t =
-    (* check_play_in_turn id card t; 
-       check_in_hand id card t;
-       check_voided id card t;
-       check_play_first_round id card t; *)
+    check_play_in_turn id card t; 
+    check_in_hand id card t;
+    check_voided id card t;
+    check_play_first_round id card t; 
     let t' = add_to_pile id card t in
     if List.length t'.pile >= 4
     then clean_up_trick t' |> bot_actions 
     else increment_actions_play t' |> bot_actions
   and 
     internal_lead id card t = 
-    (* check_lead_in_turn id card t;
-       check_lead_first_round id card t;
-       check_in_hand id card t; *)
+    check_lead_in_turn id card t;
+    (* check_lead_first_round id card t; *)
+    check_in_hand id card t;
     let t' = add_to_pile id card t in
     increment_actions_play t' |> bot_actions
 
@@ -268,12 +269,12 @@ module Round:RoundSig = struct
   let play card t =
     if List.length t.pile > 0 then 
       match internal_play 0 card t with 
-      | exception Default -> Invalid "somethign went wrong" 
+      | exception Default(s) -> Invalid s
       | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
       | t -> Valid t
     else 
       match internal_lead 0 card t with 
-      | exception Default -> Invalid "somethign went wrong" 
+      | exception Default(s) -> Invalid s
       | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
       | t -> Valid t
 
