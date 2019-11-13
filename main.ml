@@ -93,7 +93,7 @@ let rec display_history state =
       let (w,h) = size () in 
       print_pile (Round.pile state') (w/2) (2*h/3);
       set_cursor (1) (2*h/3);
-      print_hand (Round.hand state' 0) 1 1;
+      print_hand (Round.hand state') 1 1;
       set_cursor (1) (h-1);
       print_string [on_black; white] (Round.description state');
       set_cursor (1) (h);
@@ -103,7 +103,7 @@ let rec display_history state =
   else state
 
 let get_card i state = 
-  match PartialDeck.find i (Round.hand state 0) with 
+  match PartialDeck.find i (Round.hand state) with 
   | None -> failwith ""
   | Some x -> x
 
@@ -125,7 +125,7 @@ let rec home_loop state =
     let (w,h) = size () in 
     print_pile (Round.pile state') (w/2) (2*h/3);
     let (w,h) = size () in
-    print_hand (Round.hand state' 0) 1 1;
+    print_hand (Round.hand state') 1 1;
     home_loop new_st'
   | Help ->
     erase_print "Help";
@@ -147,7 +147,7 @@ let rec home_loop state =
         | x -> x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state 0 with 
+    print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
@@ -158,7 +158,7 @@ let rec home_loop state =
         | x ->  x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state 0 with 
+    print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);

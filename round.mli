@@ -18,8 +18,8 @@ module type RoundSig = sig
   (*[pass c t] passes the cards [c].*)
   val pass : card list -> t -> result
 
-  (** [hand t i] is the [i]th players hand at the current state. *)
-  val hand : t -> int -> PartialDeck.t
+  (** [hand t] is the players hand at the current state. *)
+  val hand : t -> PartialDeck.t
 
   (** [pile t] is the pile at the current state. *)
   val pile : t -> (card * int) list
@@ -40,6 +40,13 @@ module type RoundSig = sig
   (** [bot_pile t] is the current pile. 
       Meant only for use with bots. *)
   val bot_pile : t -> (card * int) list
+
+  (** [score t] is the players current score. *)
+  val score : t -> int 
+
+  (** [end_of_round_score t] is a list of all the players score. 
+      In order of their id. *)
+  val end_of_round_score : t -> int list 
 
 end
 
