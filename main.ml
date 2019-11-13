@@ -128,13 +128,8 @@ let get_card i state =
   | None -> failwith ""
   | Some x -> x
 
-let rec home_loop state =
-  let state' = display_history state in
-  score_table state';
-  let (w,h) = size () in
-  print_pile (Round.pile state') (w/2) (2*h/3);
-  print_hand (Round.hand state' 0) 1 1;
-  set_cursor (1) (h);
+let rec home_loop bl state =
+  let state' = if bl then display_history state else state in
   let (w,h) = size () in
   set_cursor (1) (h);
   match read_line_safe state with 
@@ -143,7 +138,7 @@ let rec home_loop state =
     exit 0
   | Pass (i1,i2,i3) -> erase_print "Pass";
     set_cursor (1) (h);
-    home_loop state
+    home_loop true state'
   | Play (i) -> begin let new_st = Round.play (get_card i state') state' in 
       match new_st with 
       | Invalid msg -> 
@@ -151,25 +146,25 @@ let rec home_loop state =
         score_table state';
         print_pile (Round.pile state') (w/2) (2*h/3);
         print_hand (Round.hand state' 0) 1 1;
-        home_loop state'
+        home_loop true state'
       | Valid t -> 
         score_table t;
         print_pile (Round.pile state') (w/2) (2*h/3);
         print_hand (Round.hand state' 0) 1 1;
-        home_loop t
+        home_loop true t
     end
   | Help ->
     erase_print "Help";
     set_cursor (1) (2*h/3);
     print_help_menu ();
-    home_loop state
+    home_loop false state'
   | Restart ->
     erase_print "Restart";
     set_cursor (1) (2*h/3);
     main ()
   | Score ->
     erase_print "Score";
-    home_loop state
+    home_loop true state'
   | Back -> erase_print "Back";
     let (w,h) = size () in 
     print_pile (match Round.pile state with 
@@ -181,7 +176,7 @@ let rec home_loop state =
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
-    home_loop state
+    home_loop true state'
   | Start -> erase_print "Start"; let (w,h) = size () in 
     score_table state;
     print_pile (match Round.pile state with 
@@ -193,13 +188,13 @@ let rec home_loop state =
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
-    home_loop state
+    home_loop true state'
 and 
   main () = 
   print_start_menu ();
   Unix.sleep 2;
   erase Screen;
-  Round.new_round |> Round.deal |> home_loop
+  Round.new_round |> Round.deal |> home_loop true
 
 
 let () = main ()
