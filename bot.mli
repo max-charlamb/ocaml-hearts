@@ -5,6 +5,7 @@ module type BotSig = sig
 
   val play : PartialDeck.t -> (card * int) list -> card
   val lead : PartialDeck.t -> (card * int) list -> card
+  val pass : PartialDeck.t -> (card * int) list -> card list
 
 end
 

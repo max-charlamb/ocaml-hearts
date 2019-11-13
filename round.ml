@@ -4,7 +4,13 @@ open Command
 open Bot
 open ListQueue
 
+(* 
 
+TODO: make player with 2 of clubs start
+passing bot functions
+cleaning up a whole hand and restarting if they press deal
+
+*)
 
 module type RoundSig = sig
   type t
