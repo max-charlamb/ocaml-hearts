@@ -20,6 +20,7 @@ module type RoundSig = sig
   val is_next : t -> bool
   val bot_hand : t -> int -> PartialDeck.t
   val bot_pile : t -> (card * int) list
+  val get_scores : t -> (string * int) list
 end
 
 
@@ -277,6 +278,8 @@ module Round:RoundSig = struct
       | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
       | t -> Valid t
 
+  let get_scores t = 
+    List.map (fun p -> p.name, p.score) t.players
 
   let pass c = failwith "uni"
 

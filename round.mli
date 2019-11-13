@@ -41,6 +41,8 @@ module type RoundSig = sig
       Meant only for use with bots. *)
   val bot_pile : t -> (card * int) list
 
+  val get_scores : t -> (string * int) list
+
 end
 
 module Round:RoundSig
