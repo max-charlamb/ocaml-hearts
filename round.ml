@@ -200,7 +200,10 @@ module Round:RoundSig = struct
 
   let clean_up_trick t = 
     if hand_size t = 0 then 
-      t 
+      {
+        t with 
+        is_over = true;
+      }
       (* TODO: implement what to do when hand size is over*)
     else
       let leading_suite = 
