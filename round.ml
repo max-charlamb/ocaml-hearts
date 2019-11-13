@@ -284,6 +284,8 @@ module Round:RoundSig = struct
       | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
       | t -> Valid t
 
+  let get_scores t = 
+    List.map (fun p -> p.name, p.score) t.players
 
   let pass c = failwith "uni"
 
