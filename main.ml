@@ -52,7 +52,7 @@ let print_start_menu () =
   erase Screen;
   set_cursor (w/2 - 10) (2*h/3);
   print_string [red; on_white] "♡♡♡♡♡ Hearts ♡♡♡♡♡";
-  set_cursor 1 (2*h/3)
+  set_cursor 1 (h)
 
 let print_help_menu () =
   let (w,h) = size () in
