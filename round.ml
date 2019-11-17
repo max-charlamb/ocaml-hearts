@@ -13,14 +13,16 @@ module type RoundSig = sig
   val deal : t -> t
   val play : card -> t -> result
   val pass : card list -> t -> result
-  val hand : t -> int -> PartialDeck.t
+  val hand : t -> PartialDeck.t
   val pile : t -> (card * int) list
   val next : t -> t
   val description : t -> string
   val is_next : t -> bool
   val bot_hand : t -> int -> PartialDeck.t
   val bot_pile : t -> (card * int) list
-  val get_scores : t -> (string * int) list
+  val score : t -> int
+  val end_of_round_score : t -> int list 
+  val names : t -> string list
 end
 
 
@@ -43,6 +45,7 @@ module Round:RoundSig = struct
   type historySegment = {
     hands : PartialDeck.t list;
     pile : (card * int) list;
+    scores : int list;
     description : string;
   }
 
@@ -112,6 +115,7 @@ module Round:RoundSig = struct
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = t.pile;
+      scores = List.map (fun player -> player.score) players';
       description = "Cards were dealt."
     } in
     {
@@ -174,6 +178,7 @@ module Round:RoundSig = struct
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = pile';
+      scores = List.map (fun player -> player.score) players';
       description = (id_to_name id t) ^ " played the " 
                     ^ card_to_string card ^ "."
     } in
@@ -195,7 +200,10 @@ module Round:RoundSig = struct
 
   let clean_up_trick t = 
     if hand_size t = 0 then 
-      t 
+      {
+        t with 
+        is_over = true;
+      }
       (* TODO: implement what to do when hand size is over*)
     else
       let leading_suite = 
@@ -223,6 +231,7 @@ module Round:RoundSig = struct
       let new_history = {
         hands = List.map (fun player -> player.hand) players';
         pile = [];
+        scores = List.map (fun player -> player.score) players';
         description = (id_to_name (snd winner) t) ^ " won the trick with a " 
                       ^ card_to_string (fst winner) ^ ".";
       }
@@ -290,8 +299,14 @@ module Round:RoundSig = struct
       history = ListQueue.pop t.history;
     }
 
-  let hand t id = 
-    List.nth (ListQueue.peek t.history).hands id
+  let hand t = 
+    List.nth (ListQueue.peek t.history).hands 0
+
+  let score t = 
+    List.nth (ListQueue.peek t.history).scores 0
+
+  let end_of_round_score t = 
+    (ListQueue.peek t.history).scores
 
   let pile t = 
     (ListQueue.peek t.history).pile
@@ -307,5 +322,8 @@ module Round:RoundSig = struct
 
   let bot_pile t = 
     t.pile
+
+  let names t = 
+    List.map (fun player -> player.name) t.players
 
 end

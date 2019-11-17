@@ -75,14 +75,14 @@ let score_table t =
   move_cursor 2 (2);
   let rec aux_n = function
     | [] -> ""
-    | (a,_) :: [] -> a
-    | (a,_) :: t -> a ^ " | " ^ aux_n t in
-  print_string [on_default] (aux_n (Round.get_scores t));
+    | a :: [] -> a
+    | a :: t -> a ^ " | " ^ aux_n t in
+  print_string [on_default] (aux_n (Round.names t));
   set_cursor (3*w/5) (4*h/5);
   move_cursor 3 (3);
   let scores = 
-    List.fold_right (fun a acc -> " " ^ (snd a |> string_of_int) ^ "     " ^ acc) 
-      (Round.get_scores t) "" in
+    List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
+      (Round.end_of_round_score t) "" in
   print_string [on_default] scores
 
 let erase_print print = 
@@ -113,7 +113,7 @@ let rec display_history state =
       let (w,h) = size () in 
       print_pile (Round.pile state') (w/2) (2*h/3);
       set_cursor (1) (2*h/3);
-      print_hand (Round.hand state' 0) 1 1;
+      print_hand (Round.hand state') 1 1;
       set_cursor (1) (h-1);
       print_string [on_black; white] (Round.description state');
       score_table state';
@@ -124,7 +124,7 @@ let rec display_history state =
   else state
 
 let get_card i state = 
-  match PartialDeck.find i (Round.hand state 0) with 
+  match PartialDeck.find i (Round.hand state) with 
   | None -> failwith ""
   | Some x -> x
 
@@ -137,6 +137,7 @@ let rec home_loop bl state =
     set_cursor (1) (h);
     exit 0
   | Pass (i1,i2,i3) -> erase_print "Pass";
+
     set_cursor (1) (h);
     home_loop true state'
   | Play (i) -> begin let new_st = Round.play (get_card i state') state' in 
@@ -172,7 +173,7 @@ let rec home_loop bl state =
         | x -> x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state 0 with 
+    print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
@@ -184,7 +185,7 @@ let rec home_loop bl state =
         | x ->  x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state 0 with 
+    print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
