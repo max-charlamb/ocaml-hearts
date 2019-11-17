@@ -100,7 +100,7 @@ let rec read_line_safe state =
     score_table state;
     let (w,h) = size () in
     print_pile (Round.pile state) (w/2) (2*h/3);
-    print_hand (Round.hand state 0) 1 1;
+    print_hand (Round.hand state ) 1 1;
     set_cursor (1) (h);
     read_line_safe state
   | c -> c
@@ -146,12 +146,12 @@ let rec home_loop bl state =
         erase_print msg;
         score_table state';
         print_pile (Round.pile state') (w/2) (2*h/3);
-        print_hand (Round.hand state' 0) 1 1;
+        print_hand (Round.hand state') 1 1;
         home_loop true state'
       | Valid t -> 
         score_table t;
         print_pile (Round.pile state') (w/2) (2*h/3);
-        print_hand (Round.hand state' 0) 1 1;
+        print_hand (Round.hand state') 1 1;
         home_loop true t
     end
   | Help ->
