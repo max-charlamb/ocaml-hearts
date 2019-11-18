@@ -69,7 +69,7 @@ let print_table () =
   print_string [on_green] "                                  ";
   set_cursor (w/4) (h/4);
   move_cursor 6 9;
-  print_string [on_green] "                               "
+  print_string [on_green] "                              "
 
 let print_pile lst_cards x y = 
   print_table ();
