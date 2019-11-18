@@ -10,7 +10,7 @@ module type RoundSig = sig
   val new_round : t
 
   (* [deal t] deals the cards from a partial deck to all the players. *)
-  val deal : t -> t
+  val deal : t -> result
 
   (*[play c t] plays the card [c].*)
   val play : card -> t -> result
