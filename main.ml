@@ -35,7 +35,44 @@ let adjust_cursor w h i =
   | 3 -> set_cursor (2*w/3) (h/3)
   | _ -> failwith ""
 
+let print_table () = 
+  let (w,h) = size () in
+  set_cursor (w/4) (h/4);
+  move_cursor 6 (-1);
+  print_string [on_green] "                              ";
+  set_cursor (w/4) (h/4);
+  move_cursor 4 (0);
+  print_string [on_green] "                                  ";
+  set_cursor (w/4) (h/4);
+  move_cursor 3 1;
+  print_string [on_green] "                                    ";
+  set_cursor (w/4) (h/4);
+  move_cursor 2 2;
+  print_string [on_green] "                                      ";
+  set_cursor (w/4) (h/4);
+  move_cursor 1 3;
+  print_string [on_green] "                                        ";
+  set_cursor (w/4) (h/4);
+  move_cursor 1 4;
+  print_string [on_green] "                                        ";
+  set_cursor (w/4) (h/4);
+  move_cursor 1 5;
+  print_string [on_green] "                                        ";
+  set_cursor (w/4) (h/4);
+  move_cursor 2 6;
+  print_string [on_green] "                                      ";
+  set_cursor (w/4) (h/4);
+  move_cursor 3 7;
+  print_string [on_green] "                                    ";
+  set_cursor (w/4) (h/4);
+  move_cursor 4 8;
+  print_string [on_green] "                                  ";
+  set_cursor (w/4) (h/4);
+  move_cursor 6 9;
+  print_string [on_green] "                               "
+
 let print_pile lst_cards x y = 
+  print_table ();
   let rec aux lst_cards = 
     match lst_cards with 
     | (c, i) :: t -> let () = let (w, h) = size () in adjust_cursor w h i in
