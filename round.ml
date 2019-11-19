@@ -179,6 +179,10 @@ module Round:RoundSig = struct
     if t.first_round && card <> {suite=Club;rank=Two} then 
       raise (Default "problem in check_lead_first_round") else ()
 
+  let check_lead_hearts_broken id card t = 
+    if not t.hearts_broken && card.suite = Heart then 
+      raise (Default "hearts not yet broken") else ()
+
   let add_to_pile id card t = 
     let pile' = (card, id)::t.pile in
     let players' = List.map 
@@ -245,7 +249,12 @@ module Round:RoundSig = struct
       {
         scores = List.map (fun player -> player.score) t.players;
         pile = [];
-        players = players';
+        players = List.map (fun player -> 
+            {
+              player with 
+              hand = PartialDeck.empty; 
+              p_cards = PartialDeck.empty;
+            }) players';
         is_over = true;
         next_action = Deal;
         next_player = 0;
@@ -289,7 +298,8 @@ module Round:RoundSig = struct
   and 
     internal_lead id card t = 
     check_lead_in_turn id card t;
-    (* check_lead_first_round id card t; *)
+    check_lead_hearts_broken id card t;
+    check_lead_first_round id card t;
     check_in_hand id card t;
     let t' = add_to_pile id card t in
     increment_actions_play t' |> bot_actions
