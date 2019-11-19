@@ -13,6 +13,7 @@ type command =
   | Quit
   | Pass of card_triple
   | Play of index
+  | Select of string
   | Help
   | Restart
   | Score 

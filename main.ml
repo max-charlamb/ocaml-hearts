@@ -93,7 +93,7 @@ let print_pile lst_cards x y =
 let print_start_menu () =
   let (w,h) = size () in
   erase Screen;
-  set_cursor (w/2 - 10) (2*h/3);
+  set_cursor (w/2 - 10) (h/2);
   print_string [red; on_white] "♡♡♡♡♡ Hearts ♡♡♡♡♡";
   set_cursor 1 (h)
 
@@ -106,6 +106,23 @@ let print_help_menu () =
   print_string [red; on_white] 
     "Commands: \n    score, restart, quit, help, back, play [index]";
   set_cursor 1 (2*h/3)
+
+let print_bot_levels () = 
+  let (w,h) = size () in
+  erase Screen;
+  set_cursor (w/10) (h/2);
+  print_string [on_default] "Select one of the three difficulty levels by typing \"select [level]\"";
+  set_cursor (w/2 -10) (h/2);
+  move_cursor 0 (2);
+  print_string [on_default]  " easy | medium | hard ";
+  set_cursor 1 (h)
+
+let print_start_prompt () = 
+  let (w,h) = size () in
+  erase Screen;
+  set_cursor (w/8) (h/2);
+  print_string [on_default] "Now type \"start\" to begin the game!";
+  set_cursor 1 (h)
 
 let score_table t = 
   let (w,h) = size () in
@@ -139,11 +156,7 @@ let rec read_line_safe state =
   match parse (print_string [on_default] "> "; read_line ()) with 
   | exception Empty
   | exception Malformed -> 
-    erase_print "Error";
-    score_table state;
     let (w,h) = size () in
-    print_pile (Round.pile state) (w/2) (2*h/3);
-    print_hand (Round.hand state ) 1 1;
     set_cursor (1) (h);
     read_line_safe state
   | c -> c
@@ -175,7 +188,8 @@ let get_card i state =
   PartialDeck.find i (Round.hand state)
 
 let rec home_loop bl state =
-  let state' = if bl then (score_table state; display_history state) else state in
+  let state' = if bl then (score_table state; display_history state) 
+    else state in
   let (w,h) = size () in
   set_cursor (1) (h);
   match read_line_safe state with 
@@ -234,6 +248,11 @@ let rec home_loop bl state =
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
     home_loop true state'
+  | Select s -> begin
+      match Round.get_level state s with
+      | Valid t -> print_start_prompt (); home_loop false t;
+      | Invalid s -> set_cursor (1) (h-1); 
+        print_string [on_black; white] s; home_loop false state; end
   | Start -> erase_print "Start"; let (w,h) = size () in 
     score_table state;
     print_pile (match Round.pile state with 
@@ -267,6 +286,7 @@ and
   print_start_menu ();
   Unix.sleep 2;
   erase Screen;
+  print_bot_levels ();
   match Round.new_round |> Round.deal with 
   | Valid(t) -> home_loop false t
   | Invalid(_) -> failwith "error"
