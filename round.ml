@@ -178,7 +178,11 @@ module Round:RoundSig = struct
       raise (Default "problem in check_lead_first_round") else ()
 
   let check_lead_hearts_broken id card t = 
-    if not t.hearts_broken && card.suite = Heart then 
+    let user = List.nth t.players id in 
+    let contains_other_cards = (PartialDeck.voided Club user.hand) && 
+                               (PartialDeck.voided Diamond user.hand) &&
+                               (PartialDeck.voided Spade user.hand) in
+    if not t.hearts_broken && card.suite = Heart && contains_other_cards then 
       raise (Default "hearts not yet broken") else ()
 
   let add_to_pile id card t = 
