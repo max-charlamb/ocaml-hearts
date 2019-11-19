@@ -23,8 +23,8 @@ let print_hand d x y =
   in
   save_cursor ();
   set_cursor x y;
-  aux (PartialDeck.to_list d);
-  restore_cursor ()
+  aux (PartialDeck.to_list d);`
+    restore_cursor ()
 
 let adjust_cursor w h i = 
   match i with 
@@ -287,7 +287,7 @@ and
   Unix.sleep 2;
   erase Screen;
   print_bot_levels ();
-  match Round.new_round |> Round.deal with 
+  match Round.new_round Easy |> Round.deal with 
   | Valid(t) -> home_loop false t
   | Invalid(_) -> failwith "error"
 

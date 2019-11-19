@@ -1,13 +1,14 @@
 open Card
 open Partialdeck
 
+type difficulty = Easy | Medium | Hard
 
 module type RoundSig = sig
   type t
   type result = Valid of t | Invalid of string
 
-  (** [new_round] is a new game. *)
-  val new_round : t
+  (** [new_round d] is a new game of difficulty [d]. *)
+  val new_round : difficulty -> t
 
   (* [deal t] deals the cards from a partial deck to all the players. *)
   val deal : t -> result

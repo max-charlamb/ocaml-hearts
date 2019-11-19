@@ -4,18 +4,12 @@ open Command
 open Bot
 open ListQueue
 
-(* 
-
-TODO: make player with 2 of clubs start
-passing bot functions
-cleaning up a whole hand and restarting if they press deal
-
-*)
+type difficulty = Easy | Medium | Hard
 
 module type RoundSig = sig
   type t
   type result = Valid of t | Invalid of string
-  val new_round : t
+  val new_round : difficulty -> t
   val deal : t -> result
   val play : card -> t -> result
   val pass : card list -> t -> result
@@ -67,6 +61,7 @@ module Round:RoundSig = struct
     next_action: action;
     scores : int list;
     history : historySegment ListQueue.t;
+    difficulty : difficulty;
   }
 
   type result = Valid of t | Invalid of string
@@ -82,7 +77,7 @@ module Round:RoundSig = struct
       p_cards = PartialDeck.empty;
     }
 
-  let new_round = {
+  let new_round diff = {
     players = [create_player "Henry" 0; 
                create_player "Bot1" 1; 
                create_player "Bot2" 2; 
@@ -95,6 +90,7 @@ module Round:RoundSig = struct
     scores = [0;0;0;0];
     next_action = Deal;
     history = ListQueue.empty;
+    difficulty = diff
   }
 
   let insert_hand h p = 
@@ -248,7 +244,8 @@ module Round:RoundSig = struct
     }
     in
     if hand_size t = 0 then 
-      {
+      { 
+        t with 
         scores = List.map (fun player -> player.score) t.players;
         pile = [];
         players = List.map (fun player -> 
