@@ -175,7 +175,7 @@ let get_card i state =
   | Some x -> x
 
 let rec home_loop bl state =
-  let state' = if bl then let s = score_table state; display_history state in s else state in
+  let state' = if bl then (score_table state; display_history state) else state in
   let (w,h) = size () in
   set_cursor (1) (h);
   match read_line_safe state with 
