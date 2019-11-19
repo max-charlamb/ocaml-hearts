@@ -26,7 +26,6 @@ let print_hand d x y =
   aux (PartialDeck.to_list d);
   restore_cursor ()
 
-
 let adjust_cursor w h i = 
   match i with 
   | 0 -> set_cursor (w/2) (h/2)
@@ -35,43 +34,46 @@ let adjust_cursor w h i =
   | 3 -> set_cursor (2*w/3) (h/3)
   | _ -> failwith ""
 
+let rec spaces s l = 
+  if l > 0 then spaces (" "^s) (l-1) else s
+
 let print_table () = 
   let (w,h) = size () in
   set_cursor (w/4) (h/4);
   move_cursor (0) (-2);
   set_cursor (w/4) (h/4);
   move_cursor 0(-1);
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 (0);
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 1;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 2;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 3;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 4;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 5;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 6;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 7;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 8;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 9;
-  print_string [on_green] "                                          ";
+  print_string [on_green] (spaces "" (w/2));
   set_cursor (w/4) (h/4);
   move_cursor 0 (10)
 
@@ -170,12 +172,10 @@ let rec display_history state =
   | v -> v
 
 let get_card i state = 
-  match PartialDeck.find i (Round.hand state) with 
-  | None -> failwith ""
-  | Some x -> x
+  PartialDeck.find i (Round.hand state)
 
 let rec home_loop bl state =
-  let state' = if bl then let s = score_table state; display_history state in s else state in
+  let state' = if bl then (score_table state; display_history state) else state in
   let (w,h) = size () in
   set_cursor (1) (h);
   match read_line_safe state with 
@@ -183,22 +183,32 @@ let rec home_loop bl state =
     set_cursor (1) (h);
     exit 0
   | Pass (i1,i2,i3) -> erase_print "Pass";
-
     set_cursor (1) (h);
     home_loop true state'
-  | Play (i) -> begin let new_st = Round.play (get_card i state') state' in 
-      match new_st with 
-      | Invalid msg -> 
-        erase_print msg;
+  | Play (i) ->
+    begin
+      match get_card i state' with 
+      | Some x -> 
+        begin
+          match Round.play x state' with 
+          | Invalid msg -> 
+            erase_print msg;
+            score_table state';
+            print_pile (Round.pile state') (w/2) (2*h/3);
+            print_hand (Round.hand state') 1 1;
+            home_loop true state'
+          | Valid t -> 
+            score_table t;
+            print_pile (Round.pile state') (w/2) (2*h/3);
+            print_hand (Round.hand state') 1 1;
+            home_loop true t
+        end
+      | None -> 
+        erase_print "Card not found";
         score_table state';
         print_pile (Round.pile state') (w/2) (2*h/3);
         print_hand (Round.hand state') 1 1;
         home_loop true state'
-      | Valid t -> 
-        score_table t;
-        print_pile (Round.pile state') (w/2) (2*h/3);
-        print_hand (Round.hand state') 1 1;
-        home_loop true t
     end
   | Help ->
     erase_print "Help";
@@ -236,6 +246,22 @@ let rec home_loop bl state =
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
     home_loop true state'
+  | Deal -> 
+    begin 
+      let new_st = Round.deal state' in 
+      match new_st with 
+      | Invalid msg -> 
+        erase_print msg;
+        score_table state';
+        print_pile (Round.pile state') (w/2) (2*h/3);
+        print_hand (Round.hand state') 1 1;
+        home_loop true state'
+      | Valid t -> 
+        score_table t;
+        print_pile (Round.pile state') (w/2) (2*h/3);
+        print_hand (Round.hand state') 1 1;
+        home_loop true t
+    end
 and 
   main () = 
   print_start_menu ();
