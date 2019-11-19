@@ -105,7 +105,7 @@ let rec read_line_safe state =
     read_line_safe state
   | c -> c
 
-let rec display_history state = 
+let rec internal_display_history state = 
   if Round.is_next state then
     begin
       erase Screen;
@@ -119,9 +119,14 @@ let rec display_history state =
       score_table state';
       set_cursor (1) (h);
       Unix.sleepf 0.5;
-      display_history state';
+      internal_display_history state';
     end
   else state
+
+let rec display_history state = 
+  match internal_display_history state with 
+  | exception _ -> display_history state
+  | v -> v
 
 let get_card i state = 
   match PartialDeck.find i (Round.hand state) with 
@@ -129,7 +134,7 @@ let get_card i state =
   | Some x -> x
 
 let rec home_loop bl state =
-  let state' = if bl then let s = score_table state; display_history state in s else state in
+  let state' = if bl then (score_table state; display_history state) else state in
   let (w,h) = size () in
   set_cursor (1) (h);
   match read_line_safe state with 
@@ -196,7 +201,7 @@ and
   Unix.sleep 2;
   erase Screen;
   match Round.new_round |> Round.deal with 
-  | Valid(t) -> home_loop t
+  | Valid(t) -> home_loop false t
   | Invalid(_) -> failwith "error"
 
 
