@@ -292,7 +292,7 @@ module Round:RoundSig = struct
         (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t)) t
     | (Lead,id) -> 
       internal_lead t.next_player 
-        (Bot.lead (List.nth t.players id).hand t.pile) t
+        (Bot.lead (List.nth t.players id).hand t.pile (get_difficulty t)) t
     | (Pass,_) -> t
     | (Deal,_) -> failwith "uni"
   and 

@@ -4,7 +4,7 @@ open Card
 module type BotSig = sig 
 
   val play : PartialDeck.t -> (card * int) list -> string -> card
-  val lead : PartialDeck.t -> (card * int) list -> card
+  val lead : PartialDeck.t -> (card * int) list -> string -> card
   val pass : PartialDeck.t -> (card * int) list -> card list
 
 end
@@ -90,7 +90,7 @@ module Bot:BotSig = struct
     | "hard" -> play_easy hand pile 
     | _ -> play_easy hand pile
 
-  let lead hand pile = 
+  let lead_easy hand pile =
     match PartialDeck.lowest hand Club with
     | exception CardNotFound ->
       begin 
@@ -110,6 +110,55 @@ module Bot:BotSig = struct
         | c -> c
       end
     | c -> c
+
+  let lead_medium hand pile =
+    match PartialDeck.highest hand Club with
+    | exception CardNotFound ->
+      begin 
+        match PartialDeck.highest hand Diamond with
+        | exception CardNotFound ->
+          begin 
+            match PartialDeck.lowest hand Spade with
+            | exception CardNotFound ->
+              begin 
+                match PartialDeck.lowest hand Heart with
+                | exception CardNotFound ->
+                  failwith "Hand has no cards"
+                | c -> c
+              end
+            | c -> c
+          end
+        | c -> c
+      end
+    | c -> c
+
+  let lead_hard hand pile =
+    match PartialDeck.highest hand Club with
+    | exception CardNotFound ->
+      begin 
+        match PartialDeck.highest hand Diamond with
+        | exception CardNotFound ->
+          begin 
+            match PartialDeck.lowest hand Spade with
+            | exception CardNotFound ->
+              begin 
+                match PartialDeck.lowest hand Heart with
+                | exception CardNotFound ->
+                  failwith "Hand has no cards"
+                | c -> c
+              end
+            | c -> c
+          end
+        | c -> c
+      end
+    | c -> c
+
+  let lead hand pile diff = 
+    match diff with 
+    | "easy" -> lead_easy hand pile
+    | "medium" -> lead_medium hand pile
+    | "hard" -> lead_hard hand pile
+    | _ -> lead_easy hand pile
 
   let pass deck pile = 
     failwith "uni"
