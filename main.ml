@@ -95,7 +95,7 @@ let print_start_menu () =
   erase Screen;
   set_cursor (w/2 - 10) (h/2);
   print_string [red; on_white] "♡♡♡♡♡ Hearts ♡♡♡♡♡";
-  set_cursor 1 (h)
+  set_cursor 1 (h-1)
 
 let print_help_menu () =
   let (w,h) = size () in
@@ -115,14 +115,14 @@ let print_bot_levels () =
   set_cursor (w/2 -10) (h/2);
   move_cursor 0 (2);
   print_string [on_default]  " easy | medium | hard ";
-  set_cursor 1 (h)
+  set_cursor 1 (h-1)
 
 let print_start_prompt () = 
   let (w,h) = size () in
   erase Screen;
   set_cursor (w/4) (h/2);
   print_string [on_default] "Great! Now type \"start\" to begin the game!";
-  set_cursor 1 (h)
+  set_cursor 1 (h-1)
 
 let score_table t = 
   let (w,h) = size () in
@@ -153,11 +153,13 @@ let erase_print print =
   move_bol ()
 
 let rec read_line_safe () = 
+  let (w,h) = size () in
+  set_cursor (1) (h-1);
   match parse (print_string [on_default] "> "; read_line ()) with 
   | exception Empty
   | exception Malformed -> 
-    let (w,h) = size () in
-    set_cursor (1) (h);
+    set_cursor (1) (h-1);
+    erase Eol;
     read_line_safe ()
   | c -> c
 
@@ -170,10 +172,10 @@ let rec internal_display_history state =
       print_pile (Round.pile state') (w/2) (2*h/3);
       set_cursor (1) (2*h/3);
       print_hand (Round.hand state') 1 1;
-      set_cursor (1) (h-1);
+      set_cursor (1) (h-2);
       print_string [on_black; white] (Round.description state');
       score_table state';
-      set_cursor (1) (h);
+      set_cursor (1) (h-1);
       Unix.sleepf 0.5;
       internal_display_history state';
     end
@@ -191,13 +193,13 @@ let get_difficulty = function
   | "easy" -> Round.Easy
   | "medium" -> Round.Medium
   | "hard" -> Round.Hard
-  | _ -> failwith "Not a valid level"
+  | _ -> Round.Invalid
 
 let rec home_loop bl state =
   let state' = if bl then (score_table state; display_history state) 
     else state in
   let (w,h) = size () in
-  set_cursor (1) (h);
+  set_cursor (1) (h-1);
   match read_line_safe () with 
   | Quit -> erase_print "Quit";
     set_cursor (1) (h);
@@ -288,18 +290,27 @@ and
   print_start_menu ();
   Unix.sleep 2;
   erase Screen;
-  print_bot_levels ();
   difficulty ();
 
 and difficulty () = 
   let (w,h) = size () in
-  set_cursor (1) (h);
-  match read_line_safe () with 
-  | Select s -> print_start_prompt ();
-    begin  match Round.new_round (get_difficulty s) |> Round.deal with 
-      | Valid (t) -> home_loop false t
-      | Invalid(_) -> main(); end
-  | _ -> failwith "error"
+  print_bot_levels ();
+  begin match read_line_safe () with 
+    | Select s ->  
+      begin match get_difficulty s with
+        | Round.Invalid ->
+          print_string [on_black; white] "Not a valid level!"; 
+          Unix.sleep 2; set_cursor (1) (h-1);
+          difficulty ();
+        | d -> print_start_prompt ();
+          begin  match Round.new_round (d) |> Round.deal with 
+            | Valid (t) -> home_loop false t
+            | Invalid(_) -> difficulty(); end 
+      end
+    | Quit -> erase_print "Quit";
+      set_cursor (1) (h-1);
+      exit 0
+    | _ -> erase Screen; difficulty () end
 
 
 
