@@ -118,7 +118,7 @@ let rec display_history state =
       print_string [on_black; white] (Round.description state');
       score_table state';
       set_cursor (1) (h);
-      Unix.sleepf 1.0;
+      Unix.sleepf 0.5;
       display_history state';
     end
   else state
@@ -195,7 +195,10 @@ and
   print_start_menu ();
   Unix.sleep 2;
   erase Screen;
-  Round.new_round |> Round.deal |> home_loop false
+  match Round.new_round |> Round.deal with 
+  | Valid(t) -> home_loop t
+  | Invalid(_) -> failwith "error"
+
 
 
 let () = main ()
