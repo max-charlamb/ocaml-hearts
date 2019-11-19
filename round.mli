@@ -54,6 +54,8 @@ module type RoundSig = sig
 
   val get_level : t -> string -> result
 
+  val get_difficulty : t -> string
+
 end
 
 module Round:RoundSig

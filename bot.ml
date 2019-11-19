@@ -1,10 +1,9 @@
 open Partialdeck
 open Card
-open Round
 
 module type BotSig = sig 
 
-  val play : PartialDeck.t -> (card * int) list -> card
+  val play : PartialDeck.t -> (card * int) list -> string -> card
   val lead : PartialDeck.t -> (card * int) list -> card
   val pass : PartialDeck.t -> (card * int) list -> card list
 
@@ -66,26 +65,30 @@ module Bot:BotSig = struct
       end 
     | c -> c
 
-  and play_med_helper hand pile queen_played queen_table heart_pile = 
-    match queen_played, queen_table, heart_pile with 
-    | true, false, _ -> play_highest hand pile
-    | true, true, _
-    | false, true, _ -> play hand pile
-    | false, false, _ -> if List.length pile = 3 then play_highest hand pile 
-      else play hand pile
+  and play_med_helper hand pile queen_played queen_table = 
+    match queen_played, queen_table with 
+    | true, false -> play_highest hand pile
+    | true, true
+    | false, true -> play_easy hand pile
+    | false, false -> if List.length pile = 3 then play_highest hand pile 
+      else play_easy hand pile
 
 
-  and play_med hand pile qspade qspadetable heart_pile =
+  and play_med hand pile qspade qspadetable =
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in 
     match pile_suite with 
-    | Club -> play hand pile 
-    | Diamond -> play hand pile
-    | Spade -> play_med_helper hand pile qspade qspadetable heart_pile
-    | Heart -> play hand pile
+    | Club -> play_easy hand pile 
+    | Diamond -> play_easy hand pile
+    | Spade -> play_med_helper hand pile qspade qspadetable
+    | Heart -> play_easy hand pile
 
 
-  and play hand pile =
-    play_easy hand pile
+  and play hand pile diff =
+    match diff with 
+    | "easy" -> play_easy hand pile
+    | "medium" -> play_med hand pile true true
+    | "hard" -> play_easy hand pile 
+    | _ -> play_easy hand pile
 
   let lead hand pile = 
     match PartialDeck.lowest hand Club with

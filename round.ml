@@ -24,6 +24,7 @@ module type RoundSig = sig
   val end_of_round_score : t -> int list 
   val names : t -> string list
   val get_level : t -> string -> result
+  val get_difficulty : t -> string
 end
 
 
@@ -277,12 +278,18 @@ module Round:RoundSig = struct
         history = ListQueue.push new_history t.history;
       }
 
+  let get_difficulty t = 
+    match t.difficulty with
+    | Easy -> "easy"
+    | Medium -> "medium"
+    | Hard -> "hard"
+
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
     | (_,0) -> t
     | (Play,id) -> 
       internal_play t.next_player 
-        (Bot.play (List.nth t.players id).hand t.pile) t
+        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t)) t
     | (Lead,id) -> 
       internal_lead t.next_player 
         (Bot.lead (List.nth t.players id).hand t.pile) t
