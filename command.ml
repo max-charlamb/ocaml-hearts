@@ -7,6 +7,7 @@ type command =
   | Quit
   | Pass of card_triple
   | Play of index
+  | Select of string
   | Help
   | Restart
   | Score
@@ -42,6 +43,11 @@ let make_play rest =
   | h :: [] -> Play (get_index h)
   | _ -> raise Malformed
 
+let make_select rest = 
+  match get_words [] rest with 
+  | h :: [] -> Select (h)
+  | _ -> raise Malformed
+
 let make_pass rest = 
   match get_words [] rest with 
   | a :: b :: c :: [] -> Pass (get_index a, get_index b, get_index c)
@@ -52,6 +58,7 @@ let make_command rest = function
   | "help" -> Help
   | "restart" -> Restart
   | "score" -> Score
+  | "select" -> make_select rest
   | "pass" -> make_pass rest
   | "play" -> make_play rest
   | "back" -> Back

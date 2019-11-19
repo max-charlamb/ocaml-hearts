@@ -23,6 +23,7 @@ module type RoundSig = sig
   val score : t -> int
   val end_of_round_score : t -> int list 
   val names : t -> string list
+  val get_level : t -> string -> result
 end
 
 
@@ -32,6 +33,7 @@ module Round:RoundSig = struct
   exception InvalidCardPlayed
   exception BotError
 
+  type level = Easy | Medium | Hard
   type action = Play | Lead | Pass | Deal
 
   type player = {
@@ -370,5 +372,11 @@ module Round:RoundSig = struct
 
   let names t = 
     List.map (fun player -> player.name) t.players
+
+  let get_level t = function
+    | "easy"
+    | "medium"
+    | "hard" -> Valid t
+    | _ -> Invalid "Not a valid level!"
 
 end
