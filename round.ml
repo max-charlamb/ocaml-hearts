@@ -6,7 +6,7 @@ open ListQueue
 
 module type RoundSig = sig
   type t
-  type difficulty = Easy | Medium | Hard
+  type difficulty = Easy | Medium | Hard | Invalid
   type result = Valid of t | Invalid of string
   val new_round : difficulty -> t
   val deal : t -> result
@@ -31,7 +31,7 @@ module Round:RoundSig = struct
   exception InvalidCardPlayed
   exception BotError
 
-  type difficulty = Easy | Medium | Hard
+  type difficulty = Easy | Medium | Hard | Invalid
   type action = Play | Lead | Pass | Deal
 
   type player = {
