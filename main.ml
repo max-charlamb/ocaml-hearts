@@ -120,8 +120,8 @@ let print_bot_levels () =
 let print_start_prompt () = 
   let (w,h) = size () in
   erase Screen;
-  set_cursor (w/8) (h/2);
-  print_string [on_default] "Now type \"start\" to begin the game!";
+  set_cursor (w/4) (h/2);
+  print_string [on_default] "Great! Now type \"start\" to begin the game!";
   set_cursor 1 (h)
 
 let score_table t = 
@@ -152,13 +152,13 @@ let erase_print print =
   move_cursor 0 2;
   move_bol ()
 
-let rec read_line_safe state = 
+let rec read_line_safe () = 
   match parse (print_string [on_default] "> "; read_line ()) with 
   | exception Empty
   | exception Malformed -> 
     let (w,h) = size () in
     set_cursor (1) (h);
-    read_line_safe state
+    read_line_safe ()
   | c -> c
 
 let rec internal_display_history state = 
@@ -187,12 +187,18 @@ let rec display_history state =
 let get_card i state = 
   PartialDeck.find i (Round.hand state)
 
+let get_difficulty = function
+  | "easy" -> Round.Easy
+  | "medium" -> Round.Medium
+  | "hard" -> Round.Hard
+  | _ -> failwith "Not a valid level"
+
 let rec home_loop bl state =
   let state' = if bl then (score_table state; display_history state) 
     else state in
   let (w,h) = size () in
   set_cursor (1) (h);
-  match read_line_safe state with 
+  match read_line_safe () with 
   | Quit -> erase_print "Quit";
     set_cursor (1) (h);
     exit 0
@@ -248,11 +254,7 @@ let rec home_loop bl state =
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
     home_loop true state'
-  | Select s -> begin
-      match Round.get_level state s with
-      | Valid t -> print_start_prompt (); home_loop false t;
-      | Invalid s -> set_cursor (1) (h-1); 
-        print_string [on_black; white] s; home_loop false state; end
+  | Select s -> begin erase_print "Select"; end
   | Start -> erase_print "Start"; let (w,h) = size () in 
     score_table state;
     print_pile (match Round.pile state with 
@@ -287,9 +289,18 @@ and
   Unix.sleep 2;
   erase Screen;
   print_bot_levels ();
-  match Round.new_round Easy |> Round.deal with 
-  | Valid(t) -> home_loop false t
-  | Invalid(_) -> failwith "error"
+  difficulty ();
+
+and difficulty () = 
+  let (w,h) = size () in
+  set_cursor (1) (h);
+  match read_line_safe () with 
+  | Select s -> print_start_prompt ();
+    begin  match Round.new_round (get_difficulty s) |> Round.deal with 
+      | Valid (t) -> home_loop false t
+      | Invalid(_) -> main(); end
+  | _ -> failwith "error"
+
 
 
 
