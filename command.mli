@@ -18,6 +18,7 @@ type command =
   | Score 
   | Back
   | Start
+  | Deal
 
 (** Raised when the user inputs an empty command. *)
 exception Empty
