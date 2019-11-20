@@ -68,7 +68,6 @@ module Print:PrintSig = struct
       print_table (n - 1)
     else ()
 
-
   let print_pile lst_cards x y = 
     print_table 12;
     let rec aux lst_cards = 
