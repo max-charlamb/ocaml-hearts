@@ -26,10 +26,8 @@ let rec home_loop bl state =
   let (w,h) = size () in
   match Print.read_line_safe () with 
   | Quit -> Print.erase_print "Quit";
-    set_cursor (1) (h-1);
     exit 0
   | Pass (i1,i2,i3) -> Print.erase_print "Pass";
-    set_cursor (1) (h-1);
     home_loop true state'
   | Play (i) ->
     begin
@@ -58,41 +56,20 @@ let rec home_loop bl state =
     end
   | Help ->
     Print.erase_print "Help";
-    set_cursor (1) (2*h/3);
     Print.print_help_menu ();
     home_loop false state'
   | Restart ->
     Print.erase_print "Restart";
-    set_cursor (1) (2*h/3);
     main ()
-  | Score ->
-    Print.erase_print "Score";
-    home_loop true state'
   | Back -> Print.erase_print "Back";
-    let (w,h) = size () in 
     Print.print_pile (match Round.pile state with 
         | exception Failure _ -> []
         | x -> x ) (w/2) (2*h/3);
-    let (w,h) = size () in
-    set_cursor (1) (2*h/3);
     Print.print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
-    set_cursor (1) (2*h/3);
     home_loop true state'
   | Select s -> begin Print.erase_print "Select"; end
-  | Start -> Print.erase_print "Start"; let (w,h) = size () in 
-    Print.score_table state;
-    Print.print_pile (match Round.pile state with 
-        | exception Failure _ -> []
-        | x ->  x ) (w/2) (2*h/3);
-    let (w,h) = size () in
-    set_cursor (1) (2*h/3);
-    Print.print_hand (match Round.hand state with 
-        | exception Failure _ -> PartialDeck.empty
-        | x -> x) 1 1;
-    set_cursor (1) (2*h/3);
-    home_loop true state'
   | Deal -> 
     begin 
       let new_st = Round.deal state' in 
@@ -117,22 +94,17 @@ and
   difficulty ();
 
 and difficulty () = 
-  let (w,h) = size () in
-  Print.print_bot_levels ();
-  begin match Print.read_line_safe () with 
+  begin match Print.read_line_safe (Print.print_bot_levels ()) with 
     | Select s ->  
       begin match get_difficulty s with
         | Round.Invalid ->
-          print_string [on_black; white] "Not a valid level!"; 
-          Unix.sleep 2; set_cursor (1) (h-1);
           difficulty ();
         | d -> Print.print_start_prompt ();
           begin  match Round.new_round (d) |> Round.deal with 
-            | Valid (t) -> home_loop false t
+            | Valid (t) -> home_loop true t
             | Invalid(_) -> difficulty(); end 
       end
     | Quit -> Print.erase_print "Quit";
-      set_cursor (1) (h-1);
       exit 0
     | _ -> erase Screen; difficulty () end
 

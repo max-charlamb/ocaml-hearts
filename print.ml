@@ -30,7 +30,7 @@ module Print:PrintSig = struct
       | (c, i)::t -> 
         set_cursor (1) (-1);
         print_card c;
-        print_string [on_white;black] (" "^(string_of_int i));
+        print_string [on_white;black] (" | "^(string_of_int i));
         move_cursor (0) 1;
         aux t
       | [] -> ()
@@ -111,84 +111,98 @@ module Print:PrintSig = struct
     print_string [white; on_red] (spaces "♡" (8));
     print_string [] (spaces " " 8);
     print_string [white; on_red] (spaces "♡" (8));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-2) 1;
     print_string [white; on_red] (spaces "♡" (12));
     print_string [] (spaces " " 4);
     print_string [white; on_red] (spaces "♡" (12));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-4) 2;
     print_string [white; on_red] (spaces "♡" (32));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-4) 3;
     print_string [white; on_red] (spaces "♡" (32));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-4) 4;
     print_string [white; on_red] (spaces "♡" (32));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-4) 5;
     print_string [white; on_red] (spaces "♡" (12));
     print_string [white; on_red] (" HEARTS ");
     print_string [white; on_red] (spaces "♡" (12));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-4) 6;
     print_string [white; on_red] (spaces "♡" (32));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (-2) 7;
     print_string [white; on_red] (spaces "♡" (28));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (0) 8;
     print_string [white; on_red] (spaces "♡" (24));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (2) 9;
     print_string [white; on_red] (spaces "♡" (20));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (4) 10;
     print_string [white; on_red] (spaces "♡" (16));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (6) 11;
     print_string [white; on_red] (spaces "♡" (12));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (8) 12;
     print_string [white; on_red] (spaces "♡" (8));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor (w/2 - 12) (h/4);
     move_cursor (10) 13;
     print_string [white; on_red] (spaces "♡" (4));
-    Unix.sleepf 0.25;
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
     set_cursor 1 (h-1)
 
   let print_help_menu () =
     let (w,h) = size () in
     erase Screen;
     set_cursor (w/2 - 10) (h/3);
-    print_string [white; on_red] "Rules of Hearts: ";
+    print_string [on_default] "Rules of Hearts: ";
     set_cursor (w/2 - 10) (h/3);
     move_cursor (-5) 1;
-    print_string [white; on_red] 
-      "Commands: \n    score, restart, quit, help, back, play [index]";
+    print_string [on_default] 
+      "Commands - | score | restart | quit | help | back | play [index] |";
     set_cursor 1 (2*h/3)
 
   let print_bot_levels () = 
     let (w,h) = size () in
     erase Screen;
     set_cursor (w/10) (h/2);
-    print_string [red] "Select one of the three difficulty levels by typing \"select [level]\"";
+    print_string [on_default] "Select one of the three difficulty levels by typing \"select [level]\"";
     set_cursor (w/2 -10) (h/2);
     move_cursor 0 (2);
-    print_string [red]  " easy | medium | hard ";
+    print_string [on_default]  " easy | medium | hard ";
     set_cursor 1 (h-1)
 
   let print_start_prompt () = 
@@ -232,16 +246,13 @@ module Print:PrintSig = struct
         print_string [on_black; white] (Round.description state');
         score_table state';
         set_cursor (1) (h-1);
-        Unix.sleepf 0.25;
+        Unix.sleepf 0.75;
         internal_display_history state';
       end
     else state
 
   let erase_print print = 
     erase Screen;
-    move_cursor 0 (-2);
-    print_string [] print;
-    move_cursor 0 2;
     move_bol ()
 
   let rec read_line_safe () = 

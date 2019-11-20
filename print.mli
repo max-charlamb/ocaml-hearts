@@ -18,7 +18,7 @@ module type PrintSig = sig
   val erase_print : string -> unit
   val print_pile : (Card.card * int) list -> int -> int -> unit
   val internal_display_history : Round.t -> Round.t
-  val read_line_safe : unit -> Command.command
+  val read_line_safe : unit  -> Command.command
 
 end
 

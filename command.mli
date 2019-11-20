@@ -16,9 +16,7 @@ type command =
   | Select of string
   | Help
   | Restart
-  | Score 
   | Back
-  | Start
   | Deal
 
 (** Raised when the user inputs an empty command. *)
