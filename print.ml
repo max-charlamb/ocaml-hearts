@@ -9,10 +9,9 @@ module type PrintSig = sig
 
   val print_hand : Partialdeck.PartialDeck.t -> int -> int -> unit
   val adjust_cursor : int -> int -> int -> unit
-  val print_table : unit -> unit
+  val print_table : int -> unit
   val print_start_menu : unit -> unit
   val print_help_menu : unit -> unit
-  val print_start_prompt : unit -> unit
   val print_bot_levels : unit -> unit
   val score_table : Round.t -> unit
   val erase_print : string -> unit
@@ -51,48 +50,27 @@ module Print:PrintSig = struct
   let rec spaces s l = 
     if l > 0 then s ^ spaces (s) (l-1) else ""
 
-  let print_table () = 
-    let (w,h) = size () in
-    set_cursor (w/4) (h/4);
-    move_cursor (0) (-2);
-    set_cursor (w/4) (h/4);
-    move_cursor 0(-1);
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 (0);
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 1;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 2;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 3;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 4;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 5;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 6;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 7;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 8;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 9;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 (10)
+  let rec print_border height n leading = 
+    if n >= 0 then 
+      let (w,h) = size () in
+      set_cursor (leading) (height + n);
+      print_string [white; on_red] "♡♡";
+      set_cursor (w - leading) (height + n);
+      print_string [white; on_red] "♡♡";
+      print_border height (n-1) leading
+    else ()
+
+  let rec print_table n = 
+    if n >= 0 then 
+      let (w,h) = size () in
+      set_cursor (w/4) (h/4 + (n - 2));
+      print_string [on_green] (spaces " " (w/2 + 4));
+      print_table (n - 1)
+    else ()
+
 
   let print_pile lst_cards x y = 
-    print_table ();
+    print_table 12;
     let rec aux lst_cards = 
       match lst_cards with 
       | (c, i) :: t -> let () = let (w, h) = size () in adjust_cursor w h i in
@@ -187,29 +165,52 @@ module Print:PrintSig = struct
   let print_help_menu () =
     let (w,h) = size () in
     erase Screen;
-    set_cursor (w/2 - 10) (h/3);
-    print_string [on_default] "Rules of Hearts: ";
-    set_cursor (w/2 - 10) (h/3);
-    move_cursor (-5) 1;
+    set_cursor (1) (1);
+    print_string [white; on_red] (spaces "♡" (w));
+    set_cursor (4) (2);
+    print_string [on_default] "Rules of Hearts:";
+    set_cursor (4) (3);
     print_string [on_default] 
-      "Commands - | score | restart | quit | help | back | play [index] |";
+      "The objective of Hearts is to get as few points as possible. 
+   Each heart gives one penalty point. There is also one special card, the 
+   Queen of spades, which gives 13 penalty points. Each turn starts with 
+   one player playing a single card, also called leading. The suit of that 
+   card determines the suit of the trick. The other players then play one 
+   card each. If they have a card in the same suit as the first card then 
+   they must play that. If they don't then they can play one of their other 
+   cards. Once four cards have been played, the player who played the highest 
+   ranking card in the original suit takes the trick, i.e. they take the four 
+   cards on the table and he then starts the next turn. Any penalty cards in 
+   the trick (hearts or queen of spades) are added to the players penalty 
+   score. So you want to avoid taking any tricks that have hearts or the 
+   queen of spades.";
+    set_cursor (4) 17;
+    print_string [on_default]
+      "Commands - | restart | quit | help | back | play [index] |";
+    set_cursor (4) 19;
+    print_string [on_default] "To return back to the previous screen type ";
+    print_string [black; on_white] "back";
+    set_cursor (1) (20);
+    print_string [white; on_red] (spaces "♡" (w));
+    print_border (1) 18 1;
     set_cursor 1 (2*h/3)
 
   let print_bot_levels () = 
     let (w,h) = size () in
     erase Screen;
-    set_cursor (w/10) (h/2);
-    print_string [on_default] "Select one of the three difficulty levels by typing \"select [level]\"";
-    set_cursor (w/2 -10) (h/2);
-    move_cursor 0 (2);
-    print_string [on_default]  " easy | medium | hard ";
-    set_cursor 1 (h-1)
-
-  let print_start_prompt () = 
-    let (w,h) = size () in
-    erase Screen;
-    set_cursor (w/4) (h/2);
-    print_string [on_default] "Great! Now type \"start\" to begin the game!";
+    print_border  (h/3) 6 1;
+    set_cursor (1) (h/3);
+    print_string [white; on_red] (spaces "♡" (w));
+    set_cursor (w/2 - 32) (h/3 + 2);
+    print_string [on_default] "Select one of the three difficulty levels by typing ";
+    print_string [black; on_white] "select [level]";
+    set_cursor (w/2 - 9) (h/3 + 3);
+    print_string [on_default]  "easy | medium | hard";
+    set_cursor (w/2 - 15) (h/3 + 5);
+    print_string [on_default]  "If you don't know the rules, type ";
+    print_string [black; on_white] "help";
+    set_cursor (1) (h/3 + 7);
+    print_string [white; on_red] (spaces "♡" (w));
     set_cursor 1 (h-1)
 
   let score_table t = 
@@ -253,7 +254,11 @@ module Print:PrintSig = struct
 
   let erase_print print = 
     erase Screen;
+    move_cursor 0 (-2);
+    print_string [] print;
+    move_cursor 0 2;
     move_bol ()
+
 
   let rec read_line_safe () = 
     let (w,h) = size () in

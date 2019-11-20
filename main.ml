@@ -91,21 +91,26 @@ and
   Print.print_start_menu ();
   Unix.sleepf 1.5;
   erase Screen;
-  difficulty ();
+  difficulty () true;
 
-and difficulty () = 
-  begin match Print.read_line_safe (Print.print_bot_levels ()) with 
+and difficulty () b = 
+  let print_choice = if b then (Print.print_bot_levels ()) 
+    else Print.print_help_menu () in
+  begin match Print.read_line_safe (print_choice) with 
     | Select s ->  
       begin match get_difficulty s with
         | Round.Invalid ->
-          difficulty ();
-        | d -> Print.print_start_prompt ();
-          begin  match Round.new_round (d) |> Round.deal with 
+          difficulty () true;
+        | d -> begin  match Round.new_round (d) |> Round.deal with 
             | Valid (t) -> home_loop true t
-            | Invalid(_) -> difficulty(); end 
+            | Invalid(_) -> difficulty () true; end 
       end
     | Quit -> Print.erase_print "Quit";
       exit 0
-    | _ -> erase Screen; difficulty () end
+    | Help ->
+      Print.erase_print "Help";
+      Print.print_help_menu ();
+      difficulty () false
+    | _ -> erase Screen; difficulty () true end
 
 let () = main ()
