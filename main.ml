@@ -26,7 +26,7 @@ let rec home_loop bl state =
   let (w,h) = size () in
   match Print.read_line_safe () with 
   | Quit -> Print.erase_print "Quit";
-    set_cursor (1) (h);
+    set_cursor (1) (h-1);
     exit 0
   | Pass (i1,i2,i3) -> Print.erase_print "Pass";
     set_cursor (1) (h-1);
