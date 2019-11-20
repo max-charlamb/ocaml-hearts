@@ -51,45 +51,19 @@ module Print:PrintSig = struct
   let rec spaces s l = 
     if l > 0 then s ^ spaces (s) (l-1) else ""
 
+
   let print_table () = 
     let (w,h) = size () in
+    let rec aux n = 
+      if n > 0 then 
+        ((print_string [on_green] (spaces " " (w/2));
+          move_cursor (-w/2) (1));
+         aux (n-1))
+      else ()
+    in
     set_cursor (w/4) (h/4);
     move_cursor (0) (-2);
-    set_cursor (w/4) (h/4);
-    move_cursor 0(-1);
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 (0);
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 1;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 2;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 3;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 4;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 5;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 6;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 7;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 8;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 9;
-    print_string [on_green] (spaces " " (w/2));
-    set_cursor (w/4) (h/4);
-    move_cursor 0 (10)
+    aux (h/2)
 
   let print_pile lst_cards x y = 
     print_table ();
