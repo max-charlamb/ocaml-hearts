@@ -4,185 +4,10 @@ open Command
 open Card
 open Partialdeck
 open Round
-
-
-let hand = PartialDeck.empty |> PartialDeck.insert {rank = Three; suite = Spade}
-           |> PartialDeck.insert {rank= King; suite=Diamond} |> PartialDeck.insert {rank= Four; suite=Diamond} |> PartialDeck.insert {rank=Queen;suite=Club}
-let midpile = [({rank=Jack; suite = Club}, 1);({rank=King; suite = Club}, 0); ({rank=Six; suite=Spade}, 3);({rank=Ten; suite = Heart},2)]
-
-let print_hand d x y = 
-  let rec aux hand_lst=
-    match hand_lst with
-    | (c, i)::t -> 
-      set_cursor (1) (-1);
-      print_card c;
-      print_string [on_white;black] (" "^(string_of_int i));
-      move_cursor (0) 1;
-      aux t
-    | [] -> ()
-  in
-  save_cursor ();
-  set_cursor x y;
-  aux (PartialDeck.to_list d);`
-    restore_cursor ()
-
-let adjust_cursor w h i = 
-  match i with 
-  | 0 -> set_cursor (w/2) (h/2)
-  | 1 -> set_cursor (w/3) (h/3)
-  | 2 -> set_cursor (w/2) (h/4)
-  | 3 -> set_cursor (2*w/3) (h/3)
-  | _ -> failwith ""
-
-let rec spaces s l = 
-  if l > 0 then spaces (" "^s) (l-1) else s
-
-let print_table () = 
-  let (w,h) = size () in
-  set_cursor (w/4) (h/4);
-  move_cursor (0) (-2);
-  set_cursor (w/4) (h/4);
-  move_cursor 0(-1);
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 (0);
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 1;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 2;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 3;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 4;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 5;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 6;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 7;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 8;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 9;
-  print_string [on_green] (spaces "" (w/2));
-  set_cursor (w/4) (h/4);
-  move_cursor 0 (10)
-
-let print_pile lst_cards x y = 
-  print_table ();
-  let rec aux lst_cards = 
-    match lst_cards with 
-    | (c, i) :: t -> let () = let (w, h) = size () in adjust_cursor w h i in
-      print_card_tall c;
-      aux t 
-    | [] -> ()
-  in save_cursor ();
-  set_cursor x y; 
-  aux lst_cards;
-  restore_cursor ()
-
-let print_start_menu () =
-  let (w,h) = size () in
-  erase Screen;
-  set_cursor (w/2 - 10) (h/2);
-  print_string [red; on_white] "♡♡♡♡♡ Hearts ♡♡♡♡♡";
-  set_cursor 1 (h-1)
-
-let print_help_menu () =
-  let (w,h) = size () in
-  erase Screen;
-  set_cursor (1) (h/3);
-  print_string [red; on_white] "\nRules of Hearts: ";
-  set_cursor (1) (h/5);
-  print_string [red; on_white] 
-    "Commands: \n    score, restart, quit, help, back, play [index]";
-  set_cursor 1 (2*h/3)
-
-let print_bot_levels () = 
-  let (w,h) = size () in
-  erase Screen;
-  set_cursor (w/10) (h/2);
-  print_string [on_default] "Select one of the three difficulty levels by typing \"select [level]\"";
-  set_cursor (w/2 -10) (h/2);
-  move_cursor 0 (2);
-  print_string [on_default]  " easy | medium | hard ";
-  set_cursor 1 (h-1)
-
-let print_start_prompt () = 
-  let (w,h) = size () in
-  erase Screen;
-  set_cursor (w/4) (h/2);
-  print_string [on_default] "Great! Now type \"start\" to begin the game!";
-  set_cursor 1 (h-1)
-
-let score_table t = 
-  let (w,h) = size () in
-  set_cursor (3*w/5) (4*h/5);
-  print_string [on_default] "      Total game score";
-  set_cursor (3*w/5) (4*h/5);
-  move_cursor 0 (1);
-  print_string [on_default] "______________________________";
-  set_cursor (3*w/5) (4*h/5);
-  move_cursor 2 (2);
-  let rec aux_n = function
-    | [] -> ""
-    | a :: [] -> a
-    | a :: t -> a ^ " | " ^ aux_n t in
-  print_string [on_default] (aux_n (Round.names t));
-  set_cursor (3*w/5) (4*h/5);
-  move_cursor 3 (3);
-  let scores = 
-    List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
-      (Round.end_of_round_score t) "" in
-  print_string [on_default] scores
-
-let erase_print print = 
-  erase Screen;
-  move_cursor 0 (-2);
-  print_string [] print;
-  move_cursor 0 2;
-  move_bol ()
-
-let rec read_line_safe () = 
-  let (w,h) = size () in
-  set_cursor (1) (h-1);
-  match parse (print_string [on_default] "> "; read_line ()) with 
-  | exception Empty
-  | exception Malformed -> 
-    set_cursor (1) (h-1);
-    erase Eol;
-    read_line_safe ()
-  | c -> c
-
-let rec internal_display_history state = 
-  if Round.is_next state then
-    begin
-      erase Screen;
-      let state' = Round.next state in 
-      let (w,h) = size () in 
-      print_pile (Round.pile state') (w/2) (2*h/3);
-      set_cursor (1) (2*h/3);
-      print_hand (Round.hand state') 1 1;
-      set_cursor (1) (h-2);
-      print_string [on_black; white] (Round.description state');
-      score_table state';
-      set_cursor (1) (h-1);
-      Unix.sleepf 0.5;
-      internal_display_history state';
-    end
-  else state
+open Print
 
 let rec display_history state = 
-  match internal_display_history state with 
+  match Print.internal_display_history state with 
   | exception _ -> display_history state
   | v -> v
 
@@ -196,16 +21,15 @@ let get_difficulty = function
   | _ -> Round.Invalid
 
 let rec home_loop bl state =
-  let state' = if bl then (score_table state; display_history state) 
+  let state' = if bl then (Print.score_table state; display_history state) 
     else state in
   let (w,h) = size () in
-  set_cursor (1) (h-1);
-  match read_line_safe () with 
-  | Quit -> erase_print "Quit";
+  match Print.read_line_safe () with 
+  | Quit -> Print.erase_print "Quit";
     set_cursor (1) (h);
     exit 0
-  | Pass (i1,i2,i3) -> erase_print "Pass";
-    set_cursor (1) (h);
+  | Pass (i1,i2,i3) -> Print.erase_print "Pass";
+    set_cursor (1) (h-1);
     home_loop true state'
   | Play (i) ->
     begin
@@ -214,57 +38,57 @@ let rec home_loop bl state =
         begin
           match Round.play x state' with 
           | Invalid msg -> 
-            erase_print msg;
-            score_table state';
-            print_pile (Round.pile state') (w/2) (2*h/3);
-            print_hand (Round.hand state') 1 1;
+            Print.erase_print msg;
+            Print.score_table state';
+            Print.print_pile (Round.pile state') (w/2) (2*h/3);
+            Print.print_hand (Round.hand state') 1 1;
             home_loop true state'
           | Valid t -> 
-            score_table t;
-            print_pile (Round.pile state') (w/2) (2*h/3);
-            print_hand (Round.hand state') 1 1;
+            Print.score_table t;
+            Print.print_pile (Round.pile state') (w/2) (2*h/3);
+            Print.print_hand (Round.hand state') 1 1;
             home_loop true t
         end
       | None -> 
-        erase_print "Card not found";
-        score_table state';
-        print_pile (Round.pile state') (w/2) (2*h/3);
-        print_hand (Round.hand state') 1 1;
+        Print.erase_print "Card not found";
+        Print.score_table state';
+        Print.print_pile (Round.pile state') (w/2) (2*h/3);
+        Print.print_hand (Round.hand state') 1 1;
         home_loop true state'
     end
   | Help ->
-    erase_print "Help";
+    Print.erase_print "Help";
     set_cursor (1) (2*h/3);
-    print_help_menu ();
+    Print.print_help_menu ();
     home_loop false state'
   | Restart ->
-    erase_print "Restart";
+    Print.erase_print "Restart";
     set_cursor (1) (2*h/3);
     main ()
   | Score ->
-    erase_print "Score";
+    Print.erase_print "Score";
     home_loop true state'
-  | Back -> erase_print "Back";
+  | Back -> Print.erase_print "Back";
     let (w,h) = size () in 
-    print_pile (match Round.pile state with 
+    Print.print_pile (match Round.pile state with 
         | exception Failure _ -> []
         | x -> x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state with 
+    Print.print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
     home_loop true state'
-  | Select s -> begin erase_print "Select"; end
-  | Start -> erase_print "Start"; let (w,h) = size () in 
-    score_table state;
-    print_pile (match Round.pile state with 
+  | Select s -> begin Print.erase_print "Select"; end
+  | Start -> Print.erase_print "Start"; let (w,h) = size () in 
+    Print.score_table state;
+    Print.print_pile (match Round.pile state with 
         | exception Failure _ -> []
         | x ->  x ) (w/2) (2*h/3);
     let (w,h) = size () in
     set_cursor (1) (2*h/3);
-    print_hand (match Round.hand state with 
+    Print.print_hand (match Round.hand state with 
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     set_cursor (1) (2*h/3);
@@ -274,45 +98,42 @@ let rec home_loop bl state =
       let new_st = Round.deal state' in 
       match new_st with 
       | Invalid msg -> 
-        erase_print msg;
-        score_table state';
-        print_pile (Round.pile state') (w/2) (2*h/3);
-        print_hand (Round.hand state') 1 1;
+        Print.erase_print msg;
+        Print.score_table state';
+        Print.print_pile (Round.pile state') (w/2) (2*h/3);
+        Print.print_hand (Round.hand state') 1 1;
         home_loop true state'
       | Valid t -> 
-        score_table t;
-        print_pile (Round.pile state') (w/2) (2*h/3);
-        print_hand (Round.hand state') 1 1;
+        Print.score_table t;
+        Print.print_pile (Round.pile state') (w/2) (2*h/3);
+        Print.print_hand (Round.hand state') 1 1;
         home_loop true t
     end
 and 
   main () = 
-  print_start_menu ();
-  Unix.sleep 2;
+  Print.print_start_menu ();
+  Unix.sleepf 1.5;
   erase Screen;
   difficulty ();
 
 and difficulty () = 
   let (w,h) = size () in
-  print_bot_levels ();
-  begin match read_line_safe () with 
+  Print.print_bot_levels ();
+  begin match Print.read_line_safe () with 
     | Select s ->  
       begin match get_difficulty s with
         | Round.Invalid ->
           print_string [on_black; white] "Not a valid level!"; 
           Unix.sleep 2; set_cursor (1) (h-1);
           difficulty ();
-        | d -> print_start_prompt ();
+        | d -> Print.print_start_prompt ();
           begin  match Round.new_round (d) |> Round.deal with 
             | Valid (t) -> home_loop false t
             | Invalid(_) -> difficulty(); end 
       end
-    | Quit -> erase_print "Quit";
+    | Quit -> Print.erase_print "Quit";
       set_cursor (1) (h-1);
       exit 0
     | _ -> erase Screen; difficulty () end
-
-
-
 
 let () = main ()

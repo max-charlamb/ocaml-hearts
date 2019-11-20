@@ -1,5 +1,5 @@
 
-MODULES=card partialdeck command round bot listQueue
+MODULES=card partialdeck command round bot listQueue print
 OBJECTS=$(MODULES:=.cmo)
 MLS=$(MODULES:=.ml)
 MLIS=$(MODULES:=.mli)
