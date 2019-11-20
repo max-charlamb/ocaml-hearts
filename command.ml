@@ -10,9 +10,7 @@ type command =
   | Select of string
   | Help
   | Restart
-  | Score
   | Back
-  | Start
   | Deal
 
 exception Empty
@@ -57,12 +55,10 @@ let make_command rest = function
   | "quit" -> Quit
   | "help" -> Help
   | "restart" -> Restart
-  | "score" -> Score
   | "select" -> make_select rest
   | "pass" -> make_pass rest
   | "play" -> make_play rest
   | "back" -> Back
-  | "start" -> Start
   | "deal" -> Deal
   | _ -> raise Malformed
 
