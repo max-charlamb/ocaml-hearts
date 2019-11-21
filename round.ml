@@ -181,7 +181,8 @@ module Round:RoundSig = struct
     let contains_other_cards = (PartialDeck.voided Club user.hand) && 
                                (PartialDeck.voided Diamond user.hand) &&
                                (PartialDeck.voided Spade user.hand) in
-    if not t.hearts_broken && card.suite = Heart && contains_other_cards then 
+    if not t.hearts_broken && card.suite = Heart && not contains_other_cards 
+    then 
       raise (Default "Hearts are not yet broken! Play another card.") else ()
 
   let add_to_pile id card t = 

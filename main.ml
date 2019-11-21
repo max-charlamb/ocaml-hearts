@@ -40,11 +40,8 @@ let rec home_loop bl state =
             Print.score_table state';
             Print.print_pile (Round.pile state') (w/2) (2*h/3);
             Print.print_hand (Round.hand state') 1 1;
-            home_loop true state'
+            home_loop false state'
           | Valid t -> 
-            Print.score_table t;
-            Print.print_pile (Round.pile state') (w/2) (2*h/3);
-            Print.print_hand (Round.hand state') 1 1;
             home_loop true t
         end
       | None -> 
