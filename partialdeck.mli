@@ -73,6 +73,9 @@ module type PartialDeckSig = sig
   (** [lowest t suite] is the lowest card in [t] of [suite]. *)
   val lowest: t -> suite -> card
 
+  (** [highest t suite] is the highest card in [t] of [suite]. *)
+  val highest: t -> suite -> card
+
 end
 
 module PartialDeck:PartialDeckSig
