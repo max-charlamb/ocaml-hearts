@@ -145,7 +145,7 @@ module Bot:BotSig = struct
             match PartialDeck.lowest hand Spade with
             | exception CardNotFound ->
               begin 
-                match PartialDeck.lowest hand Heart with
+                match PartialDeck.highest hand Heart with
                 | exception CardNotFound ->
                   failwith "Hand has no cards"
                 | c -> c
