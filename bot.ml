@@ -10,94 +10,72 @@ module type BotSig = sig
 end
 
 module Bot:BotSig = struct
+  let suits = [Club; Diamond; Spade; Heart]
 
-  let rec play_easy hand pile =
-    let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
-    match PartialDeck.lowest hand pile_suite with
-    | exception CardNotFound -> 
-      begin
-        match PartialDeck.lowest hand Club with
-        | exception CardNotFound ->
-          begin 
-            match PartialDeck.lowest hand Diamond with
-            | exception CardNotFound ->
-              begin 
-                match PartialDeck.lowest hand Spade with
-                | exception CardNotFound ->
-                  begin 
-                    match PartialDeck.lowest hand Heart with
-                    | exception CardNotFound ->
-                      failwith "Hand has no cards"
-                    | c -> c
-                  end
-                | c -> c
-              end
-            | c -> c
-          end
-        | c -> c
-      end 
-    | c -> c
+  let get_lowest suit hand =
+    match PartialDeck.lowest hand suit with 
+    | exception CardNotFound -> None
+    | c -> Some c 
 
-  and play_highest hand pile = 
-    let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
-    match PartialDeck.highest hand pile_suite with
-    | exception CardNotFound -> 
-      begin
-        match PartialDeck.highest hand Club with
-        | exception CardNotFound ->
-          begin 
-            match PartialDeck.highest hand Diamond with
-            | exception CardNotFound ->
-              begin 
-                match PartialDeck.highest hand Spade with
-                | exception CardNotFound ->
-                  begin 
-                    match PartialDeck.highest hand Heart with
-                    | exception CardNotFound ->
-                      failwith "Hand has no cards"
-                    | c -> c
-                  end
-                | c -> c
-              end
-            | c -> c
-          end
-        | c -> c
-      end 
-    | c -> c
+  let get_highest suit hand =
+    match PartialDeck.highest hand suit with 
+    | exception CardNotFound -> None
+    | c -> Some c 
+
+  let rec get_new_suit acc suits = 
+    match suits with 
+    | h :: t -> if List.mem h acc then get_new_suit acc t else h
+    | [] -> failwith "empty hand"
+
+  let rec play_easy hand pile suit suit_acc = 
+    match get_lowest suit hand with 
+    | None -> let acc = suit :: suit_acc in 
+      let new_suit = get_new_suit acc suits in 
+      play_easy hand pile new_suit acc
+    | Some c -> c 
+
+  and play_highest hand pile suit suit_acc = 
+    match get_highest suit hand with 
+    | None -> let acc = suit :: suit_acc in 
+      let new_suit = get_new_suit acc suits in 
+      play_easy hand pile new_suit acc
+    | Some c -> c
 
   and play_med_helper hand pile queen_played queen_table = 
+    let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     match queen_played, queen_table with 
-    | true, false -> play_highest hand pile
+    | true, false -> play_highest hand pile pile_suite []
     | true, true
-    | false, true -> play_easy hand pile
-    | false, false -> if List.length pile = 3 then play_highest hand pile 
-      else play_easy hand pile
+    | false, true -> play_easy hand pile pile_suite []
+    | false, false -> if List.length pile = 3 then play_highest hand pile pile_suite []
+      else play_easy hand pile pile_suite []
 
 
   and play_med hand pile qspade qspadetable =
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in 
     match pile_suite with 
-    | Club -> play_easy hand pile 
-    | Diamond -> play_easy hand pile
+    | Club -> play_easy hand pile pile_suite []
+    | Diamond -> play_easy hand pile pile_suite []
     | Spade -> play_med_helper hand pile qspade qspadetable
-    | Heart -> play_easy hand pile
+    | Heart -> play_easy hand pile pile_suite []
 
   and play_hard_helper hand pile queen_played queen_table = 
+    let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     match queen_played, queen_table with 
-    | true, false -> play_highest hand pile
+    | true, false -> play_highest hand pile pile_suite []
     | true, true
-    | false, true -> play_easy hand pile
-    | false, false -> if List.length pile = 3 then play_highest hand pile 
-      else play_easy hand pile
+    | false, true -> play_easy hand pile pile_suite []
+    | false, false -> if List.length pile = 3 then play_highest hand pile pile_suite [] 
+      else play_easy hand pile pile_suite []
 
 
   and play_hard hand pile qspade qspadetable =
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in 
     match pile_suite with 
-    | Club -> play_easy hand pile 
-    | Diamond -> play_easy hand pile
+    | Club -> play_easy hand pile pile_suite []
+    | Diamond -> play_easy hand pile pile_suite []
     | Spade -> play_med_helper hand pile qspade qspadetable
-    | Heart -> play_easy hand pile
+    | Heart -> play_easy hand pile pile_suite []
 
   and list_to_deck pile acc =   
     match pile with 
@@ -108,11 +86,12 @@ module Bot:BotSig = struct
     let pile' = list_to_deck pile (PartialDeck.empty) in 
     let qs = {suite = Spade; rank = Queen} in 
     let qspadetable = (PartialDeck.mem qs pile') in 
+    let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     match diff with 
-    | "easy" -> play_easy hand pile
+    | "easy" -> play_easy hand pile pile_suite []
     | "medium" -> play_med hand pile true qspadetable
-    | "hard" -> play_easy hand pile 
-    | _ -> play_easy hand pile
+    | "hard" -> play_easy hand pile pile_suite [] 
+    | _ -> play_easy hand pile pile_suite []
 
   let lead_easy hand pile =
     match PartialDeck.lowest hand Club with
