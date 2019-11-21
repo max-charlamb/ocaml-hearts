@@ -4,10 +4,9 @@ open Command
 open Bot
 open ListQueue
 
-type difficulty = Easy | Medium | Hard
-
 module type RoundSig = sig
   type t
+  type difficulty = Easy | Medium | Hard | Invalid
   type result = Valid of t | Invalid of string
   val new_round : difficulty -> t
   val deal : t -> result
@@ -23,7 +22,6 @@ module type RoundSig = sig
   val score : t -> int
   val end_of_round_score : t -> int list 
   val names : t -> string list
-  val get_level : t -> string -> result
   val string_of_round : t -> string
 end
 
@@ -34,7 +32,7 @@ module Round:RoundSig = struct
   exception InvalidCardPlayed
   exception BotError
 
-  type level = Easy | Medium | Hard
+  type difficulty = Easy | Medium | Hard | Invalid
   type action = Play | Lead | Pass | Deal
 
   type player = {
@@ -176,7 +174,7 @@ module Round:RoundSig = struct
 
   let check_lead_first_round id card t =
     if t.first_round && card <> {suite=Club;rank=Two} then 
-      raise (Default "problem in check_lead_first_round") else ()
+      raise (Default "You must play the two of clubs!") else ()
 
   let check_lead_hearts_broken id card t = 
     let user = List.nth t.players id in 
@@ -184,7 +182,7 @@ module Round:RoundSig = struct
                                (PartialDeck.voided Diamond user.hand) &&
                                (PartialDeck.voided Spade user.hand) in
     if not t.hearts_broken && card.suite = Heart && contains_other_cards then 
-      raise (Default "hearts not yet broken") else ()
+      raise (Default "Hearts are not yet broken! Play another card.") else ()
 
   let add_to_pile id card t = 
     let pile' = (card, id)::t.pile in
@@ -278,15 +276,22 @@ module Round:RoundSig = struct
         history = ListQueue.push new_history t.history;
       }
 
+  let get_difficulty t = 
+    match t.difficulty with
+    | Easy -> "easy"
+    | Medium -> "medium"
+    | Hard -> "hard"
+    | Invalid -> "easy"
+
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
     | (_,0) -> t
     | (Play,id) -> 
       internal_play t.next_player 
-        (Bot.play (List.nth t.players id).hand t.pile) t
+        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t)) t
     | (Lead,id) -> 
       internal_lead t.next_player 
-        (Bot.lead (List.nth t.players id).hand t.pile) t
+        (Bot.lead (List.nth t.players id).hand t.pile (get_difficulty t)) t
     | (Pass,_) -> t
     | (Deal,_) -> failwith "uni"
   and 
@@ -378,12 +383,6 @@ module Round:RoundSig = struct
   let names t = 
     List.map (fun player -> player.name) t.players
 
-  let get_level t = function
-    | "easy"
-    | "medium"
-    | "hard" -> Valid t
-    | _ -> Invalid "Not a valid level!"
-
   let string_of_player p = 
     "<Player :" ^
     "; Name = " ^ p.name ^
@@ -425,5 +424,4 @@ module Round:RoundSig = struct
     "; scores = " ^ string_of_int_list r.scores ^
     "; next_action = " ^ string_of_action r.next_action ^ 
     ">"
-
 end
