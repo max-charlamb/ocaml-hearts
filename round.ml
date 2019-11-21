@@ -22,7 +22,7 @@ module type RoundSig = sig
   val score : t -> int
   val end_of_round_score : t -> int list 
   val names : t -> string list
-
+  val string_of_round : t -> string
 end
 
 
@@ -383,4 +383,45 @@ module Round:RoundSig = struct
   let names t = 
     List.map (fun player -> player.name) t.players
 
+  let string_of_player p = 
+    "<Player :" ^
+    "; Name = " ^ p.name ^
+    "; ID = " ^ string_of_int p.id ^
+    "; Score = " ^ string_of_int p.score ^
+    "; P_Cards = " ^ PartialDeck.string_of_partialdeck p.p_cards ^
+    "; Hand = " ^ PartialDeck.string_of_partialdeck p.hand ^ ">"
+
+  let rec string_of_players p_list = 
+    match p_list with 
+    | h::t -> string_of_player h ^ "\n" ^ string_of_players t
+    | [] -> ""
+
+  let rec string_of_pile pile = 
+    match pile with 
+    | h::t -> "(" ^ (card_to_string (fst h)) ^ "," ^  string_of_int (snd h) ^ "), "
+    | [] -> ""
+
+  let rec string_of_int_list l = 
+    match l with 
+    | h::t -> string_of_int h ^ ", "
+    | [] -> ""
+
+  let string_of_action a = 
+    match a with 
+    | Deal -> "Deal"
+    | Pass -> "Pass"
+    | Lead -> "Lead"
+    | Play -> "Play"
+
+  let string_of_round r = 
+    "<Round :" ^
+    "; Players = " ^ string_of_players r.players ^
+    "; Pile = " ^ string_of_pile r.pile ^ 
+    "; is_over = " ^ string_of_bool r.is_over ^ 
+    "; hearts_broken = " ^ string_of_bool r.hearts_broken ^ 
+    "; first_round = " ^ string_of_bool r.first_round ^ 
+    "; next_player = " ^ string_of_int r.next_player ^ 
+    "; scores = " ^ string_of_int_list r.scores ^
+    "; next_action = " ^ string_of_action r.next_action ^ 
+    ">"
 end

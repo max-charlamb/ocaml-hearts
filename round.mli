@@ -51,6 +51,8 @@ module type RoundSig = sig
   (** [names t] is the names of the players in id order.*)
   val names : t -> string list
 
+  val string_of_round : t -> string
+
 end
 
 module Round:RoundSig
