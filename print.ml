@@ -249,7 +249,17 @@ module Print:PrintSig = struct
         Unix.sleepf 0.75;
         internal_display_history state';
       end
-    else state
+    else begin erase Screen;
+      let (w,h) = size () in 
+      print_pile (Round.pile state) (w/2) (2*h/3);
+      set_cursor (1) (2*h/3);
+      print_hand (Round.hand state) 1 1;
+      set_cursor (1) (h-2);
+      print_string [on_black; white] (Round.description state);
+      score_table state;
+      set_cursor (1) (h-1); 
+      state
+    end 
 
   let erase_print print = 
     erase Screen;

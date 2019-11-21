@@ -93,17 +93,20 @@ and
   erase Screen;
   difficulty () true;
 
+and safe_create d = 
+  match Round.new_round (d) |> Round.deal with 
+  | Valid t -> erase Screen; home_loop true t
+  | _ -> safe_create d
+
 and difficulty () b = 
-  let print_choice = if b then (Print.print_bot_levels ()) 
+  let () = if b then (Print.print_bot_levels ()) 
     else Print.print_help_menu () in
-  begin match Print.read_line_safe (print_choice) with 
+  begin match Print.read_line_safe () with 
     | Select s ->  
       begin match get_difficulty s with
         | Round.Invalid ->
           difficulty () true;
-        | d -> begin  match Round.new_round (d) |> Round.deal with 
-            | Valid (t) -> home_loop true t
-            | Invalid(_) -> difficulty () true; end 
+        | d -> safe_create d
       end
     | Quit -> Print.erase_print "Quit";
       exit 0
