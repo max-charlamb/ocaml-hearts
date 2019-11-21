@@ -281,6 +281,7 @@ module Round:RoundSig = struct
     | Easy -> "easy"
     | Medium -> "medium"
     | Hard -> "hard"
+    | Invalid -> "easy"
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
