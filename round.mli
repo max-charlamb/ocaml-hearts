@@ -1,11 +1,10 @@
 open Card
 open Partialdeck
 
-type difficulty = Easy | Medium | Hard
-
 module type RoundSig = sig
   type t
   type result = Valid of t | Invalid of string
+  type difficulty = Easy | Medium | Hard | Invalid
 
   (** [new_round d] is a new game of difficulty [d]. *)
   val new_round : difficulty -> t
@@ -51,10 +50,6 @@ module type RoundSig = sig
 
   (** [names t] is the names of the players in id order.*)
   val names : t -> string list
-
-  val get_level : t -> string -> result
-
-  val get_difficulty : t -> string
 
 end
 
