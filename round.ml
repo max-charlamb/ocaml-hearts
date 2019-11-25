@@ -176,6 +176,10 @@ module Round:RoundSig = struct
     if t.first_round && card <> {suite=Club;rank=Two} then 
       raise (Default "You must play the two of clubs!") else ()
 
+  let check_pass_in_turn id card_l t = 
+    if t.next_action <> Pass || t.next_player <> id then 
+      raise (Default ("Not the time to pass")) else ()
+
   let check_lead_hearts_broken id card t = 
     let user = List.nth t.players id in 
     let contains_other_cards = (PartialDeck.voided Club user.hand) && 
@@ -206,6 +210,22 @@ module Round:RoundSig = struct
       players = players';
       history = ListQueue.push new_history t.history;
     } 
+
+  let get_hand id t = 
+    (List.nth t.players id).hand
+
+  let set_hand id pd t = 
+    {
+      t with 
+      players = List.map 
+          (fun player -> if player.id = id then 
+              {
+                player with 
+                hand = pd;
+              } else 
+              player)
+          t.players
+    }
 
   let increment_actions_play t = 
     match t.next_player with 
@@ -325,9 +345,37 @@ module Round:RoundSig = struct
       t with
       players = players';
       history = ListQueue.push new_history t.history;
-      next_action = Lead;
-      next_player = player_with_leading_card players';
+      next_action = Pass;
+      next_player = 0;
     } |> bot_actions
+  and internal_pass id card_l t = 
+    check_pass_in_turn id card_l t;
+    let get_bot_pass id = Bot.pass (get_hand id t) in
+    let rec remove_cards c_ll inc (st:t) = 
+      match c_ll with 
+      | [] -> st
+      | h::t -> 
+        let new_hand = PartialDeck.remove_cards h (get_hand inc st) in 
+        remove_cards t (inc + 1) (set_hand inc new_hand st)
+    in
+    let rec add_cards c_ll order (st:t) = 
+      match c_ll, order with 
+      | [],_ -> st
+      | h::t, h1::t1 -> 
+        let new_hand = PartialDeck.add_cards h (get_hand h1 st) in 
+        add_cards t (t1) (set_hand h1 new_hand st)
+      | _,_ -> failwith "order not long enough"
+    in
+    let pass_cards = [card_l; get_bot_pass 1; get_bot_pass 2; get_bot_pass 3] in
+
+    let t' = t |> (remove_cards pass_cards 0 ) |> (add_cards pass_cards [2;3;0;1]) in
+    {
+      t' with
+      next_action = Lead;
+      next_player = player_with_leading_card t'.players;
+    } |> bot_actions
+
+
 
   let deal t = 
     match internal_deal t with 
@@ -335,21 +383,19 @@ module Round:RoundSig = struct
     | v -> Valid v
 
   let play card t =
-    if List.length t.pile > 0 then 
-      match internal_play 0 card t with 
-      | exception Default(s) -> Invalid s
-      | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
-      | t -> Valid t
-    else 
-      match internal_lead 0 card t with 
-      | exception Default(s) -> Invalid s
-      | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
-      | t -> Valid t
+    match internal_play 0 card t with 
+    | exception Default(s) -> Invalid s
+    | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
+    | t -> Valid t
+
+  let pass card_l t = 
+    match internal_pass 0 card_l t with 
+    | exception Default(s) -> Invalid s
+    | t -> Valid t
+
 
   let get_scores t = 
     List.map (fun p -> p.name, p.score) t.players
-
-  let pass c = failwith "uni"
 
   let next t = 
     {
