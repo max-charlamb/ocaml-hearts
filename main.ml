@@ -25,11 +25,11 @@ let rec home_loop bl state =
     else state in
   let (w,h) = size () in
 
-  erase Screen;
-  save_cursor ();
-  set_cursor 1 (h/2);
-  print_string [] (Round.string_of_round state);
-  restore_cursor ();
+  (* erase Screen;
+     save_cursor ();
+     set_cursor 1 (h/2);
+     print_string [] (Round.string_of_round state);
+     restore_cursor ();  *)
 
   match Print.read_line_safe () with 
   | Quit -> Print.erase_print "Quit";
