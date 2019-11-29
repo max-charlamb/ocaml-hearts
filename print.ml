@@ -228,10 +228,17 @@ module Print:PrintSig = struct
     print_string [on_default] (aux_n (Round.names t));
     set_cursor (3*w/5) (4*h/5);
     move_cursor 3 (3);
-    let scores = 
+    let total_scores = 
       List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
-        (Round.end_of_round_score t) "" in
-    print_string [on_default] scores
+        (Round.total_score t) "" in
+    let round_scores = 
+      List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
+        (Round.round_score t) "" in
+    let x,y = pos_cursor () in 
+    print_string [on_default] total_scores;
+    set_cursor (x) (y + 1);
+    print_string [on_default] round_scores
+
 
   let rec internal_display_history state = 
     if Round.is_next state then
