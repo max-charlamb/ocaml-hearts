@@ -53,6 +53,9 @@ module type RoundSig = sig
 
   val string_of_round : t -> string
 
+  (** [next_action] is the string of the next action. *)
+  val next_action : t -> string
+
 end
 
 module Round:RoundSig

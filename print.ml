@@ -255,6 +255,8 @@ module Print:PrintSig = struct
       set_cursor (1) (2*h/3);
       print_hand (Round.hand state) 1 1;
       score_table state;
+      set_cursor (1) (h-3);
+      print_string [] ("Next Action: " ^ Round.next_action state);
       set_cursor (1) (h-1); 
       state
     end 
