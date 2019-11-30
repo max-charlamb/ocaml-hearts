@@ -5,7 +5,7 @@ module type BotSig = sig
 
   val play : PartialDeck.t -> (card * int) list -> string -> card
   val lead : PartialDeck.t -> (card * int) list -> string -> card
-  val pass : PartialDeck.t -> card list
+  val pass : PartialDeck.t -> string -> card list
 
 end
 
@@ -47,7 +47,8 @@ module Bot:BotSig = struct
     | true, false -> play_highest hand pile pile_suite []
     | true, true
     | false, true -> play_easy hand pile pile_suite []
-    | false, false -> if List.length pile = 3 then play_highest hand pile pile_suite []
+    | false, false -> if List.length pile = 3 
+      then play_highest hand pile pile_suite []
       else play_easy hand pile pile_suite []
 
 
@@ -65,7 +66,8 @@ module Bot:BotSig = struct
     | true, false -> play_highest hand pile pile_suite []
     | true, true
     | false, true -> play_easy hand pile pile_suite []
-    | false, false -> if List.length pile = 3 then play_highest hand pile pile_suite [] 
+    | false, false -> if List.length pile = 3 
+      then play_highest hand pile pile_suite [] 
       else play_easy hand pile pile_suite []
 
 
@@ -163,9 +165,71 @@ module Bot:BotSig = struct
     | "hard" -> lead_hard hand pile
     | _ -> lead_easy hand pile
 
-  let pass deck = 
-    match PartialDeck.find 1 deck, PartialDeck.find 2 deck,PartialDeck.find 3 deck with 
+  let pass_spades deck = 
+    let qs = {suite=Spade; rank=Queen} in 
+    let acesp = {suite=Spade; rank=Ace} in 
+    let ks = {suite=Spade; rank=King} in 
+    match PartialDeck.mem qs deck, PartialDeck.mem ks deck,PartialDeck.mem acesp deck with
+    | true, true, true -> [qs; ks; acesp]
+    | true, true, false -> [qs; ks]
+    | true, false, false -> [qs]
+    | false, true, true -> [acesp; ks]
+    | false, false, false -> []
+    | false, false, true -> [acesp]
+    | false, true, false -> [ks]
+    | true, false, true -> [qs; acesp]
+
+  let rec pass_hearts deck count acc = 
+    if count = 0 then acc else 
+      match PartialDeck.highest deck Heart with 
+      | exception CardNotFound -> acc
+      | c -> let new_hand = PartialDeck.remove c deck in 
+        pass_hearts new_hand (count - 1) (c::acc)
+
+  let rec pass_diamonds_clubs deck count acc = 
+    if count = 0 then acc else 
+      match PartialDeck.highest deck Club with 
+      | c -> let new_hand = PartialDeck.remove c deck in 
+        pass_diamonds_clubs new_hand (count - 1) (c::acc)
+      | exception CardNotFound -> begin 
+          match PartialDeck.highest deck Diamond with 
+          | c -> let new_hand = PartialDeck.remove c deck in 
+            pass_diamonds_clubs new_hand (count - 1) (c::acc)
+          | exception CardNotFound -> acc
+        end
+
+  let pass_easy deck = 
+    match PartialDeck.find 3 deck, PartialDeck.find 6 deck, PartialDeck.find 9 deck with 
     | Some(x1), Some(x2), Some(x3) -> [x1;x2;x3]
     | _,_,_ -> failwith "uh oh"
+
+  let pass_med deck = 
+    match PartialDeck.find 3 deck, PartialDeck.find 6 deck, PartialDeck.find 9 deck with 
+    | Some(x1), Some(x2), Some(x3) -> [x1;x2;x3]
+    | _,_,_ -> failwith "uh oh"
+
+  let pass_hard deck = 
+    let hrts_spds = 
+      match pass_spades deck with 
+      | a :: b :: c :: [] -> a :: b :: c :: []
+      | a :: b :: [] -> a :: b :: pass_hearts deck 1 []
+      | a :: [] -> a :: pass_hearts deck 2 []
+      | [] -> pass_hearts deck 3 []
+      | _ -> failwith "uh oh"
+    in 
+    match hrts_spds with 
+    | a :: b :: c :: [] -> [a; b; c] 
+    | a :: b :: [] -> a :: b :: pass_diamonds_clubs deck 1 []
+    | a :: [] -> a :: pass_diamonds_clubs deck 2 []
+    | [] -> pass_diamonds_clubs deck 3 []
+    | _ -> failwith "uh oh"
+
+
+  let pass deck difficulty = 
+    match difficulty with 
+    | "easy" -> pass_easy deck
+    | "medium" -> pass_med deck
+    | "hard" -> let out = pass_hard deck in if List.length out < 3 then failwith "NOT" else out
+    | _ -> failwith "uh oh"
 
 end
