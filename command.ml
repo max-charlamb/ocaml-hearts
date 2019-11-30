@@ -51,15 +51,16 @@ let make_pass rest =
   | a :: b :: c :: [] -> Pass (get_index a, get_index b, get_index c)
   | _ -> raise Malformed
 
-let make_command rest = function
-  | "quit" -> Quit
-  | "help" -> Help
-  | "restart" -> Restart
-  | "select" -> make_select rest
-  | "pass" -> make_pass rest
-  | "play" -> make_play rest
-  | "back" -> Back
-  | "deal" -> Deal
+let make_command rest lead = 
+  match lead, rest with 
+  | "quit", [] -> Quit
+  | "help", [] -> Help
+  | "restart", [] -> Restart
+  | "select", _ -> make_select rest
+  | "pass", _ -> make_pass rest
+  | "play", _ -> make_play rest
+  | "back", [] -> Back
+  | "deal", [] -> Deal
   | _ -> raise Malformed
 
 let parse s = 
