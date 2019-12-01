@@ -25,6 +25,7 @@ module type PartialDeckSig = sig
   val highest: t -> suite -> card
   val remove_cards: card list -> t -> t
   val add_cards: card list -> t -> t
+  val shoot_the_moon: t -> bool
 end
 
 
@@ -137,5 +138,26 @@ module PartialDeck:PartialDeckSig = struct
     match card_l with 
     | h::t -> add_cards t (insert h st)
     | [] -> st
+
+  let shoot_the_moon t =
+    let cards = 
+      [
+        {rank=Two; suite=Heart};
+        {rank=Three; suite=Heart};
+        {rank=Four; suite=Heart};
+        {rank=Five; suite=Heart};
+        {rank=Six; suite=Heart};
+        {rank=Seven; suite=Heart};
+        {rank=Eight; suite=Heart};
+        {rank=Nine; suite=Heart};
+        {rank=Ten; suite=Heart};
+        {rank=Jack; suite=Heart};
+        {rank=Queen; suite=Heart};
+        {rank=King; suite=Heart};
+        {rank=Ace; suite=Heart};
+        {rank=Queen; suite=Spade};
+      ]
+    in
+    List.for_all (fun card -> mem card t) cards
 
 end
