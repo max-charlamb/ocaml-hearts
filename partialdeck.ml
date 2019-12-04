@@ -23,6 +23,9 @@ module type PartialDeckSig = sig
   val string_of_partialdeck: t -> string
   val lowest: t -> suite -> card
   val highest: t -> suite -> card
+  val remove_cards: card list -> t -> t
+  val add_cards: card list -> t -> t
+  val shoot_the_moon: t -> bool
 end
 
 
@@ -125,5 +128,36 @@ module PartialDeck:PartialDeckSig = struct
     match List.rev (List.filter (fun card -> card.suite = s) t) with
     | h::t -> h
     | [] -> raise CardNotFound
+
+  let rec remove_cards card_l st = 
+    match card_l with 
+    | h::t -> remove_cards t (remove h st)
+    | [] -> st
+
+  let rec add_cards card_l st = 
+    match card_l with 
+    | h::t -> add_cards t (insert h st)
+    | [] -> st
+
+  let shoot_the_moon t =
+    let cards = 
+      [
+        {rank=Two; suite=Heart};
+        {rank=Three; suite=Heart};
+        {rank=Four; suite=Heart};
+        {rank=Five; suite=Heart};
+        {rank=Six; suite=Heart};
+        {rank=Seven; suite=Heart};
+        {rank=Eight; suite=Heart};
+        {rank=Nine; suite=Heart};
+        {rank=Ten; suite=Heart};
+        {rank=Jack; suite=Heart};
+        {rank=Queen; suite=Heart};
+        {rank=King; suite=Heart};
+        {rank=Ace; suite=Heart};
+        {rank=Queen; suite=Spade};
+      ]
+    in
+    List.for_all (fun card -> mem card t) cards
 
 end

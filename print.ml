@@ -228,10 +228,27 @@ module Print:PrintSig = struct
     print_string [on_default] (aux_n (Round.names t));
     set_cursor (3*w/5) (4*h/5);
     move_cursor 3 (3);
-    let scores = 
-      List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
-        (Round.end_of_round_score t) "" in
-    print_string [on_default] scores
+    let total_scores = 
+      List.fold_right (fun a acc -> 
+          " " ^ ( a |> string_of_int) ^ spaces " " 
+            (6 - String.length (a |> string_of_int)) ^ acc) 
+        (Round.total_score t) "" in
+    let round_scores = 
+      List.fold_right (fun a acc -> 
+          " " ^ ( a |> string_of_int) ^ spaces " " 
+            (6 - String.length (a |> string_of_int)) ^ acc)
+        (Round.round_score t) "" in
+    let x,y = pos_cursor () in 
+    let round_disp = "Round:  " in
+    let cumulative_disp = "Total:  " in
+    move_cursor (-(String.length cumulative_disp)) (0);
+    print_string [on_default] cumulative_disp;
+    print_string [on_default] total_scores;
+    set_cursor (x) (y + 1);
+    move_cursor (-(String.length round_disp)) (0);
+    print_string [on_default] round_disp;
+    print_string [on_default] round_scores
+
 
   let rec internal_display_history state = 
     if Round.is_next state then
@@ -255,6 +272,8 @@ module Print:PrintSig = struct
       set_cursor (1) (2*h/3);
       print_hand (Round.hand state) 1 1;
       score_table state;
+      set_cursor (1) (h-3);
+      print_string [] ("Next Action: " ^ Round.next_action state);
       set_cursor (1) (h-1); 
       state
     end 

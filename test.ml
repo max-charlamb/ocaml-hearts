@@ -24,6 +24,22 @@ let deck2 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=Queen}
 let deck3 = PartialDeck.empty |> PartialDeck.insert {suite=Spade; rank=King}
 let deck4 = PartialDeck.full
 let deck5 = PartialDeck.empty |> PartialDeck.insert {suite=Heart; rank=Two}
+let deck6 = PartialDeck.empty |> PartialDeck.add_cards [
+    {rank=Two; suite=Heart};
+    {rank=Three; suite=Heart};
+    {rank=Four; suite=Heart};
+    {rank=Five; suite=Heart};
+    {rank=Six; suite=Heart};
+    {rank=Seven; suite=Heart};
+    {rank=Eight; suite=Heart};
+    {rank=Nine; suite=Heart};
+    {rank=Ten; suite=Heart};
+    {rank=Jack; suite=Heart};
+    {rank=Queen; suite=Heart};
+    {rank=King; suite=Heart};
+    {rank=Ace; suite=Heart};
+    {rank=Queen; suite=Spade};
+  ]
 
 let partialdecktests = [
   "empty" >:: (fun _ -> 
@@ -54,6 +70,14 @@ let partialdecktests = [
       assert_equal (PartialDeck.contains_hearts deck5) true);
   "contains_hearts02" >:: (fun _ ->
       assert_equal (PartialDeck.contains_hearts deck1) false);
+  "shoot_the_moon01" >:: (fun _ ->
+      assert_equal (PartialDeck.shoot_the_moon deck6) true);
+  "shoot_the_moon02" >:: (fun _ ->
+      assert_equal (PartialDeck.shoot_the_moon deck1) false);
+  "shoot_the_moon03" >:: (fun _ ->
+      assert_equal (PartialDeck.shoot_the_moon 
+                      (PartialDeck.insert 
+                         {suite=Spade; rank=Three} deck6)) true);
 ]
 
 (* Command Tests *)

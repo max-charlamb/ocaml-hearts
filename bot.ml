@@ -5,7 +5,7 @@ module type BotSig = sig
 
   val play : PartialDeck.t -> (card * int) list -> string -> card
   val lead : PartialDeck.t -> (card * int) list -> string -> card
-  val pass : PartialDeck.t -> (card * int) list -> card list
+  val pass : PartialDeck.t -> card list
 
 end
 
@@ -163,7 +163,9 @@ module Bot:BotSig = struct
     | "hard" -> lead_hard hand pile
     | _ -> lead_easy hand pile
 
-  let pass deck pile = 
-    failwith "uni"
+  let pass deck = 
+    match PartialDeck.find 1 deck, PartialDeck.find 2 deck,PartialDeck.find 3 deck with 
+    | Some(x1), Some(x2), Some(x3) -> [x1;x2;x3]
+    | _,_,_ -> failwith "uh oh"
 
 end
