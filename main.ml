@@ -24,13 +24,6 @@ let rec home_loop bl state =
   let state' = if bl then (Print.score_table state; display_history state) 
     else state in
   let (w,h) = size () in
-
-  erase Screen;
-  save_cursor ();
-  set_cursor 1 (h/2);
-  print_string [] (Round.string_of_round state);
-  restore_cursor ();
-
   match Print.read_line_safe () with 
   | Quit -> Print.erase_print "Quit";
     exit 0
@@ -79,8 +72,14 @@ let rec home_loop bl state =
         home_loop true state'
     end
   | Help ->
-    Print.erase_print "Help";
-    Print.print_help_menu ();
+    (* Print.erase_print "Help";
+       Print.print_help_menu ();
+       home_loop false state' *)
+    erase Screen;
+    save_cursor ();
+    set_cursor 1 (h/2);
+    print_string [] (Round.string_of_round state);
+    restore_cursor ();  
     home_loop false state'
   | Restart ->
     Print.erase_print "Restart";

@@ -19,10 +19,11 @@ module type RoundSig = sig
   val is_next : t -> bool
   val bot_hand : t -> int -> PartialDeck.t
   val bot_pile : t -> (card * int) list
-  val score : t -> int
-  val end_of_round_score : t -> int list 
+  val round_score : t -> int list
+  val total_score : t -> int list 
   val names : t -> string list
   val string_of_round : t -> string
+  val next_action : t -> string
 end
 
 
@@ -46,7 +47,7 @@ module Round:RoundSig = struct
   type historySegment = {
     hands : PartialDeck.t list;
     pile : (card * int) list;
-    scores : int list;
+    round_score : int list;
     description : string;
   }
 
@@ -58,9 +59,10 @@ module Round:RoundSig = struct
     first_round: bool;
     next_player: int;
     next_action: action;
-    scores : int list;
+    total_scores : int list;
     history : historySegment ListQueue.t;
     difficulty : difficulty;
+    round_number : int;
   }
 
   type result = Valid of t | Invalid of string
@@ -86,10 +88,11 @@ module Round:RoundSig = struct
     hearts_broken = false;
     first_round = true;
     next_player = 0;
-    scores = [0;0;0;0];
+    total_scores = [0;0;0;0];
     next_action = Deal;
     history = ListQueue.empty;
-    difficulty = diff
+    difficulty = diff;
+    round_number = 0;
   }
 
   let insert_hand h p = 
@@ -120,13 +123,15 @@ module Round:RoundSig = struct
       (-1,false) players |> fst
 
 
+  let id_to_name id t = 
+    (List.nth t.players id).name
+
   let rec deal_helper players d = 
     match deal_round players d with
     | d', p' -> if PartialDeck.is_empty d' then p' else deal_helper p' d'
 
   let check_deal t = 
     if t.next_action <> Deal then raise (Default "Next action is not to deal")
-
 
 
   (** [hand_size t] is the hand size of all the players. Can only be
@@ -139,8 +144,33 @@ module Round:RoundSig = struct
       then hand_size else failwith "player hand sizes are not equal"
     else hand_size
 
-  let id_to_name id t = 
-    (List.nth t.players id).name
+  (** [update_action t] is [t] with the next action that should be done. *)
+  let update_action t =
+    let next_action = 
+      match t.next_action with 
+      | _ when hand_size t = 0 -> Deal
+      | Deal when (t.round_number mod 4) = 0 -> Lead
+      | Deal -> Pass 
+      | Pass -> Lead
+      | Lead -> Play 
+      | Play when List.length t.pile = 0 -> Lead
+      | Play -> Play
+    in
+    let next_player = 
+      match t.next_action with 
+      | _ when hand_size t = 0 -> 0
+      | Deal when (t.round_number mod 4) = 0 -> player_with_leading_card t.players
+      | Deal -> 0 
+      | Pass -> player_with_leading_card t.players
+      | Lead -> t.next_player 
+      | Play -> t.next_player
+    in
+    { 
+      t with 
+      next_action = next_action;
+      next_player = next_player;
+    }
+
 
   let check_voided id card t =
     let user = List.nth t.players id in 
@@ -200,7 +230,7 @@ module Round:RoundSig = struct
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = pile';
-      scores = List.map (fun player -> player.score) players';
+      round_score = (List.map (fun player -> player.score) players');
       description = (id_to_name id t) ^ " played the " 
                     ^ card_to_string card ^ "."
     } in
@@ -236,6 +266,66 @@ module Round:RoundSig = struct
     | _ -> 
       raise (Default "error in incrementing")
 
+  let clean_up_round t = 
+    let shooting, shooter = 
+      List.fold_left (fun (shooting,shooter) player -> 
+          if shooting then (shooting, shooter) else
+          if PartialDeck.shoot_the_moon player.p_cards then 
+            (true, player.id) else (false, shooter)
+        ) (false, 0) t.players
+    in
+    let players' = List.map (fun player -> 
+        {
+          player with 
+          hand = PartialDeck.empty; 
+          p_cards = PartialDeck.empty;
+          score = 0;
+        }) t.players
+    in
+    match shooting with 
+    | true ->
+      let new_history = {
+        hands = List.map (fun player -> player.hand) players';
+        pile = [];
+        round_score = List.map (fun player -> player.score) players';
+        description = (id_to_name (shooter) t) ^ " shoot the moon!";
+      } in
+      { 
+        t with 
+        total_scores = List.map2 
+            (fun player old_score -> if player.id = shooter then 
+                (player.score - 26) + old_score else
+                (player.score + 26) + old_score) 
+            t.players t.total_scores;
+        players = players';
+        is_over = true;
+        next_player = 0;
+        first_round = true;
+        hearts_broken = false;
+        round_number = t.round_number + 1;
+        history = ListQueue.push new_history t.history;
+      } |> update_action
+    | false -> 
+      let new_history = {
+        hands = List.map (fun player -> player.hand) players';
+        pile = [];
+        round_score = List.map (fun player -> player.score) players';
+        description = "Round is over";
+      } in
+      { 
+        t with 
+        total_scores = List.map2 
+            (fun player old_score -> player.score + old_score) 
+            t.players t.total_scores;
+        players = players';
+        is_over = true;
+        next_player = 0;
+        first_round = true;
+        hearts_broken = false;
+        round_number = t.round_number + 1;
+        history = ListQueue.push new_history t.history;
+      } |> update_action
+
   let clean_up_trick t = 
     let leading_suite = 
       (List.nth t.pile ((List.length t.pile) - 1) |> fst).suite in
@@ -249,53 +339,48 @@ module Round:RoundSig = struct
                          PartialDeck.contains_hearts pile_partialdeck in 
     let players' = 
       List.map 
-        (fun player -> 
-           if player.id = snd winner then 
-             {
-               player with 
-               score = player.score + 
-                       (PartialDeck.count_points pile_partialdeck);
-               p_cards = PartialDeck.merge pile_partialdeck player.p_cards;
-             } 
-           else player) t.players 
+        (fun player -> if player.id = snd winner then 
+            {
+              player with 
+              score = player.score + 
+                      (PartialDeck.count_points pile_partialdeck);
+              p_cards = PartialDeck.merge pile_partialdeck player.p_cards;
+            } 
+          else player) t.players 
     in
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = [];
-      scores = List.map (fun player -> player.score) players';
+      round_score = List.map (fun player -> player.score) players';
       description = (id_to_name (snd winner) t) ^ " won the trick with a " 
                     ^ card_to_string (fst winner) ^ ".";
     }
     in
     if hand_size t = 0 then 
-      { 
-        t with 
-        scores = List.map (fun player -> player.score) t.players;
-        pile = [];
-        players = List.map (fun player -> 
-            {
-              player with 
-              hand = PartialDeck.empty; 
-              p_cards = PartialDeck.empty;
-            }) players';
-        is_over = true;
-        next_action = Deal;
-        next_player = 0;
-        first_round = true;
-        hearts_broken = false;
-        history = ListQueue.push new_history t.history;
-      }
+      clean_up_round
+        {
+          t with
+          pile = [];
+          players = players';
+          next_player = snd winner;
+          first_round = false;
+          hearts_broken = hearts_broken';
+          history = ListQueue.push new_history t.history;
+        }
     else
       {
         t with
         pile = [];
         players = players';
-        next_action = Lead;
         next_player = snd winner;
         first_round = false;
         hearts_broken = hearts_broken';
         history = ListQueue.push new_history t.history;
-      }
+      } |> update_action
+
+  let cards_passed_string c_ll order = 
+    let cards = (List.map2 (fun a b -> (a,b)) order c_ll) |> List.assoc 0 in 
+    List.fold_left (fun acc card -> acc ^ (card_to_string card) ^ ", ") "" cards
 
   let get_difficulty t = 
     match t.difficulty with
@@ -303,6 +388,13 @@ module Round:RoundSig = struct
     | Medium -> "medium"
     | Hard -> "hard"
     | Invalid -> "easy"
+
+  let get_passing_order t = 
+    match t.round_number with 
+    | n when (n mod 4) = 1 -> [1;2;3;0]
+    | n when (n mod 4) = 2 -> [3;2;1;0]
+    | n when (n mod 4) = 3 -> [2;3;0;1]
+    | n -> failwith "should not be passing on forth rounds"
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 
@@ -338,16 +430,15 @@ module Round:RoundSig = struct
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
       pile = t.pile;
-      scores = List.map (fun player -> player.score) players';
+      round_score = List.map (fun player -> player.score) players';
       description = "Cards were dealt."
     } in
     {
       t with
       players = players';
       history = ListQueue.push new_history t.history;
-      next_action = Pass;
       next_player = 0;
-    } |> bot_actions
+    } |> update_action |> bot_actions
   and internal_pass id card_l t = 
     check_pass_in_turn id card_l t;
     let get_bot_pass id = Bot.pass (get_hand id t) (get_difficulty t) in
@@ -367,15 +458,20 @@ module Round:RoundSig = struct
       | _,_ -> failwith "order not long enough"
     in
     let pass_cards = [card_l; get_bot_pass 1; get_bot_pass 2; get_bot_pass 3] in
-
-    let t' = t |> (remove_cards pass_cards 0 ) |> (add_cards pass_cards [2;3;0;1]) in
+    let t' = t |> (remove_cards pass_cards 0 ) |> (add_cards pass_cards (get_passing_order t)) in
+    let new_history = 
+      {
+        hands = List.map (fun player -> player.hand) t'.players;
+        pile = t.pile;
+        round_score = List.map (fun player -> player.score) t'.players;
+        description = "You were passed:" ^ (cards_passed_string pass_cards (get_passing_order t));
+      }
+    in
     {
       t' with
-      next_action = Lead;
       next_player = player_with_leading_card t'.players;
-    } |> bot_actions
-
-
+      history = ListQueue.push new_history t.history;
+    } |> update_action |> bot_actions
 
   let deal t = 
     match internal_deal t with 
@@ -383,10 +479,22 @@ module Round:RoundSig = struct
     | v -> Valid v
 
   let play card t =
-    match internal_play 0 card t with 
-    | exception Default(s) -> Invalid s
-    | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
-    | t -> Valid t
+    match t.next_action with 
+    | Lead ->
+      begin
+        match internal_lead 0 card t with 
+        | exception Default(s) -> Invalid s
+        | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
+        | t -> Valid t
+      end
+    | Play ->
+      begin
+        match internal_play 0 card t with 
+        | exception Default(s) -> Invalid s
+        | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
+        | t -> Valid t
+      end
+    | _ -> Invalid "Next action is not to play a card."
 
   let pass card_l t = 
     match internal_pass 0 card_l t with 
@@ -394,7 +502,7 @@ module Round:RoundSig = struct
     | t -> Valid t
 
 
-  let get_scores t = 
+  let get_round_ t = 
     List.map (fun p -> p.name, p.score) t.players
 
   let next t = 
@@ -403,14 +511,21 @@ module Round:RoundSig = struct
       history = ListQueue.pop t.history;
     }
 
+  let next_action t = 
+    match t.next_action with 
+    | Lead -> "Play"
+    | Play -> "Play"
+    | Pass -> "Pass"
+    | Deal -> "Deal"
+
   let hand t = 
     List.nth (ListQueue.peek t.history).hands 0
 
-  let score t = 
-    List.nth (ListQueue.peek t.history).scores 0
+  let total_score t = 
+    t.total_scores
 
-  let end_of_round_score t = 
-    (ListQueue.peek t.history).scores
+  let round_score t = 
+    (ListQueue.peek t.history).round_score
 
   let pile t = 
     (ListQueue.peek t.history).pile
@@ -429,6 +544,9 @@ module Round:RoundSig = struct
 
   let names t = 
     List.map (fun player -> player.name) t.players
+
+
+  (* ----TESTING FUNCTIONS---- *)
 
   let string_of_player p = 
     "<Player :" ^
@@ -457,7 +575,7 @@ module Round:RoundSig = struct
     match a with 
     | Deal -> "Deal"
     | Pass -> "Pass"
-    | Lead -> "Lead"
+    | Lead -> "Play"
     | Play -> "Play"
 
   let string_of_round r = 
@@ -468,7 +586,8 @@ module Round:RoundSig = struct
     "; hearts_broken = " ^ string_of_bool r.hearts_broken ^ 
     "; first_round = " ^ string_of_bool r.first_round ^ 
     "; next_player = " ^ string_of_int r.next_player ^ 
-    "; scores = " ^ string_of_int_list r.scores ^
+    "; total_scores = " ^ string_of_int_list r.total_scores ^
     "; next_action = " ^ string_of_action r.next_action ^ 
+    "; round_number = " ^ string_of_int r.round_number ^
     ">"
 end

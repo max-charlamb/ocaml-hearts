@@ -41,17 +41,21 @@ module type RoundSig = sig
       Meant only for use with bots. *)
   val bot_pile : t -> (card * int) list
 
-  (** [score t] is the players current score. *)
-  val score : t -> int 
-
-  (** [end_of_round_score t] is a list of all the players score. 
+  (** [round_score t] is a list of all the players round score. 
       In order of their id. *)
-  val end_of_round_score : t -> int list 
+  val round_score : t -> int list
+
+  (** [total_score t] is a list of all the players cumulative score. 
+      In order of their id. *)
+  val total_score : t -> int list 
 
   (** [names t] is the names of the players in id order.*)
   val names : t -> string list
 
   val string_of_round : t -> string
+
+  (** [next_action] is the string of the next action. *)
+  val next_action : t -> string
 
 end
 

@@ -82,6 +82,10 @@ module type PartialDeckSig = sig
   (** [add_cards c_l t] is t with all the cards from [c_l]. *)
   val add_cards : card list -> t -> t
 
+  (** [shoot_the_moon t] is true if [t] has all the cards needed to shoot
+      the moon. Otherwise false. *)
+  val shoot_the_moon : t -> bool
+
 end
 
 module PartialDeck:PartialDeckSig
