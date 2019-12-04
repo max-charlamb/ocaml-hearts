@@ -12,6 +12,7 @@ type command =
   | Restart
   | Back
   | Deal
+  | Debug
 
 exception Empty
 
@@ -81,6 +82,7 @@ let make_command rest lead =
   | "play", _ -> make_play rest
   | "back", [] -> Back
   | "deal", [] -> Deal
+  | "debug", [] -> Debug
   | _ -> raise Malformed
 
 let parse s = 

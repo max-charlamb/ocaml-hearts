@@ -72,9 +72,10 @@ let rec home_loop bl state =
         home_loop true state'
     end
   | Help ->
-    (* Print.erase_print "Help";
-       Print.print_help_menu ();
-       home_loop false state' *)
+    Print.erase_print "Help";
+    Print.print_help_menu ();
+    home_loop false state' 
+  | Debug -> 
     erase Screen;
     save_cursor ();
     set_cursor 1 (h/2);
