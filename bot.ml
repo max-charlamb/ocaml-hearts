@@ -196,15 +196,20 @@ module Bot:BotSig = struct
           | exception CardNotFound -> acc
         end
 
-  let pass_easy deck = 
-    match PartialDeck.find 3 deck, PartialDeck.find 6 deck, PartialDeck.find 9 deck with 
-    | Some(x1), Some(x2), Some(x3) -> [x1;x2;x3]
-    | _,_,_ -> failwith "Not a full starting deck"
+  let rec pass_easy deck acc = 
+    if List.length acc = 3 then acc else 
+      match PartialDeck.random_card deck with 
+      | None -> pass_easy deck acc
+      | Some c -> if List.mem c acc then pass_easy deck acc 
+        else pass_easy deck (c :: acc)
 
-  let pass_med deck = 
-    match PartialDeck.find 3 deck, PartialDeck.find 6 deck, PartialDeck.find 9 deck with 
-    | Some(x1), Some(x2), Some(x3) -> [x1;x2;x3]
-    | _,_,_ -> failwith "Not a full starting deck"
+  let rec pass_med deck suit suit_acc suits acc = 
+    if List.length acc = 3 then acc else 
+      match get_highest suit deck with 
+      | None -> let sacc = suit :: suit_acc in 
+        let new_suit = get_new_suit sacc suits in 
+        pass_med deck new_suit sacc suits acc
+      | Some c -> pass_med deck suit suit_acc suits acc
 
   let pass_hard deck = 
     let hrts_spds = 
@@ -222,12 +227,16 @@ module Bot:BotSig = struct
     | [] -> pass_diamonds_clubs deck 3 []
     | _ -> failwith "Not enough cards"
 
+  let random_suit suits = 
+    Random.self_init ();
+    (List.nth suits (Random.int (List.length suits)))
+
   let pass deck difficulty = 
     match difficulty with 
-    | "easy" -> pass_easy deck
-    | "medium" -> pass_med deck
+    | "easy" -> pass_easy deck []
+    | "medium" -> pass_med deck (random_suit suits) [] suits []
     | "hard" -> let out = pass_hard deck in 
       if List.length out < 3 then failwith "Not enough cards" else out
-    | _ -> pass_easy deck
+    | _ -> pass_easy deck []
 
 end
