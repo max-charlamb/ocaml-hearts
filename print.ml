@@ -69,7 +69,8 @@ module Print:PrintSig = struct
     else ()
 
   let print_pile lst_cards x y = 
-    print_table 12;
+    let w,h = size () in 
+    print_table (2*h/5);
     let rec aux lst_cards = 
       match lst_cards with 
       | (c, i) :: t -> let () = let (w, h) = size () in adjust_cursor w h i in
