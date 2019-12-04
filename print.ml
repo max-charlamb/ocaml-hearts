@@ -239,8 +239,14 @@ module Print:PrintSig = struct
             (6 - String.length (a |> string_of_int)) ^ acc)
         (Round.round_score t) "" in
     let x,y = pos_cursor () in 
+    let round_disp = "Round:  " in
+    let cumulative_disp = "Total:  " in
+    move_cursor (-(String.length cumulative_disp)) (0);
+    print_string [on_default] cumulative_disp;
     print_string [on_default] total_scores;
     set_cursor (x) (y + 1);
+    move_cursor (-(String.length round_disp)) (0);
+    print_string [on_default] round_disp;
     print_string [on_default] round_scores
 
 
