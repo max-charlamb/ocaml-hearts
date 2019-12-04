@@ -266,6 +266,66 @@ module Round:RoundSig = struct
     | _ -> 
       raise (Default "error in incrementing")
 
+  let clean_up_round t = 
+    let shooting, shooter = 
+      List.fold_left (fun (shooting,shooter) player -> 
+          if shooting then (shooting, shooter) else
+          if PartialDeck.shoot_the_moon player.p_cards then 
+            (true, player.id) else (false, shooter)
+        ) (false, 0) t.players
+    in
+    let players' = List.map (fun player -> 
+        {
+          player with 
+          hand = PartialDeck.empty; 
+          p_cards = PartialDeck.empty;
+          score = 0;
+        }) t.players
+    in
+    match shooting with 
+    | true ->
+      let new_history = {
+        hands = List.map (fun player -> player.hand) players';
+        pile = [];
+        round_score = List.map (fun player -> player.score) players';
+        description = (id_to_name (shooter) t) ^ " shoot the moon!";
+      } in
+      { 
+        t with 
+        total_scores = List.map2 
+            (fun player old_score -> if player.id = shooter then 
+                (player.score - 26) + old_score else
+                (player.score + 26) + old_score) 
+            t.players t.total_scores;
+        players = players';
+        is_over = true;
+        next_player = 0;
+        first_round = true;
+        hearts_broken = false;
+        round_number = t.round_number + 1;
+        history = ListQueue.push new_history t.history;
+      } |> update_action
+    | false -> 
+      let new_history = {
+        hands = List.map (fun player -> player.hand) players';
+        pile = [];
+        round_score = List.map (fun player -> player.score) players';
+        description = "Round is over";
+      } in
+      { 
+        t with 
+        total_scores = List.map2 
+            (fun player old_score -> player.score + old_score) 
+            t.players t.total_scores;
+        players = players';
+        is_over = true;
+        next_player = 0;
+        first_round = true;
+        hearts_broken = false;
+        round_number = t.round_number + 1;
+        history = ListQueue.push new_history t.history;
+      } |> update_action
+
   let clean_up_trick t = 
     let leading_suite = 
       (List.nth t.pile ((List.length t.pile) - 1) |> fst).suite in
@@ -297,26 +357,16 @@ module Round:RoundSig = struct
     }
     in
     if hand_size t = 0 then 
-      { 
-        t with 
-        total_scores = List.map2 
-            (fun player old_score -> player.score + old_score) 
-            t.players t.total_scores;
-        pile = [];
-        players = List.map (fun player -> 
-            {
-              player with 
-              hand = PartialDeck.empty; 
-              p_cards = PartialDeck.empty;
-              score = 0;
-            }) players';
-        is_over = true;
-        next_player = 0;
-        first_round = true;
-        hearts_broken = false;
-        round_number = t.round_number + 1;
-        history = ListQueue.push new_history t.history;
-      } |> update_action
+      clean_up_round
+        {
+          t with
+          pile = [];
+          players = players';
+          next_player = snd winner;
+          first_round = false;
+          hearts_broken = hearts_broken';
+          history = ListQueue.push new_history t.history;
+        }
     else
       {
         t with
@@ -444,7 +494,7 @@ module Round:RoundSig = struct
         | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
         | t -> Valid t
       end
-    | _ -> failwith "error"
+    | _ -> Invalid "Next action is not to play a card."
 
   let pass card_l t = 
     match internal_pass 0 card_l t with 
@@ -463,7 +513,7 @@ module Round:RoundSig = struct
 
   let next_action t = 
     match t.next_action with 
-    | Lead -> "Lead"
+    | Lead -> "Play"
     | Play -> "Play"
     | Pass -> "Pass"
     | Deal -> "Deal"
@@ -538,5 +588,6 @@ module Round:RoundSig = struct
     "; next_player = " ^ string_of_int r.next_player ^ 
     "; total_scores = " ^ string_of_int_list r.total_scores ^
     "; next_action = " ^ string_of_action r.next_action ^ 
+    "; round_number = " ^ string_of_int r.round_number ^
     ">"
 end
