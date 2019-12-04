@@ -42,6 +42,8 @@ module Bot:BotSig = struct
       play_easy hand pile new_suit acc
     | Some c -> c 
 
+  (** [play_highest hand pile suit suit_acc] is the highest ranked card of
+      [suit] in [hand]. *)
   and play_highest hand pile suit suit_acc = 
     match get_highest suit hand with 
     | None -> let acc = suit :: suit_acc in 
@@ -104,6 +106,12 @@ module Bot:BotSig = struct
     | _ -> play_easy hand pile pile_suite []
 
 
+
+  (* --------------------------------------------------------------------------- *)
+
+
+
+
   let rec lead_easy hand pile suit suit_acc = 
     match get_lowest suit hand with 
     | None -> let acc = suit :: suit_acc in 
@@ -160,6 +168,12 @@ module Bot:BotSig = struct
     | "medium" -> lead_medium hand pile
     | "hard" -> lead_hard hand pile
     | _ -> lead_easy hand pile Club []
+
+
+
+  (* --------------------------------------------------------------------------- *)
+
+
 
   let pass_spades deck = 
     let qs = {suite=Spade; rank=Queen} in 
@@ -227,6 +241,8 @@ module Bot:BotSig = struct
     | [] -> pass_diamonds_clubs deck 3 []
     | _ -> failwith "Not enough cards"
 
+  (** [random_suit suits] is a random suit from [suits].
+      Requires: [suits] is not empty. *)
   let random_suit suits = 
     Random.self_init ();
     (List.nth suits (Random.int (List.length suits)))
