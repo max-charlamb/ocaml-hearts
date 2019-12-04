@@ -229,10 +229,14 @@ module Print:PrintSig = struct
     set_cursor (3*w/5) (4*h/5);
     move_cursor 3 (3);
     let total_scores = 
-      List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
+      List.fold_right (fun a acc -> 
+          " " ^ ( a |> string_of_int) ^ spaces " " 
+            (6 - String.length (a |> string_of_int)) ^ acc) 
         (Round.total_score t) "" in
     let round_scores = 
-      List.fold_right (fun a acc -> " " ^ ( a |> string_of_int) ^ "     " ^ acc) 
+      List.fold_right (fun a acc -> 
+          " " ^ ( a |> string_of_int) ^ spaces " " 
+            (6 - String.length (a |> string_of_int)) ^ acc)
         (Round.round_score t) "" in
     let x,y = pos_cursor () in 
     print_string [on_default] total_scores;
