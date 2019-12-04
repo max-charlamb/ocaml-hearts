@@ -441,7 +441,7 @@ module Round:RoundSig = struct
     } |> update_action |> bot_actions
   and internal_pass id card_l t = 
     check_pass_in_turn id card_l t;
-    let get_bot_pass id = Bot.pass (get_hand id t) in
+    let get_bot_pass id = Bot.pass (get_hand id t) (get_difficulty t) in
     let rec remove_cards c_ll inc (st:t) = 
       match c_ll with 
       | [] -> st

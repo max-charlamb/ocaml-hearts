@@ -2,6 +2,7 @@ open OUnit2
 open Card
 open Partialdeck
 open Command
+open Round
 
 (* Card Tests *)
 
@@ -44,6 +45,8 @@ let deck6 = PartialDeck.empty |> PartialDeck.add_cards [
 let partialdecktests = [
   "empty" >:: (fun _ -> 
       assert_equal 0 (PartialDeck.empty |> PartialDeck.size));
+  "empty02" >:: (fun _ -> 
+      assert_equal true (PartialDeck.empty |> PartialDeck.is_empty));
   "full" >:: (fun _ ->
       assert_equal 52 (PartialDeck.full |> PartialDeck.size));
   "insert" >:: (fun _ ->
@@ -85,20 +88,42 @@ let partialdecktests = [
 let commandtests = [
   "pass" >:: (fun _ -> 
       assert_equal (Pass(1,2,3)) (parse "pass 1 2 3"));
-  "empty" >:: (fun _ -> assert_raises Empty (fun () -> (parse "")));
-  "malformed01" >:: (fun _ -> assert_raises Malformed (fun () -> (parse "test")));
+  "play" >:: (fun _ -> 
+      assert_equal (Play (2)) (parse "play 2"));
+  "quit" >:: (fun _ -> 
+      assert_equal (Quit) (parse "quit  "));
+  "help" >:: (fun _ -> 
+      assert_equal (Help) (parse "help"));
+  "restart" >:: (fun _ -> 
+      assert_equal (Restart) (parse "restart"));
+  "deal" >:: (fun _ -> 
+      assert_equal (Deal) (parse "deal"));
+  "empty01" >:: (fun _ -> assert_raises Empty (fun () -> (parse "")));
+  "empty02" >:: (fun _ -> assert_raises Empty (fun () -> (parse "  ")));
+  "malformed01" >:: (fun _ -> assert_raises Malformed 
+                        (fun () -> (parse "test")));
   "malformed02" >:: (fun _ -> assert_raises Malformed 
                         (fun () -> (parse "pass 1 2 3 4")));
   "malformed03" >:: (fun _ -> assert_raises Malformed 
                         (fun () -> (parse "play t")));
+  "malformed04" >:: (fun _ -> assert_raises Malformed 
+                        (fun () -> (parse "quit 324")));
 ]
 
+let newround = match Round.new_round Easy |> Round.deal with 
+  | Valid t -> t
+  | _ -> failwith ""
+
+let roundtests = [
+  "player hand size" >:: (fun _ -> assert_equal 13 (PartialDeck.size (Round.hand newround)))
+]
 
 let suite =
   "test suite for Hearts"  >::: List.flatten [
     cardtests;
     partialdecktests;
     commandtests;
+    roundtests;
   ]
 
 let _ = run_test_tt_main suite

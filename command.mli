@@ -8,7 +8,7 @@ type index = int
 type card_triple = index * index * index 
 
 (** The type [command] represents a command inputted by the player. It is
-    composed of a verb and optional index arguments. *)
+    composed of a verb and optional index arguments or difficulty string. *)
 type command = 
   | Quit
   | Pass of card_triple
@@ -29,4 +29,9 @@ exception Malformed
     player's hand of cards. *)
 exception InvalidIndex
 
+(** [parse str] is the command corresponding to the input entered by the user
+    [str]. Raises Malformed if [str] does not represent a valid command. That
+    is, if [str] does not contain a valid combination of command verbs and 
+    optional index arguments or difficulty string argument. If [str] is empty, 
+    raises Empty. *)
 val parse : string -> command
