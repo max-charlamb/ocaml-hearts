@@ -92,7 +92,8 @@ let rec home_loop bl state =
         | exception Failure _ -> PartialDeck.empty
         | x -> x) 1 1;
     home_loop true state'
-  | Select s -> begin Print.erase_print "Select"; end
+  | Select s -> Print.erase_print "Invalid Command"; 
+    home_loop true state'
   | Deal -> 
     begin 
       let new_st = Round.deal state' in 
