@@ -3,7 +3,7 @@ open Card
 
 module type BotSig = sig 
 
-  val play : PartialDeck.t -> (card * int) list -> string -> card
+  val play : PartialDeck.t -> (card * int) list -> string -> bool -> card
   val lead : PartialDeck.t -> (card * int) list -> string -> card
   val pass : PartialDeck.t -> string -> card list
 
@@ -69,9 +69,9 @@ module Bot:BotSig = struct
     | Spade -> play_med_helper hand pile qspade qspadetable
     | Heart -> play_easy hand pile pile_suite []
 
-  and play_hard_helper hand pile queen_played queen_table = 
+  and play_hard_helper hand pile queen_played qspadetable = 
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
-    match queen_played, queen_table with 
+    match queen_played, qspadetable with 
     | true, false -> play_highest hand pile pile_suite []
     | true, true
     | false, true -> play_easy hand pile pile_suite []
@@ -94,14 +94,14 @@ module Bot:BotSig = struct
     | (card, _) :: t -> list_to_deck t (PartialDeck.insert card acc)
     | [] -> acc
 
-  and play hand pile diff =
+  and play hand pile diff qs_played =
     let pile' = list_to_deck pile (PartialDeck.empty) in 
     let qs = {suite = Spade; rank = Queen} in 
     let qspadetable = (PartialDeck.mem qs pile') in 
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     match diff with 
     | "easy" -> play_easy hand pile pile_suite []
-    | "medium" -> play_med hand pile true qspadetable
+    | "medium" -> play_med hand pile qs_played qspadetable
     | "hard" -> play_easy hand pile pile_suite [] 
     | _ -> play_easy hand pile pile_suite []
 
@@ -223,7 +223,7 @@ module Bot:BotSig = struct
       | None -> let sacc = suit :: suit_acc in 
         let new_suit = get_new_suit sacc suits in 
         pass_med deck new_suit sacc suits acc
-      | Some c -> pass_med deck suit suit_acc suits acc
+      | Some c -> pass_med deck suit suit_acc suits (c :: acc)
 
   let pass_hard deck = 
     let hrts_spds = 

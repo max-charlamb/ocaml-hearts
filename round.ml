@@ -63,6 +63,7 @@ module Round:RoundSig = struct
     history : historySegment ListQueue.t;
     difficulty : difficulty;
     round_number : int;
+    qspade_played : bool;
   }
 
   type result = Valid of t | Invalid of string
@@ -93,6 +94,7 @@ module Round:RoundSig = struct
     history = ListQueue.empty;
     difficulty = diff;
     round_number = 0;
+    qspade_played = false;
   }
 
   let insert_hand h p = 
@@ -326,7 +328,13 @@ module Round:RoundSig = struct
         history = ListQueue.push new_history t.history;
       } |> update_action
 
+  let rec list_to_deck pile acc =   
+    match pile with 
+    | (card, _) :: t -> list_to_deck t (PartialDeck.insert card acc)
+    | [] -> acc
+
   let clean_up_trick t = 
+    let qsplayed = (list_to_deck t.pile PartialDeck.empty |> PartialDeck.mem {rank = Queen; suite = Spade}) in 
     let leading_suite = 
       (List.nth t.pile ((List.length t.pile) - 1) |> fst).suite in
     let winner = t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
@@ -376,6 +384,7 @@ module Round:RoundSig = struct
         first_round = false;
         hearts_broken = hearts_broken';
         history = ListQueue.push new_history t.history;
+        qspade_played = qsplayed;
       } |> update_action
 
   let cards_passed_string c_ll order = 
@@ -401,7 +410,7 @@ module Round:RoundSig = struct
     | (_,0) -> t
     | (Play,id) -> 
       internal_play t.next_player 
-        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t)) t
+        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t) t.qspade_played) t
     | (Lead,id) -> 
       internal_lead t.next_player 
         (Bot.lead (List.nth t.players id).hand t.pile (get_difficulty t)) t
