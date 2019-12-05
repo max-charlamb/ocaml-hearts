@@ -42,6 +42,20 @@ let deck6 = PartialDeck.empty |> PartialDeck.add_cards [
     {rank=Ace; suite=Heart};
     {rank=Queen; suite=Spade};
   ]
+let deck7 = PartialDeck.empty |> PartialDeck.add_cards [
+    {rank=Two; suite=Heart};
+    {rank=Three; suite=Heart};
+    {rank=Four; suite=Heart};
+    {rank=Five; suite=Heart};
+    {rank=Six; suite=Heart};
+    {rank=Seven; suite=Heart};
+    {rank=Eight; suite=Heart};
+    {rank=Jack; suite=Heart};
+    {rank=Queen; suite=Heart};
+    {rank=King; suite=Heart};
+    {rank=Ace; suite=Heart};
+    {rank=Queen; suite=Spade};
+  ]
 
 let partialdecktests = [
   "empty" >:: (fun _ -> 
@@ -82,6 +96,31 @@ let partialdecktests = [
       assert_equal (PartialDeck.shoot_the_moon 
                       (PartialDeck.insert 
                          {suite=Spade; rank=Three} deck6)) true);
+  "lowest" >:: (fun _ ->
+      assert_equal (PartialDeck.lowest PartialDeck.full Diamond) 
+        ({suite = Diamond; rank = Two}));
+  "highest" >:: (fun _ ->
+      assert_equal (PartialDeck.highest PartialDeck.full Heart) 
+        ({suite = Heart; rank = Ace}));
+  "voided01" >:: (fun _ -> assert_equal (PartialDeck.voided Spade deck1) false);
+  "voided02" >:: (fun _ -> assert_equal (PartialDeck.voided Heart deck1) true);
+  "member01" >:: (fun _ -> assert_equal 
+                     (PartialDeck.mem {suite = Spade; rank = King} deck1) true);
+  "member02" >:: (fun _ -> assert_equal 
+                     (PartialDeck.mem {suite = Heart; rank = King} deck1) false);
+  "find01" >:: (fun _ -> assert_equal 
+                   (PartialDeck.find 12 deck1) None);
+  "find02" >:: (fun _ -> assert_equal 
+                   (PartialDeck.find 1 deck1) (Some {suite=Spade; rank=Queen}));
+  "remove_cards" >:: (fun _ -> assert_equal 
+                         (PartialDeck.remove_cards 
+                            [{rank=Nine; suite=Heart}; {rank=Ten; suite=Heart}] 
+                            deck6) (deck7));
+  "highest not found" >:: (fun _ -> assert_raises CardNotFound 
+                              (fun () -> (PartialDeck.highest deck6 Club)));
+  "lowest not found" >:: (fun _ -> assert_raises CardNotFound 
+                             (fun () -> (PartialDeck.lowest deck6 Club)));
+
 ]
 
 (* Command Tests *)
@@ -89,8 +128,6 @@ let partialdecktests = [
 let commandtests = [
   "pass" >:: (fun _ -> 
       assert_equal (Pass(1,2,3)) (parse "pass 1 2 3"));
-  "malformed pass" >:: (fun _ -> 
-      assert_raises (Malformed) (fun () -> parse "pass 1 2 2"));
   "play" >:: (fun _ -> 
       assert_equal (Play (2)) (parse "play 2"));
   "quit" >:: (fun _ -> 
@@ -101,16 +138,31 @@ let commandtests = [
       assert_equal (Restart) (parse "restart"));
   "deal" >:: (fun _ -> 
       assert_equal (Deal) (parse "deal"));
+  "select" >:: (fun _ -> 
+      assert_equal (Select("easy")) (parse "select easy"));
+  "back" >:: (fun _ -> 
+      assert_equal (Back) (parse "back"));
+  "debug" >:: (fun _ -> 
+      assert_equal (Debug) (parse "debug"));
   "empty01" >:: (fun _ -> assert_raises Empty (fun () -> (parse "")));
   "empty02" >:: (fun _ -> assert_raises Empty (fun () -> (parse "  ")));
-  "malformed01" >:: (fun _ -> assert_raises Malformed 
-                        (fun () -> (parse "test")));
-  "malformed02" >:: (fun _ -> assert_raises Malformed 
-                        (fun () -> (parse "pass 1 2 3 4")));
-  "malformed03" >:: (fun _ -> assert_raises Malformed 
-                        (fun () -> (parse "play t")));
-  "malformed04" >:: (fun _ -> assert_raises Malformed 
-                        (fun () -> (parse "quit 324")));
+  "malformed pass, duplicate indices" >:: (fun _ -> 
+      assert_raises (Malformed) (fun () -> parse "pass 1 2 2"));
+  "random malformed" >:: (fun _ -> assert_raises Malformed 
+                             (fun () -> (parse "test")));
+  "malformed pass" >:: (fun _ -> assert_raises Malformed 
+                           (fun () -> (parse "pass 1 2 3 4")));
+  "malformed play" >:: (fun _ -> assert_raises Malformed 
+                           (fun () -> (parse "play t")));
+  "malformed quit" >:: (fun _ -> assert_raises Malformed 
+                           (fun () -> (parse "quit 324")));
+  "malformed play, two indices" >:: (fun _ -> assert_raises Malformed 
+                                        (fun () -> (parse "play 2 3")));
+  "malformed select" >:: (fun _ -> assert_raises Malformed 
+                             (fun () -> (parse "select easy hard")));
+  "malformed back" >:: (fun _ -> assert_raises Malformed 
+                           (fun () -> (parse "back 3")));
+
 ]
 
 
