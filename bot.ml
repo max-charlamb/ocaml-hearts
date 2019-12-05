@@ -58,7 +58,8 @@ module Bot:BotSig = struct
     | true, true
     | false, true -> play_easy hand pile pile_suite []
     | false, false -> if List.length pile = 3 
-      then play_highest hand pile pile_suite []
+      then let c = play_highest hand pile pile_suite [] in if c ={rank = Queen; suite = Spade} then play_med_helper 
+            (PartialDeck.remove {rank = Queen; suite = Spade} hand) pile queen_played queen_table else c 
       else play_easy hand pile pile_suite []
 
   and play_med hand pile qspade qspadetable =
@@ -223,7 +224,7 @@ module Bot:BotSig = struct
       | None -> let sacc = suit :: suit_acc in 
         let new_suit = get_new_suit sacc suits in 
         pass_med deck new_suit sacc suits acc
-      | Some c -> pass_med deck suit suit_acc suits (c :: acc)
+      | Some c -> pass_med (PartialDeck.remove c deck) suit suit_acc suits (c :: acc)
 
   let pass_hard deck = 
     let hrts_spds = 
