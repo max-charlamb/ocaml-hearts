@@ -24,3 +24,9 @@ setup.log
 # zip files that we submit
 
 *.zip
+
+# temporary files
+*.swp
+*~
+\#*\#
+.DS_Store
