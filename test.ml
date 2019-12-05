@@ -89,6 +89,8 @@ let partialdecktests = [
 let commandtests = [
   "pass" >:: (fun _ -> 
       assert_equal (Pass(1,2,3)) (parse "pass 1 2 3"));
+  "malformed pass" >:: (fun _ -> 
+      assert_raises (Malformed) (fun () -> parse "pass 1 2 2"));
   "play" >:: (fun _ -> 
       assert_equal (Play (2)) (parse "play 2"));
   "quit" >:: (fun _ -> 

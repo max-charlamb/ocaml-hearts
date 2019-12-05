@@ -66,7 +66,10 @@ let make_select rest =
     a Malformed exception is raised. *)
 let make_pass rest = 
   match get_words [] rest with 
-  | a :: b :: c :: [] -> Pass (get_index a, get_index b, get_index c)
+  | a :: b :: c :: [] -> 
+    let a', b', c' = (get_index a, get_index b, get_index c) in 
+    if a' = b' || b' = c' || c' = a' then raise Malformed 
+    else Pass (a', b', c')
   | _ -> raise Malformed
 
 (** [make_command rest lead] is the Command represented by the lead word 
