@@ -3,6 +3,7 @@ open Card
 open Partialdeck
 open Command
 open Round
+open Bot
 
 (* Card Tests *)
 
@@ -110,6 +111,7 @@ let commandtests = [
                         (fun () -> (parse "quit 324")));
 ]
 
+
 let newround = match Round.new_round Easy |> Round.deal with 
   | Valid t -> t
   | _ -> failwith ""
@@ -118,12 +120,20 @@ let roundtests = [
   "player hand size" >:: (fun _ -> assert_equal 13 (PartialDeck.size (Round.hand newround)))
 ]
 
+(* Bot test *)
+let handbot = Round.bot_hand newround 2
+let bottests = [
+  "pass_medium" >:: (fun _ -> assert_equal 3 
+                        (List.length (Bot.pass handbot "medium")));
+]
+
 let suite =
   "test suite for Hearts"  >::: List.flatten [
     cardtests;
     partialdecktests;
     commandtests;
     roundtests;
+    bottests;
   ]
 
 let _ = run_test_tt_main suite
