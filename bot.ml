@@ -57,10 +57,16 @@ module Bot:BotSig = struct
     | true, false -> play_highest hand pile pile_suite []
     | true, true
     | false, true -> play_easy hand pile pile_suite []
-    | false, false -> if List.length pile = 3 
-      then let c = play_highest hand pile pile_suite [] in if c ={rank = Queen; suite = Spade} then play_med_helper 
-            (PartialDeck.remove {rank = Queen; suite = Spade} hand) pile queen_played queen_table else c 
-      else play_easy hand pile pile_suite []
+    | false, false -> if List.length pile <> 3 
+      then play_easy hand pile pile_suite []
+      else begin 
+        let c = play_highest hand pile pile_suite [] in   
+        if c = {rank = Queen; suite = Spade} 
+        then play_med_helper 
+            (PartialDeck.remove {rank = Queen; suite = Spade} hand) 
+            pile queen_played queen_table 
+        else c 
+      end 
 
   and play_med hand pile qspade qspadetable =
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in 
@@ -164,12 +170,13 @@ module Bot:BotSig = struct
     | c -> c
 
   let lead hand pile diff = 
-    match diff with 
-    | "easy" -> lead_easy hand pile Club [] 
-    | "medium" -> lead_medium hand pile
-    | "hard" -> lead_hard hand pile
-    | _ -> lead_easy hand pile Club []
-
+    let twoclubs = {suite = Club; rank = Two} in 
+    if PartialDeck.mem twoclubs hand then twoclubs else 
+      match diff with 
+      | "easy" -> lead_easy hand pile Club [] 
+      | "medium" -> lead_medium hand pile
+      | "hard" -> lead_hard hand pile
+      | _ -> lead_easy hand pile Club []
 
 
   (* --------------------------------------------------------------------------- *)
@@ -192,6 +199,8 @@ module Bot:BotSig = struct
     | false, true, false -> [ks]
     | true, false, true -> [qs; acesp]
 
+  (** [pass_hearts deck count acc] is a list of the [count] highest hearts in 
+      [deck]. If there are no hearts in [deck], the result is [acc]. *)
   let rec pass_hearts deck count acc = 
     if count = 0 then acc else 
       match PartialDeck.highest deck Heart with 
@@ -199,6 +208,9 @@ module Bot:BotSig = struct
       | c -> let new_hand = PartialDeck.remove c deck in 
         pass_hearts new_hand (count - 1) (c::acc)
 
+  (** [pass_diamonds_clubs deck count acc] is a list of the [count] highest 
+      clubs in [deck]. If there are no clubs in [deck], the result is a list 
+      of the highest diamonds. *)
   let rec pass_diamonds_clubs deck count acc = 
     if count = 0 then acc else 
       match PartialDeck.highest deck Club with 
@@ -211,6 +223,7 @@ module Bot:BotSig = struct
           | exception CardNotFound -> acc
         end
 
+  (** [pass_easy deck acc] is a list of three unique random cards in [deck]. *)
   let rec pass_easy deck acc = 
     if List.length acc = 3 then acc else 
       match PartialDeck.random_card deck with 
@@ -218,14 +231,23 @@ module Bot:BotSig = struct
       | Some c -> if List.mem c acc then pass_easy deck acc 
         else pass_easy deck (c :: acc)
 
+  (** [pass_med deck suit suit_acc suits acc] is a list of three cards to pass. 
+      The list of cards selected consists of the highest [suit] cards. If there
+      are no cards of [suit], then the highest cards of a different random 
+      suit are selected. *)
   let rec pass_med deck suit suit_acc suits acc = 
     if List.length acc = 3 then acc else 
       match get_highest suit deck with 
       | None -> let sacc = suit :: suit_acc in 
         let new_suit = get_new_suit sacc suits in 
         pass_med deck new_suit sacc suits acc
-      | Some c -> pass_med (PartialDeck.remove c deck) suit suit_acc suits (c :: acc)
+      | Some c -> let deck' = PartialDeck.remove c deck in 
+        pass_med deck' suit suit_acc suits (c :: acc)
 
+  (** [pass_hard deck] is the list of three cards to pass. If [deck] contains 
+      the Queen, King, or Ace of Spades, these cards are in the list. The 
+      remaining, if any, spots in the list of three cards consists of the 
+      highest hearts and then clubs/diamonds. *)
   let pass_hard deck = 
     let hrts_spds = 
       match pass_spades deck with 

@@ -6,7 +6,7 @@ open ListQueue
 
 module type RoundSig = sig
   type t
-  type difficulty = Easy | Medium | Hard | Invalid
+  type difficulty = Easy | Medium | Hard | InvalidD
   type result = Valid of t | Invalid of string
   val new_round : difficulty -> t
   val deal : t -> result
@@ -33,7 +33,7 @@ module Round:RoundSig = struct
   exception InvalidCardPlayed
   exception BotError
 
-  type difficulty = Easy | Medium | Hard | Invalid
+  type difficulty = Easy | Medium | Hard | InvalidD
   type action = Play | Lead | Pass | Deal
 
   type player = {
@@ -396,14 +396,14 @@ module Round:RoundSig = struct
     | Easy -> "easy"
     | Medium -> "medium"
     | Hard -> "hard"
-    | Invalid -> "easy"
+    | InvalidD -> "easy"
 
   let get_passing_order t = 
     match t.round_number with 
     | n when (n mod 4) = 1 -> [1;2;3;0]
     | n when (n mod 4) = 2 -> [3;2;1;0]
     | n when (n mod 4) = 3 -> [2;3;0;1]
-    | n -> failwith "should not be passing on forth rounds"
+    | n -> failwith "should not be passing on fourth rounds"
 
   let rec bot_actions t = 
     match t.next_action,t.next_player with 

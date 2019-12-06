@@ -4,7 +4,7 @@ open Partialdeck
 module type RoundSig = sig
   type t
   type result = Valid of t | Invalid of string
-  type difficulty = Easy | Medium | Hard | Invalid
+  type difficulty = Easy | Medium | Hard | InvalidD
 
   (** [new_round d] is a new game of difficulty [d]. *)
   val new_round : difficulty -> t

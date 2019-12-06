@@ -176,9 +176,20 @@ let roundtests = [
 
 (* Bot test *)
 let handbot = Round.bot_hand newround 2
+let handbot2 = Round.bot_hand newround 1
 let bottests = [
+  "pass_easy" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot "easy")));
   "pass_medium" >:: (fun _ -> assert_equal 3 
                         (List.length (Bot.pass handbot "medium")));
+  "pass_hard" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot "hard")));
+  "pass_easy" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot2 "easy")));
+  "pass_medium" >:: (fun _ -> assert_equal 3 
+                        (List.length (Bot.pass handbot2 "medium")));
+  "pass_hard" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot2 "hard")));
 ]
 
 let suite =
