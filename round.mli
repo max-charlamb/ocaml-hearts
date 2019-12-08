@@ -7,7 +7,7 @@ module type RoundSig = sig
   type difficulty = Easy | Medium | Hard | Invalid
 
   (** [new_round d] is a new game of difficulty [d]. *)
-  val new_round : difficulty -> t
+  val new_round : difficulty -> string -> t
 
   (* [deal t] deals the cards from a partial deck to all the players. *)
   val deal : t -> result
@@ -56,6 +56,8 @@ module type RoundSig = sig
 
   (** [next_action] is the string of the next action. *)
   val next_action : t -> string
+
+  val game_over : t -> bool * bool
 
 end
 

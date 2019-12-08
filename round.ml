@@ -8,7 +8,7 @@ module type RoundSig = sig
   type t
   type difficulty = Easy | Medium | Hard | Invalid
   type result = Valid of t | Invalid of string
-  val new_round : difficulty -> t
+  val new_round : difficulty -> string -> t
   val deal : t -> result
   val play : card -> t -> result
   val pass : card list -> t -> result
@@ -24,6 +24,7 @@ module type RoundSig = sig
   val names : t -> string list
   val string_of_round : t -> string
   val next_action : t -> string
+  val game_over : t -> bool * bool
 end
 
 
@@ -78,8 +79,8 @@ module Round:RoundSig = struct
       p_cards = PartialDeck.empty;
     }
 
-  let new_round diff = {
-    players = [create_player "Henry" 0; 
+  let new_round diff s = {
+    players = [create_player s 0; 
                create_player "Bot1" 1; 
                create_player "Bot2" 2; 
                create_player "Bot3" 3];
@@ -590,4 +591,14 @@ module Round:RoundSig = struct
     "; next_action = " ^ string_of_action r.next_action ^ 
     "; round_number = " ^ string_of_int r.round_number ^
     ">"
+
+  let game_over t = 
+    let is_over = List.exists (fun s -> s >= 2) t.total_scores in 
+    let winning_player = List.fold_left
+        (fun int acc -> if int < acc then int else acc) 
+        Int.max_int t.total_scores in
+    let player_won = if winning_player = List.hd t.total_scores
+      then true else false in
+    (is_over, player_won)
+
 end
