@@ -17,7 +17,7 @@ module type RoundSig = sig
   type difficulty = Easy | Medium | Hard | Invalid
 
   (** [new_round d] is a new game of difficulty [d]. *)
-  val new_round : difficulty -> t
+  val new_round : difficulty -> string -> t
 
   (* [deal t] deals the cards from a partial deck to all the players. *)
   val deal : t -> result
@@ -70,6 +70,12 @@ module type RoundSig = sig
   (** [test_deal pdl] is a new round where [pdl] are dealt as each hand.
       The length of [pdl] must be 4. *)
   val test_deal : PartialDeck.t list -> t
+
+  (** [game_over t] is [(false,_)] if no players score is above the
+      winning condition score. [(true,_)] if there is a player 
+      above the score. [(true,true)] if the player won. 
+      [(ture,false)] if the bot won. *)
+  val game_over : t -> bool * bool
 
 end
 
