@@ -59,10 +59,12 @@ module type PartialDeckSig = sig
   (** [count_points t] is the number of points in partial deck [t]. *)
   val count_points: t -> int
 
-  (** [merge t1 t2] is the partial deck containing all the cards in t1 and t2.*)
+  (** [merge t1 t2] is the partial deck containing 
+      all the cards in t1 and t2. *)
   val merge: t -> t -> t
 
-  (** [contains_hearts t] is true if [t] contains any hearts. Otherwise false.*)
+  (** [contains_hearts t] is true if [t] contains any hearts. 
+      Otherwise false. *)
   val contains_hearts: t -> bool
 
   (** [string_of_partialdeck t] is a string representing the deck [t]. *)

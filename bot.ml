@@ -93,7 +93,8 @@ module Bot:BotSig = struct
   and play_med_helper hand pile queen_played queen_table = 
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     if PartialDeck.voided pile_suite hand then 
-      play_bad_cards hand pile pile_suite [] {rank=Queen; suite=Spade} bad_cards    
+      play_bad_cards hand pile pile_suite [] 
+        {rank=Queen; suite=Spade} bad_cards    
     else 
       match queen_played, queen_table with 
       | true, false -> play_highest hand pile pile_suite []

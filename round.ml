@@ -138,7 +138,8 @@ module Round:RoundSig = struct
       ) 
       (-1,false) players |> fst
 
-  (** [id_to_name id t] is the name of the player with id=[id] in round [t]. *)
+  (** [id_to_name id t] is the name of 
+      the player with id=[id] in round [t]. *)
   let id_to_name id t = 
     (List.nth t.players id).name
 
@@ -268,7 +269,7 @@ module Round:RoundSig = struct
     let contains_other_cards = (PartialDeck.voided Club user.hand) && 
                                (PartialDeck.voided Diamond user.hand) &&
                                (PartialDeck.voided Spade user.hand) in
-    if not t.hearts_broken && card.suite = Heart && not contains_other_cards 
+    if not t.hearts_broken && card.suite = Heart && not contains_other_cards
     then 
       raise (Default "Hearts are not yet broken! Play another card.") else ()
 
@@ -399,8 +400,8 @@ module Round:RoundSig = struct
         else player) t.players 
 
 
-  (** [list_to_deck lst deckacc] is the deck representation of the lst of cards in 
-      [lst]. *)
+  (** [list_to_deck lst deckacc] is the deck 
+      representation of the lst of cards in [lst]. *)
   let rec list_to_deck deckacc lst =  
     match lst with 
     | (h, _) :: t -> list_to_deck (PartialDeck.insert h deckacc) t 
@@ -476,7 +477,8 @@ module Round:RoundSig = struct
     | (_,0) -> t
     | (Play,id) -> 
       internal_play t.next_player 
-        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t) t.qspade_played) t
+        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t) 
+           t.qspade_played) t
     | (Lead,id) -> 
       internal_lead t.next_player 
         (Bot.lead (List.nth t.players id).hand t.pile (get_difficulty t)) t
