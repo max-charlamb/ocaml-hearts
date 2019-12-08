@@ -12,6 +12,24 @@ end
 module Bot:BotSig = struct
 
   let suits = [Club; Diamond; Spade; Heart]
+  let bad_cards = [
+    {rank=Queen; suite=Spade};
+    {rank=Ace; suite=Spade};
+    {rank=King; suite = Spade};
+    {rank=Ace; suite=Heart};
+    {rank=King; suite=Heart};
+    {rank=Queen; suite=Heart};
+    {rank=Jack; suite=Heart};
+    {rank=Ten; suite=Heart};
+    {rank=Nine; suite=Heart};
+    {rank=Eight; suite=Heart};
+    {rank=Seven; suite=Heart};
+    {rank=Six; suite=Heart};
+    {rank=Five; suite=Heart};
+    {rank=Four; suite=Heart};
+    {rank=Three; suite=Heart};
+    {rank=Two; suite=Heart};
+  ]
 
   (** [get_lowest suit hand] is the card with the lowest value in [suit]
       in [hand]. If there is no card of suit [suit], then the result is None. *)
@@ -51,22 +69,34 @@ module Bot:BotSig = struct
       play_easy hand pile new_suit acc
     | Some c -> c
 
+  and play_bad_cards hand pile suit suit_acc card bad_cards = 
+    match PartialDeck.mem card hand with 
+    | false -> begin 
+        match bad_cards with
+        | h :: t -> play_bad_cards hand pile suit suit_acc h t
+        | [] -> play_highest hand pile suit suit_acc  
+      end
+    | true -> card
+
   and play_med_helper hand pile queen_played queen_table = 
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
-    match queen_played, queen_table with 
-    | true, false -> play_highest hand pile pile_suite []
-    | true, true
-    | false, true -> play_easy hand pile pile_suite []
-    | false, false -> if List.length pile <> 3 
-      then play_easy hand pile pile_suite []
-      else begin 
-        let c = play_highest hand pile pile_suite [] in   
-        if c = {rank = Queen; suite = Spade} 
-        then play_med_helper 
-            (PartialDeck.remove {rank = Queen; suite = Spade} hand) 
-            pile queen_played queen_table 
-        else c 
-      end 
+    if PartialDeck.voided pile_suite hand then 
+      play_bad_cards hand pile pile_suite [] {rank=Queen; suite=Spade} bad_cards    
+    else 
+      match queen_played, queen_table with 
+      | true, false -> play_highest hand pile pile_suite []
+      | true, true
+      | false, true -> play_easy hand pile pile_suite []
+      | false, false -> if List.length pile <> 3 
+        then play_easy hand pile pile_suite []
+        else begin 
+          let c = play_highest hand pile pile_suite [] in   
+          if c = {rank = Queen; suite = Spade} 
+          then play_med_helper 
+              (PartialDeck.remove {rank = Queen; suite = Spade} hand) 
+              pile queen_played queen_table 
+          else c 
+        end 
 
   and play_med hand pile qspade qspadetable =
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in 
@@ -112,13 +142,6 @@ module Bot:BotSig = struct
     | "hard" -> play_easy hand pile pile_suite [] 
     | _ -> play_easy hand pile pile_suite []
 
-
-
-  (* --------------------------------------------------------------------------- *)
-
-
-
-
   let rec lead_easy hand pile suit suit_acc = 
     match get_lowest suit hand with 
     | None -> let acc = suit :: suit_acc in 
@@ -126,6 +149,26 @@ module Bot:BotSig = struct
       play_easy hand pile new_suit acc
     | Some c -> c 
 
+  (* 
+  let rec lead_medium hand pile (suit : Card.suite) suit_acc =
+    if suit = Spade then 
+      match get_lowest suit hand with 
+      | None -> begin 
+          let acc = suit :: suit_acc in
+          let new_suit = get_new_suit acc suits in
+          match get_highest new_suit hand with 
+          | None -> let acc = suit :: suit_acc in 
+            let new_suit = get_new_suit acc suits in 
+            lead_medium hand pile new_suit acc
+          | Some c -> c 
+        end 
+      | Some c -> c 
+    else match get_highest suit hand with 
+      | None -> let acc = suit :: suit_acc in 
+        let new_suit = get_new_suit acc suits in 
+        lead_medium hand pile new_suit acc
+      | Some c -> c 
+*) 
 
   let lead_medium hand pile =
     match PartialDeck.highest hand Club with
@@ -174,14 +217,9 @@ module Bot:BotSig = struct
     if PartialDeck.mem twoclubs hand then twoclubs else 
       match diff with 
       | "easy" -> lead_easy hand pile Club [] 
-      | "medium" -> lead_medium hand pile
+      | "medium" -> lead_medium hand pile 
       | "hard" -> lead_hard hand pile
       | _ -> lead_easy hand pile Club []
-
-
-  (* --------------------------------------------------------------------------- *)
-
-
 
   let pass_spades deck = 
     let qs = {suite=Spade; rank=Queen} in 

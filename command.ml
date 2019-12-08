@@ -20,15 +20,15 @@ exception Malformed
 
 exception InvalidIndex
 
-(** [get_first lst] is the first word in [lst]. If [lst] is empty, raises
+(** [hd_safe lst] is the first word in [lst]. If [lst] is empty, raises
     Empty exception.  *)
-let get_first = function 
+let hd_safe = function 
   | [] -> raise Empty
   | h :: t -> if h = "" then raise Empty else h
 
-(** [get_rest lst] is the [lst] with the first word removed. If [lst] is
+(** [tl_safe lst] is the [lst] with the first word removed. If [lst] is
     empty, raises Empty exception. *)
-let get_rest = function 
+let tl_safe = function 
   | [] -> raise Empty
   | _ :: t -> t
 
@@ -90,6 +90,6 @@ let make_command rest lead =
 
 let parse s = 
   let lst = String.trim s |> String.split_on_char ' ' in
-  let first = get_first lst in 
-  let rest = get_rest lst in 
+  let first = hd_safe lst in 
+  let rest = tl_safe lst in 
   make_command rest first
