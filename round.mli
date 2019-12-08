@@ -16,7 +16,7 @@ module type RoundSig = sig
   (** [difficulty] are the possible levels of difficulty for a round. *)
   type difficulty = Easy | Medium | Hard | Invalid
 
-  (** [new_round d] is a new game of difficulty [d]. *)
+  (** [new_round d s] is a new game of difficulty [d] and player name [s]. *)
   val new_round : difficulty -> string -> t
 
   (* [deal t] deals the cards from a partial deck to all the players. *)
