@@ -669,8 +669,8 @@ module Round:RoundSig = struct
     "; round_number = " ^ string_of_int r.round_number ^
     ">"
 
-  let test_deal pd_l = 
-    let t = new_round Easy in 
+  let test_deal pd_l= 
+    let t = new_round Easy "Henry" in 
     let players' = 
       List.map2 (fun player hand -> 
           { player with 
@@ -682,7 +682,7 @@ module Round:RoundSig = struct
       next_action = Lead;
       next_player = player_with_leading_card players';
     } |> bot_actions
-    
+
   let game_over t = 
     let is_over = List.exists (fun s -> s >= 2) t.total_scores in 
     let winning_player = List.fold_left

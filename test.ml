@@ -148,7 +148,7 @@ let commandtests = [
 
 (* Round Tests *)
 
-let newround = match Round.new_round Easy |> Round.deal with 
+let newround = match Round.new_round Easy "test" |> Round.deal with 
   | Valid t -> t
   | _ -> failwith ""
 
