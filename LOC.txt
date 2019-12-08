@@ -1,0 +1,7 @@
+When we tested our LOC we got ~2000 lines of OCaml. We do have some places 
+such as in printing and testing where we use a large number of lines to hold 
+data. We understand that this shouldn't count towards out total lines of code.
+That said we tested without these lines and still had above 1500 lines.
+
+We believe that for the sake of code simplicity leaving this text in our files
+makes understanding the code base easier. 
