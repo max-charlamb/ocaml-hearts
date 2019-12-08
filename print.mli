@@ -1,3 +1,5 @@
+(** Print is a collection of printing functions to assist in our GUI. *)
+
 open Unix
 open ANSITerminal
 open Command

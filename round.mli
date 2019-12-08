@@ -1,3 +1,6 @@
+(** Round holds the state of our game and functions to 
+    update it. *)
+
 open Card
 open Partialdeck
 

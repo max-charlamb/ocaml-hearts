@@ -1,4 +1,4 @@
-
+(** Card is the representation of a single card in our game. *)
 
 (** [DeuplicateCard] raised when Duplicate card is found. *)
 exception DuplicateCard
@@ -6,7 +6,7 @@ exception DuplicateCard
 (** [CardNotFound] raised when card can not be found in a deck. *)
 exception CardNotFound
 
-(** [sutte] are the possible suites for a card. *)
+(** [suite] are the possible suites for a card. *)
 type suite = 
   | Spade 
   | Heart 
@@ -60,4 +60,6 @@ val print_card: ?bckgnd:ANSITerminal.style -> card -> unit
 (** [print_card_tall c] prints a larger version of the card [c]. *)
 val print_card_tall : card -> unit
 
+(** [compare c1 c2] is positive if [c1 > c2], 0 if [c1 = c2], and 
+    negative if [c1 < c2]. *)
 val compare: card -> card -> int

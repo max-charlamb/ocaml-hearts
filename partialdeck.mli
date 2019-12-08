@@ -1,12 +1,10 @@
+(** A partial deck is a set of any number of cards. It can be created empty
+    or as a full deck. *)
 open Card
-
-(*
- A partial deck is a set of any number of cards. It can be created empty
-or as a full deck.
-*)
 
 module type PartialDeckSig = sig
 
+  (** [t] is the type of a PartialDeck. *)
   type t
 
   (** [empty] is an empty partial deck. *)
