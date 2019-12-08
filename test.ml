@@ -261,6 +261,23 @@ let roundtests = [
           | Invalid(s) -> "fail"
           | Valid (t) -> t |> Round.next_action
         end ~printer:(fun x -> x));
+  "full game shoot the moon" >:: (fun _ -> 
+      assert_equal [-10;26;26;26]
+        begin 
+          (List.fold_left (fun round _ -> 
+               begin 
+                 let first_card = 
+                   match (PartialDeck.find 1 (Round.bot_hand round 0)) with 
+                   | Some (c) -> c
+                   | None -> {rank=Two;suite=Heart}
+                 in
+                 match Round.play first_card round with 
+                 | Invalid(s) -> round
+                 | Valid (r) -> r
+               end
+             ) testround1 [1;2;3;4;5;6;7;8;9;10;11;12;13])|> Round.total_score
+        end ~printer:(fun x -> List.fold_left 
+                         (fun acc y -> acc ^ string_of_int y ^ "; " ) "" x));
 ]
 
 let suite =
