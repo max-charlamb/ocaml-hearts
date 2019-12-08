@@ -4,6 +4,16 @@ open Partialdeck
 open Command
 open Round
 
+(* Test Plan
+   We tested the backend of our system using OUnit tests. This includes the
+   modules Card, Partialdeck, Command, and some of Round. This was done because
+   the rest of the modules require IO and are difficult to test here. For the 
+   most part we use Black Box testing and make sure that our functions are able 
+   to pass all the edge cases we can think of. This approach is able to test
+   the correctness of the system because the backend is correct, the frontend is 
+   easily testable in play testing.
+*)
+
 (* Card Tests *)
 
 let king_spade = {suite=Spade; rank=King}
@@ -115,7 +125,14 @@ let newround = match Round.new_round Easy |> Round.deal with
   | _ -> failwith ""
 
 let roundtests = [
-  "player hand size" >:: (fun _ -> assert_equal 13 (PartialDeck.size (Round.hand newround)))
+  "player hand size" >:: (fun _ -> 
+      assert_equal 13 (PartialDeck.size (Round.hand newround)));
+  "assert wrong card" >:: (fun _ -> 
+      assert_equal false 
+        begin match (Round.play {rank=Ten;suite=Spade} newround) with 
+          | Invalid(s) -> false
+          | Valid (t) -> true
+        end)
 ]
 
 let suite =
