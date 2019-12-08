@@ -18,7 +18,9 @@ module type PrintSig = sig
   val print_pile : (Card.card * int) list -> int -> int -> unit
   val internal_display_history : Round.t -> Round.t
   val read_line_safe : unit -> Command.command
-
+  val print_player_win : unit -> unit
+  val print_bot_win : unit -> unit
+  val print_name_prompt : unit -> unit
 end
 
 module Print:PrintSig = struct 
@@ -50,14 +52,24 @@ module Print:PrintSig = struct
   let rec spaces s l = 
     if l > 0 then s ^ spaces (s) (l-1) else ""
 
-  let rec print_border height n leading = 
+  let rec print_hearts_border height n leading = 
     if n >= 0 then 
       let (w,h) = size () in
       set_cursor (leading) (height + n);
       print_string [white; on_red] "♡♡";
       set_cursor (w - leading) (height + n);
       print_string [white; on_red] "♡♡";
-      print_border height (n-1) leading
+      print_hearts_border height (n-1) leading
+    else ()
+
+  let rec print_x_border height n leading = 
+    if n >= 0 then 
+      let (w,h) = size () in
+      set_cursor (leading) (height + n);
+      print_string [white; on_green] "X";
+      set_cursor (w - leading) (height + n);
+      print_string [white; on_green] "X";
+      print_hearts_border height (n-1) leading
     else ()
 
   let rec print_table n = 
@@ -162,6 +174,95 @@ module Print:PrintSig = struct
     Unix.sleepf 0.1;
     set_cursor 1 (h-1)
 
+  let print_player_win () =     let (w,h) = size () in
+    erase Screen;
+    set_cursor (w/2 - 12) (h/4);
+    print_string [white; on_red] (spaces "♡" (8));
+    print_string [] (spaces " " 8);
+    print_string [white; on_red] (spaces "♡" (8));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-2) 1;
+    print_string [white; on_red] (spaces "♡" (12));
+    print_string [] (spaces " " 4);
+    print_string [white; on_red] (spaces "♡" (12));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-4) 2;
+    print_string [white; on_red] (spaces "♡" (32));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-4) 3;
+    print_string [white; on_red] (spaces "♡" (32));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-4) 4;
+    print_string [white; on_red] (spaces "♡" (32));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-4) 5;
+    print_string [white; on_red] (spaces "♡" (3));
+    print_string [white; on_red] (" CONGRATULATIONS YOU WON! ");
+    print_string [white; on_red] (spaces "♡" (3));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-4) 6;
+    print_string [white; on_red] (spaces "♡" (32));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (-2) 7;
+    print_string [white; on_red] (spaces "♡" (28));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (0) 8;
+    print_string [white; on_red] (spaces "♡" (24));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (2) 9;
+    print_string [white; on_red] (spaces "♡" (20));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (4) 10;
+    print_string [white; on_red] (spaces "♡" (16));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (6) 11;
+    print_string [white; on_red] (spaces "♡" (12));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (8) 12;
+    print_string [white; on_red] (spaces "♡" (8));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor (w/2 - 12) (h/4);
+    move_cursor (10) 13;
+    print_string [white; on_red] (spaces "♡" (4));
+    set_cursor (1) (h-1);
+    Unix.sleepf 0.1;
+    set_cursor 1 (h-1)
+
+  let print_bot_win () = 
+    let (w,h) = size () in
+    erase Screen;  
+    set_cursor (1) (1);  
+    print_string [white; on_green] (spaces "X" (w-80));
+    set_cursor (1) (20);
+    print_string [white; on_green] (spaces "X" (w-80));
+    print_x_border (40) 18 40;
+    set_cursor 1 (h-1)
+
   let print_help_menu () =
     let (w,h) = size () in
     erase Screen;
@@ -192,13 +293,13 @@ module Print:PrintSig = struct
     print_string [black; on_white] "back";
     set_cursor (1) (20);
     print_string [white; on_red] (spaces "♡" (w));
-    print_border (1) 18 1;
+    print_hearts_border (1) 18 1;
     set_cursor 1 (2*h/3)
 
   let print_bot_levels () = 
     let (w,h) = size () in
     erase Screen;
-    print_border  (h/3) 6 1;
+    print_hearts_border  (h/3) 6 1;
     set_cursor (1) (h/3);
     print_string [white; on_red] (spaces "♡" (w));
     set_cursor (w/2 - 32) (h/3 + 2);
@@ -213,6 +314,18 @@ module Print:PrintSig = struct
     print_string [white; on_red] (spaces "♡" (w));
     set_cursor 1 (h-1)
 
+  let print_name_prompt () = 
+    let (w,h) = size () in
+    erase Screen;
+    print_hearts_border  (h/3) 5 1;
+    set_cursor (1) (h/3);
+    print_string [white; on_red] (spaces "♡" (w));
+    set_cursor (w/2 - 38) (h/3 + 3);
+    print_string [on_default] "Type in your desired username for the game! It must be no more than 8 characters! ";
+    set_cursor (1) (h/3 + 6);
+    print_string [white; on_red] (spaces "♡" (w));
+    set_cursor 1 (h-1)
+
   let score_table t = 
     let (w,h) = size () in
     set_cursor (3*w/5) (4*h/5);
@@ -221,14 +334,14 @@ module Print:PrintSig = struct
     move_cursor 0 (1);
     print_string [on_default] "______________________________";
     set_cursor (3*w/5) (4*h/5);
-    move_cursor 2 (2);
+    move_cursor 1 (2);
     let rec aux_n = function
       | [] -> ""
       | a :: [] -> a
       | a :: t -> a ^ " | " ^ aux_n t in
     print_string [on_default] (aux_n (Round.names t));
     set_cursor (3*w/5) (4*h/5);
-    move_cursor 3 (3);
+    move_cursor 4 (3);
     let total_scores = 
       List.fold_right (fun a acc -> 
           " " ^ ( a |> string_of_int) ^ spaces " " 
@@ -274,7 +387,8 @@ module Print:PrintSig = struct
       print_hand (Round.hand state) 1 1;
       score_table state;
       set_cursor (1) (h-3);
-      print_string [] ("Next Action: " ^ Round.next_action state);
+      print_string [white; on_black] 
+        ("Next Action: " ^ Round.next_action state);
       set_cursor (1) (h-1); 
       state
     end 

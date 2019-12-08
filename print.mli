@@ -6,22 +6,24 @@ open Partialdeck
 open Round
 
 module type PrintSig = sig 
-  (** [print hand h x y] prints a player's hand [h] at locationdifficulty [d]. *)
+  (** [print hand h x y] prints a player's hand [h] at locationdifficulty 
+      [d]. *)
   val print_hand : Partialdeck.PartialDeck.t -> int -> int -> unit
 
-  (** [new_round d] is a new game of difficulty [d]. *)
+  (** [adjust_cursor w h i] moves the cursor to the appropriate location 
+      to print a card on the table. *)
   val adjust_cursor : int -> int -> int -> unit
 
-  (** [new_round d] is a new game of difficulty [d]. *)
+  (** [print_table n] prints a green table with [n] rows. *)
   val print_table : int -> unit
 
-  (** [new_round d] is a new game of difficulty [d]. *)
+  (** [print_start_menu ()] prints the start menu. *)
   val print_start_menu : unit -> unit
 
-  (** [new_round d] is a new game of difficulty [d]. *)
+  (** [print_help_menu ()] prints the help menu. *)
   val print_help_menu : unit -> unit
 
-  (** [new_round d] is a new game of difficulty [d]. *)
+  (** [print_bot_levels ()] prints the bot levels for the game. *)
   val print_bot_levels : unit -> unit
 
   (** [new_round d] is a new game of difficulty [d]. *)
@@ -38,6 +40,12 @@ module type PrintSig = sig
 
   (** [new_round d] is a new game of difficulty [d]. *)
   val read_line_safe : unit  -> Command.command
+
+  val print_player_win : unit -> unit
+
+  val print_bot_win : unit -> unit
+
+  val print_name_prompt : unit -> unit
 
 end
 
