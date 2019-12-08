@@ -211,13 +211,13 @@ let commandtests = [
   "malformed06" >:: (fun _ -> 
       assert_raises (Malformed) (fun () -> parse "pass 1 2 2"));
   "malformed07" >:: (fun _ -> assert_raises Malformed 
-                           (fun () -> (parse "back 3")));
+                        (fun () -> (parse "back 3")));
   "malformed08" >:: (fun _ -> assert_raises Malformed 
-                           (fun () -> (parse "quit 324")));
+                        (fun () -> (parse "quit 324")));
   "malformed09" >:: (fun _ -> assert_raises Malformed 
-                                        (fun () -> (parse "play 2 3")));
+                        (fun () -> (parse "play 2 3")));
   "malformed10" >:: (fun _ -> assert_raises Malformed 
-                             (fun () -> (parse "select easy hard")));
+                        (fun () -> (parse "select easy hard")));
 
 ]
 
