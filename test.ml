@@ -3,21 +3,46 @@ open Card
 open Partialdeck
 open Command
 open Round
+open ListQueue
 
 (* Test Plan
    We tested the backend of our system using OUnit tests. This includes the
-   modules Card, Partialdeck, Command, and some of Round. This was done because
-   the rest of the modules require IO and are difficult to test here. For the 
-   most part we use Black Box testing and make sure that our functions are able 
-   to pass all the edge cases we can think of. This approach is able to test
-   the correctness of the system because the backend is correct, the frontend is 
-   easily testable in play testing. The few test cases we added for round 
-   rely on running functions testing expected behavior rather than the 
-   exact state of the round. Testing the exact state would be difficult
-   due to the random nature of the bots. 
-   We used Bisect to ensure most of our code is covered. We bisect ignored 
-   functions having to do with printing as these are tested visually. 
+   modules Card, Partialdeck, Command, listQueue, and some of Round. This was done because
+   the rest of the modules require IO and are difficult to test here. 
+
+   We tested the rest of the files (main, print, and some of round) through
+   play testing. 
+
+   For the most part we use Black Box testing and make sure that our 
+   functions are able to pass all the edge cases we can think of. This 
+   approach is able to test the correctness of the system because the 
+   backend is correct, the frontend is easily testable in play testing. 
+   The few test cases we added for round rely on running functions 
+   testing expected behavior rather than the exact state of the round. 
+   Testing the exact state would be difficult due to the random nature 
+   of the bots. We used Bisect to ensure most of our code is covered. 
+   We bisect ignored functions having to do with printing as these 
+   are tested visually. 
 *)
+
+(* ListQueue Tests *)
+
+let queue1 = ListQueue.empty |> ListQueue.push 1 |> ListQueue.push 2
+
+let listqueuetests = [
+  "size01" >:: (fun _ -> assert_equal 0 (ListQueue.empty |> ListQueue.size));
+  "size01" >:: (fun _ -> assert_equal 2 (queue1 |> ListQueue.size));
+  "push01" >:: (fun _ -> assert_equal queue1 (ListQueue.empty 
+                                              |> ListQueue.push 1 
+                                              |> ListQueue.push 2));
+  "pop01" >:: (fun _ -> assert_equal ListQueue.empty (queue1 
+                                                      |> ListQueue.pop 
+                                                      |> ListQueue.pop));
+  "is_empty01" >:: (fun _ -> assert_equal true (ListQueue.empty 
+                                                |> ListQueue.is_empty));
+  "is_empty02" >:: (fun _ -> assert_equal false (queue1 
+                                                 |> ListQueue.is_empty));
+]
 
 (* Card Tests *)
 
@@ -285,6 +310,7 @@ let roundtests = [
 
 let suite =
   "test suite for Hearts"  >::: List.flatten [
+    listqueuetests;
     cardtests;
     partialdecktests;
     commandtests;
