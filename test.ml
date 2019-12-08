@@ -5,10 +5,11 @@ open Command
 open Round
 open ListQueue
 
-(* Test Plan
+(* Test Plan:
    We tested the backend of our system using OUnit tests. This includes the
-   modules Card, Partialdeck, Command, listQueue, and some of Round. This was done because
-   the rest of the modules require IO and are difficult to test here. 
+   modules Card, Partialdeck, Command, listQueue, and some of Round. 
+   This was done because the rest of the modules require IO and are 
+   difficult to test here. 
 
    We tested the rest of the files (main, print, and some of round) through
    play testing. 
@@ -20,7 +21,11 @@ open ListQueue
    The few test cases we added for round rely on running functions 
    testing expected behavior rather than the exact state of the round. 
    Testing the exact state would be difficult due to the random nature 
-   of the bots. We used Bisect to ensure most of our code is covered. 
+   of the bots. In round we did use glass box testing and added functions to 
+   take as much randomness out of the functions as possible, such as dealing
+   in a preset way.
+
+   We used Bisect to ensure most of our code is covered. 
    We bisect ignored functions having to do with printing as these 
    are tested visually. 
 *)
