@@ -25,8 +25,8 @@ setup.log
 
 *.zip
 
-# temporary files
-*.swp
-*~
-\#*\#
-.DS_Store
+# Doc files and bisect file
+doc.*/
+report/
+*.out 
+
