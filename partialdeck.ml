@@ -26,6 +26,7 @@ module type PartialDeckSig = sig
   val remove_cards: card list -> t -> t
   val add_cards: card list -> t -> t
   val shoot_the_moon: t -> bool
+  val only_bad : t -> bool 
 end
 
 
@@ -156,5 +157,26 @@ module PartialDeck:PartialDeckSig = struct
       ]
     in
     List.for_all (fun card -> mem card t) cards
+
+  let only_bad t =
+    let bad_cards = 
+      [
+        {rank=Two; suite=Heart};
+        {rank=Three; suite=Heart};
+        {rank=Four; suite=Heart};
+        {rank=Five; suite=Heart};
+        {rank=Six; suite=Heart};
+        {rank=Seven; suite=Heart};
+        {rank=Eight; suite=Heart};
+        {rank=Nine; suite=Heart};
+        {rank=Ten; suite=Heart};
+        {rank=Jack; suite=Heart};
+        {rank=Queen; suite=Heart};
+        {rank=King; suite=Heart};
+        {rank=Ace; suite=Heart};
+        {rank=Queen; suite=Spade};
+      ]
+    in  
+    List.for_all (fun card -> mem card bad_cards) t
 
 end

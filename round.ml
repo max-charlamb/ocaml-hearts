@@ -24,6 +24,7 @@ module type RoundSig = sig
   val names : t -> string list
   val string_of_round : t -> string
   val next_action : t -> string
+  val test_deal : PartialDeck.t list -> t
 end
 
 
@@ -185,6 +186,24 @@ module Round:RoundSig = struct
       next_player = next_player;
     }
 
+  (** [get_hand id t] is the hand of player [id] in [t]. *)
+  let get_hand id t = 
+    (List.nth t.players id).hand
+
+  (** [set_hand id pd t] is [t] with player with id=[id] hand=[pd]. *)
+  let set_hand id pd t = 
+    {
+      t with 
+      players = List.map 
+          (fun player -> if player.id = id then 
+              {
+                player with 
+                hand = pd;
+              } else 
+              player)
+          t.players
+    }
+
   (** [check_voided id card t] is unit if card is a valid play. Else raises
       Default exception. *)
   let check_voided id card t =
@@ -216,7 +235,8 @@ module Round:RoundSig = struct
     if t.first_round then 
       match card with
       | {suite=Spade; rank=Queen}
-      | {suite=Heart} -> raise (Default "Can't play bad cards first round.")
+      | {suite=Heart} -> if get_hand id t |> PartialDeck.only_bad then ()
+        else raise (Default "Can't play bad cards first round.") 
       | _ -> ()
 
   (** [check_lead_in_turn id card t] is unit if the next action and player
@@ -272,23 +292,6 @@ module Round:RoundSig = struct
       players = players';
       history = ListQueue.push new_history t.history;
     } 
-  (** [get_hand id t] is the hand of player [id] in [t]. *)
-  let get_hand id t = 
-    (List.nth t.players id).hand
-
-  (** [set_hand id pd t] is [t] with player with id=[id] hand=[pd]. *)
-  let set_hand id pd t = 
-    {
-      t with 
-      players = List.map 
-          (fun player -> if player.id = id then 
-              {
-                player with 
-                hand = pd;
-              } else 
-              player)
-          t.players
-    }
 
   (** [increment_player_play t] is [t] with the next player set to the 
       correct [id]. *)
@@ -647,7 +650,7 @@ module Round:RoundSig = struct
     match a with 
     | Deal -> "Deal"
     | Pass -> "Pass"
-    | Lead -> "Play"
+    | Lead -> "Lead"
     | Play -> "Play"
 
   (** [string_of_round r] is a string representing round [r]. *)
@@ -663,4 +666,19 @@ module Round:RoundSig = struct
     "; next_action = " ^ string_of_action r.next_action ^ 
     "; round_number = " ^ string_of_int r.round_number ^
     ">"
+
+  let test_deal pd_l = 
+    let t = new_round Easy in 
+    let players' = 
+      List.map2 (fun player hand -> 
+          { player with 
+            hand = hand }) t.players pd_l
+    in 
+    {
+      t with 
+      players = players';
+      next_action = Lead;
+      next_player = player_with_leading_card players';
+    }
+
 end

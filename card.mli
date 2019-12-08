@@ -61,5 +61,5 @@ val print_card: ?bckgnd:ANSITerminal.style -> card -> unit
 val print_card_tall : card -> unit
 
 (** [compare c1 c2] is positive if [c1 > c2], 0 if [c1 = c2], and 
-    negative if [c1 < c2]. *)
+    raises exception if [c1] is [c2]. *)
 val compare: card -> card -> int

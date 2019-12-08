@@ -67,6 +67,10 @@ module type RoundSig = sig
   (** [next_action] is the string of the next action. *)
   val next_action : t -> string
 
+  (** [test_deal pdl] is a new round where [pdl] are dealt as each hand.
+      The length of [pdl] must be 4. *)
+  val test_deal : PartialDeck.t list -> t
+
 end
 
 module Round:RoundSig

@@ -84,6 +84,10 @@ module type PartialDeckSig = sig
       the moon. Otherwise false. *)
   val shoot_the_moon : t -> bool
 
+  (** [only_bad t] is true if [t] contains only cards that give 
+      points. Otherwise false. *)
+  val only_bad : t -> bool 
+
 end
 
 module PartialDeck:PartialDeckSig
