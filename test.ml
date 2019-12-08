@@ -11,7 +11,10 @@ open Round
    most part we use Black Box testing and make sure that our functions are able 
    to pass all the edge cases we can think of. This approach is able to test
    the correctness of the system because the backend is correct, the frontend is 
-   easily testable in play testing.
+   easily testable in play testing. The few test cases we added for round 
+   rely on running functions testing expected behavior rather than the 
+   exact state of the round. Testing the exact state would be difficult
+   due to the random nature of the bots. 
    We used Bisect to ensure most of our code is covered. We bisect ignored 
    functions having to do with printing as these are tested visually. 
 *)
