@@ -58,9 +58,6 @@ module PartialDeck:PartialDeckSig = struct
     in
     aux t 1
 
-  let find n t  = 
-    List.nth_opt t n
-
   let size t =
     List.length t
 
@@ -82,6 +79,11 @@ module PartialDeck:PartialDeckSig = struct
   let random_card t =
     Random.self_init ();
     if is_empty t then None else Some (List.nth t (Random.int (size t)))
+
+  let rec find n t = 
+    match t with
+    | [] -> None
+    | h :: t -> if n = 1 then Some h else find (n-1) t
 
   let voided s t =
     match List.filter (fun c -> c.suite = s) t |> List.length with
