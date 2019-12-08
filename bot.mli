@@ -1,3 +1,4 @@
+(** Bot is the computer players of the game. *)
 open Partialdeck
 open Card
 

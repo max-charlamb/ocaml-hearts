@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Bot.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Card" rel="Chapter" href="Card.html">
+<link title="Partialdeck" rel="Chapter" href="Partialdeck.html">
+<link title="Command" rel="Chapter" href="Command.html">
+<link title="Round" rel="Chapter" href="Round.html">
+<link title="Bot" rel="Chapter" href="Bot.html">
+<link title="ListQueue" rel="Chapter" href="ListQueue.html">
+<link title="Print" rel="Chapter" href="Print.html"><title>Bot.Bot</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Bot.html" title="Bot">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Bot.Bot.html">Bot.Bot</a></h1>
+
+<pre><span id="MODULEBot"><span class="keyword">module</span> Bot</span>: <code class="code">sig</code> <a href="Bot.Bot.html">..</a> <code class="code">end</code></pre><hr width="100%">
+
+<pre><span id="VALsuits"><span class="keyword">val</span> suits</span> : <code class="type"><a href="Card.html#TYPEsuite">Card.suite</a> list</code></pre>
+<pre><span id="VALget_lowest"><span class="keyword">val</span> get_lowest</span> : <code class="type"><a href="Card.html#TYPEsuite">Card.suite</a> -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Card.html#TYPEcard">Card.card</a> option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_lowest suit hand</code> is the card with the lowest value in <code class="code">suit</code>
+      in <code class="code">hand</code>. If there is no card of suit <code class="code">suit</code>, then the result is None.</p>
+</div>
+</div>
+
+<pre><span id="VALget_highest"><span class="keyword">val</span> get_highest</span> : <code class="type"><a href="Card.html#TYPEsuite">Card.suite</a> -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Card.html#TYPEcard">Card.card</a> option</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_highest suit hand</code> is the card with the highest value in <code class="code">suit</code>
+        in <code class="code">hand</code>. If there is no card of suit <code class="code">suit</code>, then the result is 
+        None.</p>
+</div>
+</div>
+
+<pre><span id="VALget_new_suit"><span class="keyword">val</span> get_new_suit</span> : <code class="type">'a list -> 'a list -> 'a</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_new_suit acc suits</code> is a suit of Cards that is not already in <code class="code">acc</code>.
+      If all suits are already in <code class="code">acc</code>, then raises Failure.</p>
+</div>
+</div>
+
+<pre><span id="VALplay_easy"><span class="keyword">val</span> play_easy</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> <a href="Card.html#TYPEsuite">Card.suite</a> -> <a href="Card.html#TYPEsuite">Card.suite</a> list -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALplay_highest"><span class="keyword">val</span> play_highest</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> <a href="Card.html#TYPEsuite">Card.suite</a> -> <a href="Card.html#TYPEsuite">Card.suite</a> list -> <a href="Card.html#TYPEcard">Card.card</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">play_highest hand pile suit suit_acc</code> is the highest ranked card of
+      <code class="code">suit</code> in <code class="code">hand</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALplay_med_helper"><span class="keyword">val</span> play_med_helper</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> bool -> bool -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALplay_med"><span class="keyword">val</span> play_med</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> bool -> bool -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALplay_hard_helper"><span class="keyword">val</span> play_hard_helper</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> bool -> bool -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALplay_hard"><span class="keyword">val</span> play_hard</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> bool -> bool -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALlist_to_deck"><span class="keyword">val</span> list_to_deck</span> : <code class="type">(<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -><br>       <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">list_to_deck pile acc</code> is the deck representation of the list of cards 
+      in pile.</p>
+</div>
+</div>
+
+<pre><span id="VALplay"><span class="keyword">val</span> play</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> string -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALlead_easy"><span class="keyword">val</span> lead_easy</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> <a href="Card.html#TYPEsuite">Card.suite</a> -> <a href="Card.html#TYPEsuite">Card.suite</a> list -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALlead_medium"><span class="keyword">val</span> lead_medium</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> 'a -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALlead_hard"><span class="keyword">val</span> lead_hard</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> 'a -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALlead"><span class="keyword">val</span> lead</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> (<a href="Card.html#TYPEcard">Card.card</a> * 'a) list -> string -> <a href="Card.html#TYPEcard">Card.card</a></code></pre>
+<pre><span id="VALpass_spades"><span class="keyword">val</span> pass_spades</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Card.html#TYPEcard">Card.card</a> list</code></pre>
+<pre><span id="VALpass_hearts"><span class="keyword">val</span> pass_hearts</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> int -> <a href="Card.html#TYPEcard">Card.card</a> list -> <a href="Card.html#TYPEcard">Card.card</a> list</code></pre>
+<pre><span id="VALpass_diamonds_clubs"><span class="keyword">val</span> pass_diamonds_clubs</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> int -> <a href="Card.html#TYPEcard">Card.card</a> list -> <a href="Card.html#TYPEcard">Card.card</a> list</code></pre>
+<pre><span id="VALpass_easy"><span class="keyword">val</span> pass_easy</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Card.html#TYPEcard">Card.card</a> list -> <a href="Card.html#TYPEcard">Card.card</a> list</code></pre>
+<pre><span id="VALpass_med"><span class="keyword">val</span> pass_med</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       <a href="Card.html#TYPEsuite">Card.suite</a> -> <a href="Card.html#TYPEsuite">Card.suite</a> list -> <a href="Card.html#TYPEsuite">Card.suite</a> list -> 'a list -> 'a list</code></pre>
+<pre><span id="VALpass_hard"><span class="keyword">val</span> pass_hard</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Card.html#TYPEcard">Card.card</a> list</code></pre>
+<pre><span id="VALrandom_suit"><span class="keyword">val</span> random_suit</span> : <code class="type">'a list -> 'a</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">random_suit suits</code> is a random suit from <code class="code">suits</code>.
+      Requires: <code class="code">suits</code> is not empty.</p>
+</div>
+</div>
+
+<pre><span id="VALpass"><span class="keyword">val</span> pass</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> string -> <a href="Card.html#TYPEcard">Card.card</a> list</code></pre></body></html>

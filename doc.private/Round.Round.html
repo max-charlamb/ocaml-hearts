@@ -1,0 +1,575 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Round.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Card" rel="Chapter" href="Card.html">
+<link title="Partialdeck" rel="Chapter" href="Partialdeck.html">
+<link title="Command" rel="Chapter" href="Command.html">
+<link title="Round" rel="Chapter" href="Round.html">
+<link title="Bot" rel="Chapter" href="Bot.html">
+<link title="ListQueue" rel="Chapter" href="ListQueue.html">
+<link title="Print" rel="Chapter" href="Print.html"><title>Round.Round</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Round.html" title="Round">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Round.Round.html">Round.Round</a></h1>
+
+<pre><span id="MODULERound"><span class="keyword">module</span> Round</span>: <code class="code">sig</code> <a href="Round.Round.html">..</a> <code class="code">end</code></pre><hr width="100%">
+
+<pre><span id="EXCEPTIONDefault"><span class="keyword">exception</span> Default</span> <span class="keyword">of</span> <code class="type">string</code></pre>
+<div class="info ">
+<div class="info-desc">
+<p><code class="code">Default (str)</code> is the default exception thrown when a player
+      plays an invalid card.</p>
+</div>
+</div>
+
+<pre><span id="EXCEPTIONBotError"><span class="keyword">exception</span> BotError</span></pre>
+<div class="info ">
+<div class="info-desc">
+<p><code class="code">BotError</code> is raised if a bot plays an invalid card.</p>
+</div>
+</div>
+
+<pre><code><span id="TYPEdifficulty"><span class="keyword">type</span> <code class="type"></code>difficulty</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdifficulty.Easy"><span class="constructor">Easy</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdifficulty.Medium"><span class="constructor">Medium</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdifficulty.Hard"><span class="constructor">Hard</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdifficulty.Invalid"><span class="constructor">Invalid</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEaction"><span class="keyword">type</span> <code class="type"></code>action</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTaction.Play"><span class="constructor">Play</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTaction.Lead"><span class="constructor">Lead</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTaction.Pass"><span class="constructor">Pass</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTaction.Deal"><span class="constructor">Deal</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEplayer"><span class="keyword">type</span> <code class="type"></code>player</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTplayer.name">name</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTplayer.id">id</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTplayer.hand">hand</span>&nbsp;: <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTplayer.score">score</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTplayer.p_cards">p_cards</span>&nbsp;: <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a></code>;</code></td>
+
+</tr></table>
+}
+
+<div class="info ">
+<div class="info-desc">
+<p><code class="code">player</code> is a record that holds information about a specfic player.</p>
+</div>
+</div>
+
+
+<pre><code><span id="TYPEhistorySegment"><span class="keyword">type</span> <code class="type"></code>historySegment</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELThistorySegment.hands">hands</span>&nbsp;: <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELThistorySegment.pile">pile</span>&nbsp;: <code class="type">(<a href="Card.html#TYPEcard">Card.card</a> * int) list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELThistorySegment.round_score">round_score</span>&nbsp;: <code class="type">int list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELThistorySegment.description">description</span>&nbsp;: <code class="type">string</code>;</code></td>
+
+</tr></table>
+}
+
+<div class="info ">
+<div class="info-desc">
+<p><code class="code">historySegment</code> is a record that holds infomration about the state of
+      a round. This is used to display information on the GUI.</p>
+</div>
+</div>
+
+
+<pre><code><span id="TYPEt"><span class="keyword">type</span> <code class="type"></code>t</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.players">players</span>&nbsp;: <code class="type"><a href="Round.Round.html#TYPEplayer">player</a> list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.pile">pile</span>&nbsp;: <code class="type">(<a href="Card.html#TYPEcard">Card.card</a> * int) list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.is_over">is_over</span>&nbsp;: <code class="type">bool</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.hearts_broken">hearts_broken</span>&nbsp;: <code class="type">bool</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.first_round">first_round</span>&nbsp;: <code class="type">bool</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.next_player">next_player</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.next_action">next_action</span>&nbsp;: <code class="type"><a href="Round.Round.html#TYPEaction">action</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.total_scores">total_scores</span>&nbsp;: <code class="type">int list</code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.history">history</span>&nbsp;: <code class="type"><a href="Round.Round.html#TYPEhistorySegment">historySegment</a> <a href="ListQueue.ListQueue.html#TYPEt">ListQueue.ListQueue.t</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.difficulty">difficulty</span>&nbsp;: <code class="type"><a href="Round.Round.html#TYPEdifficulty">difficulty</a></code>;</code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTt.round_number">round_number</span>&nbsp;: <code class="type">int</code>;</code></td>
+
+</tr></table>
+}
+
+<div class="info ">
+<div class="info-desc">
+<p><code class="code">t</code> is a record which holds all the information needed in a round.</p>
+</div>
+</div>
+
+
+<pre><code><span id="TYPEresult"><span class="keyword">type</span> <code class="type"></code>result</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTresult.Valid"><span class="constructor">Valid</span></span> <span class="keyword">of</span> <code class="type"><a href="Round.Round.html#TYPEt">t</a></code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTresult.Invalid"><span class="constructor">Invalid</span></span> <span class="keyword">of</span> <code class="type">string</code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALdebug"><span class="keyword">val</span> debug</span> : <code class="type">bool</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">debug</code> toggles if debug mode in on in some functions.</p>
+</div>
+</div>
+
+<pre><span id="VALcreate_player"><span class="keyword">val</span> create_player</span> : <code class="type">string -> int -> <a href="Round.Round.html#TYPEplayer">player</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">create_player name id</code> is a new player with name=<code class="code">name</code> and id=<code class="code">id</code></p>
+</div>
+</div>
+
+<pre><span id="VALnew_round"><span class="keyword">val</span> new_round</span> : <code class="type"><a href="Round.Round.html#TYPEdifficulty">difficulty</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre>
+<pre><span id="VALinsert_hand"><span class="keyword">val</span> insert_hand</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Round.Round.html#TYPEplayer">player</a> -> <a href="Round.Round.html#TYPEplayer">player</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">insert_hand h p</code> returns player <code class="code">p</code> with hand <code class="code">h</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALdeal_round"><span class="keyword">val</span> deal_round</span> : <code class="type"><a href="Round.Round.html#TYPEplayer">player</a> list -><br>       <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -><br>       <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> * <a href="Round.Round.html#TYPEplayer">player</a> list</code></pre>
+<pre><span id="VALplayer_with_leading_card"><span class="keyword">val</span> player_with_leading_card</span> : <code class="type"><a href="Round.Round.html#TYPEplayer">player</a> list -> int</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">player_with_leading_card players</code> returns the player who has the 
+      2 of clubs and will begin the trick.</p>
+</div>
+</div>
+
+<pre><span id="VALid_to_name"><span class="keyword">val</span> id_to_name</span> : <code class="type">int -> <a href="Round.Round.html#TYPEt">t</a> -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">id_to_name id t</code> is the name of the player with id=<code class="code">id</code> in round <code class="code">t</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALdeal_helper"><span class="keyword">val</span> deal_helper</span> : <code class="type"><a href="Round.Round.html#TYPEplayer">player</a> list -><br>       <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Round.Round.html#TYPEplayer">player</a> list</code></pre>
+<pre><span id="VALcheck_deal"><span class="keyword">val</span> check_deal</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_deal t</code> is unit if the next action is Deal else raises 
+      Default argument.</p>
+</div>
+</div>
+
+<pre><span id="VALhand_size"><span class="keyword">val</span> hand_size</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hand_size t</code> is the hand size of all the players. Can only be
+      called between tricks. If <code class="code">debug</code> then fails if not all equal.</p>
+</div>
+</div>
+
+<pre><span id="VALupdate_action"><span class="keyword">val</span> update_action</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">update_action t</code> is <code class="code">t</code> with the next action that should be done.</p>
+</div>
+</div>
+
+<pre><span id="VALget_hand"><span class="keyword">val</span> get_hand</span> : <code class="type">int -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_hand id t</code> is the hand of player <code class="code">id</code> in <code class="code">t</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALset_hand"><span class="keyword">val</span> set_hand</span> : <code class="type">int -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">set_hand id pd t</code> is <code class="code">t</code> with player with id=<code class="code">id</code> hand=<code class="code">pd</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_voided"><span class="keyword">val</span> check_voided</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_voided id card t</code> is unit if card is a valid play. Else raises
+      Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_in_hand"><span class="keyword">val</span> check_in_hand</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_in_hand id card t</code> is unit if <code class="code">card</code> is in player <code class="code">id</code>'s hand.
+      Otherwise raises Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_play_in_turn"><span class="keyword">val</span> check_play_in_turn</span> : <code class="type">int -> 'a -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_play_in_turn id card t</code> is unit if next action in <code class="code">t</code> is play and
+      next player is player with id=<code class="code">id</code>. Else raises Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_play_first_round"><span class="keyword">val</span> check_play_first_round</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_play_first_round id card t</code> is unit if <code class="code">card</code> can be played
+      the first round. Else raises Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_lead_in_turn"><span class="keyword">val</span> check_lead_in_turn</span> : <code class="type">int -> 'a -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_lead_in_turn id card t</code> is unit if the next action and player
+      are correct. Else raises Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_lead_first_round"><span class="keyword">val</span> check_lead_first_round</span> : <code class="type">'a -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_lead_first_round id card t</code> is unit if the next action and player
+      are correct for the first round. Else raises Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_pass_in_turn"><span class="keyword">val</span> check_pass_in_turn</span> : <code class="type">int -> 'a -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_pass_in_turn id card_l t</code> is unit if the next player is <code class="code">id</code> 
+      and the next action is Pass. Otherwise raises Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALcheck_lead_hearts_broken"><span class="keyword">val</span> check_lead_hearts_broken</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">check_lead_hearts_broken id card t</code> is unit if <code class="code">card</code> is an acceptable
+      card to lead in regards to hearts being broken in <code class="code">t</code>. Otherwise raises
+      Default exception.</p>
+</div>
+</div>
+
+<pre><span id="VALadd_to_pile"><span class="keyword">val</span> add_to_pile</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">add_to_pile id card t</code> is <code class="code">t</code> but with <code class="code">card</code> from player <code class="code">id</code> added 
+      to the pile.</p>
+</div>
+</div>
+
+<pre><span id="VALincrement_player_play"><span class="keyword">val</span> increment_player_play</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">increment_player_play t</code> is <code class="code">t</code> with the next player set to the 
+      correct <code class="code">id</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALget_shooter"><span class="keyword">val</span> get_shooter</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> bool * int</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_shooter t</code> is a tuple of <code class="code">(bool * int)</code> which represents if someone
+      shot the moon and if so, their player <code class="code">id</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALclean_up_round"><span class="keyword">val</span> clean_up_round</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">clean_up_round t</code> is <code class="code">t</code> but with the current round cleaned up. If 
+      there are no cards left in player hands then it allows players to 
+      deal again.</p>
+</div>
+</div>
+
+<pre><span id="VALtrick_winner"><span class="keyword">val</span> trick_winner</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Card.html#TYPEcard">Card.card</a> * int</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">trick_winner t</code> is <code class="code">id</code> of the winner of the trick.</p>
+</div>
+</div>
+
+<pre><span id="VALplayer_with_score_added"><span class="keyword">val</span> player_with_score_added</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> 'a * int -> <a href="Round.Round.html#TYPEplayer">player</a> list</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">player_with_score_added t winner</code> is the player list with the 
+      player with id=<code class="code">winner</code> score added to their current score. Cards
+      are also added to their p_cards.</p>
+</div>
+</div>
+
+<pre><span id="VALclean_up_trick"><span class="keyword">val</span> clean_up_trick</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">clean_up_trick t</code> is <code class="code">t</code> with the current trick scored and cleanup up.
+      This prepares the round so that another trick can begin.</p>
+</div>
+</div>
+
+<pre><span id="VALcards_passed_string"><span class="keyword">val</span> cards_passed_string</span> : <code class="type"><a href="Card.html#TYPEcard">Card.card</a> list list -> int list -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">cards_passed_string c_ll order</code> is a string representing the cards
+      passed to the user player (Player with id=0).</p>
+</div>
+</div>
+
+<pre><span id="VALget_difficulty"><span class="keyword">val</span> get_difficulty</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_difficulty t</code> is the difficulty of <code class="code">t</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALget_passing_order"><span class="keyword">val</span> get_passing_order</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> int list</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">get_passing_order t</code> is an int list that represents the passing order
+      of <code class="code">t</code>. Changes depending on round number.</p>
+</div>
+</div>
+
+<pre><span id="VALbot_actions"><span class="keyword">val</span> bot_actions</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">bot_actions t</code> is <code class="code">t</code> with all the bot actions done until it is the 
+      players next turn.</p>
+</div>
+</div>
+
+<pre><span id="VALinternal_play"><span class="keyword">val</span> internal_play</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">internal_play id card t</code> is <code class="code">t</code> with player represented by 
+      <code class="code">id</code> playing card <code class="code">card</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALinternal_lead"><span class="keyword">val</span> internal_lead</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">internal_lead id card t</code> is <code class="code">t</code> with player represented by 
+      <code class="code">id</code> leading card <code class="code">card</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALinternal_deal"><span class="keyword">val</span> internal_deal</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">internal_deal t</code> is <code class="code">t</code> with the cards dealth to the player.</p>
+</div>
+</div>
+
+<pre><span id="VALinternal_pass"><span class="keyword">val</span> internal_pass</span> : <code class="type">int -> <a href="Card.html#TYPEcard">Card.card</a> list -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">internal_pass id card_l t</code> is <code class="code">t</code> with player represented by 
+      <code class="code">id</code> passing card list <code class="code">card_l</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALdeal"><span class="keyword">val</span> deal</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEresult">result</a></code></pre>
+<pre><span id="VALplay"><span class="keyword">val</span> play</span> : <code class="type"><a href="Card.html#TYPEcard">Card.card</a> -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEresult">result</a></code></pre>
+<pre><span id="VALpass"><span class="keyword">val</span> pass</span> : <code class="type"><a href="Card.html#TYPEcard">Card.card</a> list -> <a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEresult">result</a></code></pre>
+<pre><span id="VALnext"><span class="keyword">val</span> next</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Round.Round.html#TYPEt">t</a></code></pre>
+<pre><span id="VALnext_action"><span class="keyword">val</span> next_action</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALhand"><span class="keyword">val</span> hand</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a></code></pre>
+<pre><span id="VALtotal_score"><span class="keyword">val</span> total_score</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> int list</code></pre>
+<pre><span id="VALround_score"><span class="keyword">val</span> round_score</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> int list</code></pre>
+<pre><span id="VALpile"><span class="keyword">val</span> pile</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> (<a href="Card.html#TYPEcard">Card.card</a> * int) list</code></pre>
+<pre><span id="VALdescription"><span class="keyword">val</span> description</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> string</code></pre>
+<pre><span id="VALis_next"><span class="keyword">val</span> is_next</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> bool</code></pre>
+<pre><span id="VALbot_hand"><span class="keyword">val</span> bot_hand</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> int -> <a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a></code></pre>
+<pre><span id="VALbot_pile"><span class="keyword">val</span> bot_pile</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> (<a href="Card.html#TYPEcard">Card.card</a> * int) list</code></pre>
+<pre><span id="VALnames"><span class="keyword">val</span> names</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> string list</code></pre>
+<pre><span id="VALstring_of_player"><span class="keyword">val</span> string_of_player</span> : <code class="type"><a href="Round.Round.html#TYPEplayer">player</a> -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string_of_player p</code> is a string representing <code class="code">p</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALstring_of_players"><span class="keyword">val</span> string_of_players</span> : <code class="type"><a href="Round.Round.html#TYPEplayer">player</a> list -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string_of_players p_l</code> is a string representing the list of 
+      players <code class="code">p_l</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALstring_of_pile"><span class="keyword">val</span> string_of_pile</span> : <code class="type">(<a href="Card.html#TYPEcard">Card.card</a> * int) list -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string_of_pile pile</code> is a string representing the pile.</p>
+</div>
+</div>
+
+<pre><span id="VALstring_of_int_list"><span class="keyword">val</span> string_of_int_list</span> : <code class="type">int list -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string_of_int_list l</code> is a string representation of int list <code class="code">l</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALstring_of_action"><span class="keyword">val</span> string_of_action</span> : <code class="type"><a href="Round.Round.html#TYPEaction">action</a> -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string_of_action a</code> is a string representing action <code class="code">a</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALstring_of_round"><span class="keyword">val</span> string_of_round</span> : <code class="type"><a href="Round.Round.html#TYPEt">t</a> -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string_of_round r</code> is a string representing round <code class="code">r</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALtest_deal"><span class="keyword">val</span> test_deal</span> : <code class="type"><a href="Partialdeck.PartialDeck.html#TYPEt">Partialdeck.PartialDeck.t</a> list -> <a href="Round.Round.html#TYPEt">t</a></code></pre></body></html>

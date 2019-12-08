@@ -1,12 +1,10 @@
+(** A partial deck is a set of any number of cards. It can be created empty
+    or as a full deck. *)
 open Card
-
-(*
- A partial deck is a set of any number of cards. It can be created empty
-or as a full deck.
-*)
 
 module type PartialDeckSig = sig
 
+  (** [t] is the type of a PartialDeck. *)
   type t
 
   (** [empty] is an empty partial deck. *)
@@ -85,6 +83,10 @@ module type PartialDeckSig = sig
   (** [shoot_the_moon t] is true if [t] has all the cards needed to shoot
       the moon. Otherwise false. *)
   val shoot_the_moon : t -> bool
+
+  (** [only_bad t] is true if [t] contains only cards that give 
+      points. Otherwise false. *)
+  val only_bad : t -> bool 
 
 end
 
