@@ -372,7 +372,8 @@ module Round:RoundSig = struct
   (** [trick_winner t] is [id] of the winner of the trick. *)
   let trick_winner t = 
     let leading_suite = 
-      (List.nth t.pile ((List.length t.pile) - 1) |> fst).suite in
+      (List.nth t.pile ((List.length t.pile) - 1) |> fst).suite 
+    in
     t.pile |> List.filter (fun (c,_) -> c.suite = leading_suite) 
     |> List.sort (fun (c1,_) (c2,_) -> compare c1 c2) 
     |> List.rev |> List.hd
