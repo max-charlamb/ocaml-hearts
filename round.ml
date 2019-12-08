@@ -29,13 +29,17 @@ end
 
 module Round:RoundSig = struct
 
+  (** [Default (str)] is the default exception thrown when a player
+      plays an invalid card. *)
   exception Default of string
-  exception InvalidCardPlayed
+
+  (** [BotError] is raised if a bot plays an invalid card. *)
   exception BotError
 
   type difficulty = Easy | Medium | Hard | Invalid
   type action = Play | Lead | Pass | Deal
 
+  (** [player] is a record that holds information about a specfic player. *)
   type player = {
     name : string;
     id : int;
@@ -44,6 +48,8 @@ module Round:RoundSig = struct
     p_cards : PartialDeck.t;
   }
 
+  (** [historySegment] is a record that holds infomration about the state of
+      a round. This is used to display information on the GUI. *)
   type historySegment = {
     hands : PartialDeck.t list;
     pile : (card * int) list;
@@ -51,6 +57,7 @@ module Round:RoundSig = struct
     description : string;
   }
 
+  (** [t] is a record which holds all the information needed in a round. *)
   type t = {
     players : player list;
     pile : (card * int) list;
@@ -67,8 +74,10 @@ module Round:RoundSig = struct
 
   type result = Valid of t | Invalid of string
 
+  (** [debug] toggles if debug mode in on in some functions. *)
   let debug = true
 
+  (** [create_player name id] is a new player with name=[name] and id=[id] *)
   let create_player name id = 
     {
       name = name;
@@ -95,6 +104,7 @@ module Round:RoundSig = struct
     round_number = 0;
   }
 
+  (** [insert_hand h p] returns player [p] with hand [h]. *)
   let insert_hand h p = 
     {
       p with
@@ -113,6 +123,8 @@ module Round:RoundSig = struct
       insert_hand new_hand h :: (rec_call |> snd)
     | Some _, [] -> d, players
 
+  (** [player_with_leading_card players] returns the player who has the 
+      2 of clubs and will begin the trick. *)
   let player_with_leading_card players = 
     let card_to_find = {suite = Club; rank = Two} in
     List.fold_left 
@@ -122,7 +134,7 @@ module Round:RoundSig = struct
       ) 
       (-1,false) players |> fst
 
-
+  (** [id_to_name id t] is the name of the player with id=[id] in round [t]. *)
   let id_to_name id t = 
     (List.nth t.players id).name
 
@@ -130,9 +142,10 @@ module Round:RoundSig = struct
     match deal_round players d with
     | d', p' -> if PartialDeck.is_empty d' then p' else deal_helper p' d'
 
+  (** [check_deal t] is unit if the next action is Deal else raises 
+      Default argument. *)
   let check_deal t = 
     if t.next_action <> Deal then raise (Default "Next action is not to deal")
-
 
   (** [hand_size t] is the hand size of all the players. Can only be
       called between tricks. If [debug] then fails if not all equal. *)
@@ -171,7 +184,8 @@ module Round:RoundSig = struct
       next_player = next_player;
     }
 
-
+  (** [check_voided id card t] is unit if card is a valid play. Else raises
+      Default exception. *)
   let check_voided id card t =
     let user = List.nth t.players id in 
     let leading_suite = 
@@ -182,30 +196,42 @@ module Round:RoundSig = struct
                       (suite_to_string card.suite) ^ 
                       " but expected a " ^ (suite_to_string leading_suite)))
 
+  (** [check_in_hand id card t] is unit if [card] is in player [id]'s hand.
+      Otherwise raises Default exception. *)
   let check_in_hand id card t =
     let user = List.nth t.players id in 
     if not (PartialDeck.mem card user.hand) then
       raise (Default "problem in check_in_hand")
 
+  (** [check_play_in_turn id card t] is unit if next action in [t] is play and
+      next player is player with id=[id]. Else raises Default exception. *)
   let check_play_in_turn id card t = 
     if t.next_player <> id || t.next_action <> Play then 
       raise (Default "problem in check_play_in_turn")
 
+  (** [check_play_first_round id card t] is unit if [card] can be played
+      the first round. Else raises Default exception. *)
   let check_play_first_round id card t = 
     if t.first_round then 
       match card with
       | {suite=Spade; rank=Queen}
-      | {suite=Heart} -> raise InvalidCardPlayed
+      | {suite=Heart} -> raise (Default "Can't play bad cards first round.")
       | _ -> ()
 
+  (** [check_lead_in_turn id card t] is unit if the next action and player
+      are correct. Else raises Default exception. *)
   let check_lead_in_turn id card t = 
     if t.next_action <> Lead || t.next_player <> id then 
       raise (Default ("problem in check_lead_in_turn")) else ()
 
+  (** [check_lead_first_round id card t] is unit if the next action and player
+      are correct for the first round. Else raises Default exception. *)
   let check_lead_first_round id card t =
     if t.first_round && card <> {suite=Club;rank=Two} then 
       raise (Default "You must play the two of clubs!") else ()
 
+  (** [check_pass_in_turn id card_l t] is unit if the next player is [id] 
+      and the next action is Pass. Otherwise raises Default exception. *)
   let check_pass_in_turn id card_l t = 
     if t.next_action <> Pass || t.next_player <> id then 
       raise (Default ("Not the time to pass")) else ()
@@ -484,14 +510,12 @@ module Round:RoundSig = struct
       begin
         match internal_lead 0 card t with 
         | exception Default(s) -> Invalid s
-        | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
         | t -> Valid t
       end
     | Play ->
       begin
         match internal_play 0 card t with 
         | exception Default(s) -> Invalid s
-        | exception InvalidCardPlayed -> Invalid "Can't play bad card first round"
         | t -> Valid t
       end
     | _ -> Invalid "Next action is not to play a card."

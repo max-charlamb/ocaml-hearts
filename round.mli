@@ -2,8 +2,15 @@ open Card
 open Partialdeck
 
 module type RoundSig = sig
+
+  (** [t] is the type of a round. *)
   type t
+
+  (** [result] is the result of making a move on a round. Either
+      valid or invalid. *)
   type result = Valid of t | Invalid of string
+
+  (** [difficulty] are the possible levels of difficulty for a round. *)
   type difficulty = Easy | Medium | Hard | Invalid
 
   (** [new_round d] is a new game of difficulty [d]. *)
