@@ -6,7 +6,7 @@ open ListQueue
 
 module type RoundSig = sig
   type t
-  type difficulty = Easy | Medium | Hard | InvalidD
+  type difficulty = Easy | Medium | Hard | Invalid
   type result = Valid of t | Invalid of string
   val new_round : difficulty -> string -> t
   val deal : t -> result
@@ -38,7 +38,7 @@ module Round:RoundSig = struct
   (** [BotError] is raised if a bot plays an invalid card. *)
   exception BotError
 
-  type difficulty = Easy | Medium | Hard | InvalidD
+  type difficulty = Easy | Medium | Hard | Invalid
   type action = Play | Lead | Pass | Deal
 
   (** [player] is a record that holds information about a specfic player. *)
@@ -398,9 +398,19 @@ module Round:RoundSig = struct
           } 
         else player) t.players 
 
+
+  (** [list_to_deck lst deckacc] is the deck representation of the lst of cards in 
+      [lst]. *)
+  let rec list_to_deck deckacc lst =  
+    match lst with 
+    | (h, _) :: t -> list_to_deck (PartialDeck.insert h deckacc) t 
+    | [] -> deckacc
+
   (** [clean_up_trick t] is [t] with the current trick scored and cleanup up.
       This prepares the round so that another trick can begin. *)
   let clean_up_trick t = 
+    let qsplayed = t.pile |> list_to_deck PartialDeck.empty |> 
+                   PartialDeck.mem {rank=Queen; suite=Spade} in 
     let winner = trick_winner t in
     let pile_partialdeck = List.fold_left 
         (fun p (c,_) -> PartialDeck.insert c p) 
@@ -432,7 +442,7 @@ module Round:RoundSig = struct
         hearts_broken = t.hearts_broken || 
                         PartialDeck.contains_hearts pile_partialdeck;
         history = ListQueue.push new_history t.history;
-        qspade_played = qsplayed;
+        qspade_played = t.qspade_played || qsplayed;
       } |> update_action
 
   (** [cards_passed_string c_ll order] is a string representing the cards
@@ -448,7 +458,7 @@ module Round:RoundSig = struct
     | Easy -> "easy"
     | Medium -> "medium"
     | Hard -> "hard"
-    | InvalidD -> "easy"
+    | Invalid -> "easy"
 
   (** [get_passing_order t] is an int list that represents the passing order
       of [t]. Changes depending on round number. *)
