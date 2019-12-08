@@ -679,6 +679,6 @@ module Round:RoundSig = struct
       players = players';
       next_action = Lead;
       next_player = player_with_leading_card players';
-    }
+    } |> bot_actions
 
 end

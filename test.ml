@@ -152,67 +152,82 @@ let newround = match Round.new_round Easy |> Round.deal with
   | Valid t -> t
   | _ -> failwith ""
 
+let all_hearts = (PartialDeck.add_cards [
+    {rank=Two; suite=Heart};
+    {rank=Three; suite=Heart};
+    {rank=Four; suite=Heart};
+    {rank=Five; suite=Heart};
+    {rank=Six; suite=Heart};
+    {rank=Seven; suite=Heart};
+    {rank=Eight; suite=Heart};
+    {rank=Nine; suite=Heart};
+    {rank=Ten; suite=Heart};
+    {rank=Jack; suite=Heart};
+    {rank=Queen; suite=Heart};
+    {rank=King; suite=Heart};
+    {rank=Ace; suite=Heart};
+  ] PartialDeck.empty)
+
+let all_spades = (PartialDeck.add_cards [
+    {rank=Two; suite=Spade};
+    {rank=Three; suite=Spade};
+    {rank=Four; suite=Spade};
+    {rank=Five; suite=Spade};
+    {rank=Six; suite=Spade};
+    {rank=Seven; suite=Spade};
+    {rank=Eight; suite=Spade};
+    {rank=Nine; suite=Spade};
+    {rank=Ten; suite=Spade};
+    {rank=Jack; suite=Spade};
+    {rank=Queen; suite=Spade};
+    {rank=King; suite=Spade};
+    {rank=Ace; suite=Spade};
+  ] PartialDeck.empty)
+
+let all_diamonds = (PartialDeck.add_cards [
+    {rank=Two; suite=Diamond};
+    {rank=Three; suite=Diamond};
+    {rank=Four; suite=Diamond};
+    {rank=Five; suite=Diamond};
+    {rank=Six; suite=Diamond};
+    {rank=Seven; suite=Diamond};
+    {rank=Eight; suite=Diamond};
+    {rank=Nine; suite=Diamond};
+    {rank=Ten; suite=Diamond};
+    {rank=Jack; suite=Diamond};
+    {rank=Queen; suite=Diamond};
+    {rank=King; suite=Diamond};
+    {rank=Ace; suite=Diamond};
+  ] PartialDeck.empty)
+
+let all_clubs = (PartialDeck.add_cards [
+    {rank=Two; suite=Club};
+    {rank=Three; suite=Club};
+    {rank=Four; suite=Club};
+    {rank=Five; suite=Club};
+    {rank=Six; suite=Club};
+    {rank=Seven; suite=Club};
+    {rank=Eight; suite=Club};
+    {rank=Nine; suite=Club};
+    {rank=Ten; suite=Club};
+    {rank=Jack; suite=Club};
+    {rank=Queen; suite=Club};
+    {rank=King; suite=Club};
+    {rank=Ace; suite=Club};
+  ] PartialDeck.empty)
+
 let testround1 = Round.test_deal [
-    (PartialDeck.add_cards [
-        {rank=Two; suite=Club};
-        {rank=Three; suite=Club};
-        {rank=Four; suite=Club};
-        {rank=Five; suite=Club};
-        {rank=Six; suite=Club};
-        {rank=Seven; suite=Club};
-        {rank=Eight; suite=Club};
-        {rank=Nine; suite=Club};
-        {rank=Ten; suite=Club};
-        {rank=Jack; suite=Club};
-        {rank=Queen; suite=Club};
-        {rank=King; suite=Club};
-        {rank=Ace; suite=Club};
-      ] PartialDeck.empty);
-    (PartialDeck.add_cards [
-        {rank=Two; suite=Heart};
-        {rank=Three; suite=Heart};
-        {rank=Four; suite=Heart};
-        {rank=Five; suite=Heart};
-        {rank=Six; suite=Heart};
-        {rank=Seven; suite=Heart};
-        {rank=Eight; suite=Heart};
-        {rank=Nine; suite=Heart};
-        {rank=Ten; suite=Heart};
-        {rank=Jack; suite=Heart};
-        {rank=Queen; suite=Heart};
-        {rank=King; suite=Heart};
-        {rank=Ace; suite=Heart};
-      ] PartialDeck.empty);
-    (PartialDeck.add_cards [
-        {rank=Two; suite=Spade};
-        {rank=Three; suite=Spade};
-        {rank=Four; suite=Spade};
-        {rank=Five; suite=Spade};
-        {rank=Six; suite=Spade};
-        {rank=Seven; suite=Spade};
-        {rank=Eight; suite=Spade};
-        {rank=Nine; suite=Spade};
-        {rank=Ten; suite=Spade};
-        {rank=Jack; suite=Spade};
-        {rank=Queen; suite=Spade};
-        {rank=King; suite=Spade};
-        {rank=Ace; suite=Spade};
-      ] PartialDeck.empty);
-    (PartialDeck.add_cards [
-        {rank=Two; suite=Diamond};
-        {rank=Three; suite=Diamond};
-        {rank=Four; suite=Diamond};
-        {rank=Five; suite=Diamond};
-        {rank=Six; suite=Diamond};
-        {rank=Seven; suite=Diamond};
-        {rank=Eight; suite=Diamond};
-        {rank=Nine; suite=Diamond};
-        {rank=Ten; suite=Diamond};
-        {rank=Jack; suite=Diamond};
-        {rank=Queen; suite=Diamond};
-        {rank=King; suite=Diamond};
-        {rank=Ace; suite=Diamond};
-      ] PartialDeck.empty);
+    all_clubs;
+    all_hearts;
+    all_spades;
+    all_diamonds;
+  ]
+
+let testround2 = Round.test_deal [
+    all_hearts;
+    all_clubs;
+    all_spades;
+    all_diamonds;
   ]
 
 let roundtests = [
@@ -225,13 +240,27 @@ let roundtests = [
           | Invalid(s) -> false
           | Valid (t) -> true
         end);
-  "play 2 clubs first round" >:: (fun _ -> 
+  "holding 2 clubs first round play it" >:: (fun _ -> 
       assert_equal "Play" 
         begin 
           match (Round.play {rank=Two;suite=Club} testround1) with 
-          | Invalid(s) -> failwith s
+          | Invalid(s) -> "fail"
           | Valid (t) -> t |> Round.next_action
-        end);
+        end ~printer:(fun x -> x));
+  "holding 2 clubs first round does not play it" >:: (fun _ -> 
+      assert_equal "You must play the two of clubs!" 
+        begin 
+          match (Round.play {rank=Three;suite=Club} testround1) with 
+          | Invalid(s) -> s
+          | Valid (t) -> t |> Round.next_action
+        end ~printer:(fun x -> x));
+  "not holding 2 clubs first round" >:: (fun _ -> 
+      assert_equal "Play" 
+        begin 
+          match (Round.play {rank=Two;suite=Heart} testround2) with 
+          | Invalid(s) -> "fail"
+          | Valid (t) -> t |> Round.next_action
+        end ~printer:(fun x -> x));
 ]
 
 let suite =
