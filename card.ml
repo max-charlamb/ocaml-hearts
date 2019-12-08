@@ -68,14 +68,15 @@ let card_to_string c =
   | x -> failwith "error in card_to_string"
 
 
-let print_card ?bckgnd:(background=on_white) c = 
+let print_card ?bckgnd:(background=on_white) c = (*BISECT-IGNORE-BEGIN*)
   match c.suite with
   | Heart
   | Diamond -> print_string [red; background] (card_to_string c)
   | Club 
-  | Spade -> print_string [black; background] (card_to_string c)
+  | Spade -> print_string [black; background] (card_to_string c) 
+(*BISECT-IGNORE-END*)
 
-let print_card_tall c = 
+let print_card_tall c = (*BISECT-IGNORE-BEGIN*)
   let x, y = pos_cursor () in
   print_string [on_white] "    ";
   move_cursor (-4) 1;
@@ -83,7 +84,7 @@ let print_card_tall c =
   move_cursor (-4) 1;
   print_string [on_white] "    ";
   set_cursor x y
-
+(*BISECT-IGNORE-END*)
 
 let compare (x:card) (y:card) = 
   match (suite_to_int x.suite,suite_to_int y.suite) with

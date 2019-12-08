@@ -1,9 +1,19 @@
+(** Round holds the state of our game and functions to 
+    update it. *)
+
 open Card
 open Partialdeck
 
 module type RoundSig = sig
+
+  (** [t] is the type of a round. *)
   type t
+
+  (** [result] is the result of making a move on a round. Either
+      valid or invalid. *)
   type result = Valid of t | Invalid of string
+
+  (** [difficulty] are the possible levels of difficulty for a round. *)
   type difficulty = Easy | Medium | Hard | Invalid
 
   (** [new_round d] is a new game of difficulty [d]. *)
@@ -57,6 +67,14 @@ module type RoundSig = sig
   (** [next_action] is the string of the next action. *)
   val next_action : t -> string
 
+  (** [test_deal pdl] is a new round where [pdl] are dealt as each hand.
+      The length of [pdl] must be 4. *)
+  val test_deal : PartialDeck.t list -> t
+
+  (** [game_over t] is [(false,_)] if no players score is above the
+      winning condition score. [(true,_)] if there is a player 
+      above the score. [(true,true)] if the player won. 
+      [(ture,false)] if the bot won. *)
   val game_over : t -> bool * bool
 
 end
