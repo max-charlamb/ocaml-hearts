@@ -6,7 +6,7 @@ open ListQueue
 
 module type RoundSig = sig
   type t
-  type difficulty = Easy | Medium | Hard | Invalid
+  type difficulty = Easy | Medium | Hard | InvalidD
   type result = Valid of t | Invalid of string
   val new_round : difficulty -> string -> t
   val deal : t -> result
@@ -38,7 +38,7 @@ module Round:RoundSig = struct
   (** [BotError] is raised if a bot plays an invalid card. *)
   exception BotError
 
-  type difficulty = Easy | Medium | Hard | Invalid
+  type difficulty = Easy | Medium | Hard | InvalidD
   type action = Play | Lead | Pass | Deal
 
   (** [player] is a record that holds information about a specfic player. *)
@@ -72,6 +72,7 @@ module Round:RoundSig = struct
     history : historySegment ListQueue.t;
     difficulty : difficulty;
     round_number : int;
+    qspade_played : bool;
   }
 
   type result = Valid of t | Invalid of string
@@ -104,6 +105,7 @@ module Round:RoundSig = struct
     history = ListQueue.empty;
     difficulty = diff;
     round_number = 0;
+    qspade_played = false;
   }
 
   (** [insert_hand h p] returns player [p] with hand [h]. *)
@@ -430,6 +432,7 @@ module Round:RoundSig = struct
         hearts_broken = t.hearts_broken || 
                         PartialDeck.contains_hearts pile_partialdeck;
         history = ListQueue.push new_history t.history;
+        qspade_played = qsplayed;
       } |> update_action
 
   (** [cards_passed_string c_ll order] is a string representing the cards
@@ -445,7 +448,7 @@ module Round:RoundSig = struct
     | Easy -> "easy"
     | Medium -> "medium"
     | Hard -> "hard"
-    | Invalid -> "easy"
+    | InvalidD -> "easy"
 
   (** [get_passing_order t] is an int list that represents the passing order
       of [t]. Changes depending on round number. *)
@@ -454,7 +457,7 @@ module Round:RoundSig = struct
     | n when (n mod 4) = 1 -> [1;2;3;0]
     | n when (n mod 4) = 2 -> [3;2;1;0]
     | n when (n mod 4) = 3 -> [2;3;0;1]
-    | n -> failwith "should not be passing on forth rounds"
+    | n -> failwith "should not be passing on fourth rounds"
 
   (** [bot_actions t] is [t] with all the bot actions done until it is the 
       players next turn. *)
@@ -463,7 +466,7 @@ module Round:RoundSig = struct
     | (_,0) -> t
     | (Play,id) -> 
       internal_play t.next_player 
-        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t)) t
+        (Bot.play (List.nth t.players id).hand t.pile (get_difficulty t) t.qspade_played) t
     | (Lead,id) -> 
       internal_lead t.next_player 
         (Bot.lead (List.nth t.players id).hand t.pile (get_difficulty t)) t

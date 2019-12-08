@@ -18,7 +18,7 @@ let get_difficulty = function
   | "easy" -> Round.Easy
   | "medium" -> Round.Medium
   | "hard" -> Round.Hard
-  | _ -> Round.Invalid
+  | _ -> Round.InvalidD
 
 let rec home_loop bl state =
   let state' = if bl then (Print.score_table state; display_history state) 
