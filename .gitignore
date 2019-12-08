@@ -24,3 +24,7 @@ setup.log
 # zip files that we submit
 
 *.zip
+
+# Doc files and bisect file
+doc.*/
+*.out 
