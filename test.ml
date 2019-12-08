@@ -4,6 +4,7 @@ open Partialdeck
 open Command
 open Round
 open ListQueue
+open Bot
 
 (* Test Plan:
    We tested the backend of our system using OUnit tests. This includes the
@@ -88,6 +89,20 @@ let deck6 = PartialDeck.empty |> PartialDeck.add_cards [
     {rank=Ace; suite=Heart};
     {rank=Queen; suite=Spade};
   ]
+let deck7 = PartialDeck.empty |> PartialDeck.add_cards [
+    {rank=Two; suite=Heart};
+    {rank=Three; suite=Heart};
+    {rank=Four; suite=Heart};
+    {rank=Five; suite=Heart};
+    {rank=Six; suite=Heart};
+    {rank=Seven; suite=Heart};
+    {rank=Eight; suite=Heart};
+    {rank=Jack; suite=Heart};
+    {rank=Queen; suite=Heart};
+    {rank=King; suite=Heart};
+    {rank=Ace; suite=Heart};
+    {rank=Queen; suite=Spade};
+  ]
 
 let partialdecktests = [
   "empty" >:: (fun _ -> 
@@ -133,6 +148,22 @@ let partialdecktests = [
       assert_equal (PartialDeck.shoot_the_moon 
                       (PartialDeck.insert 
                          {suite=Spade; rank=Three} deck6)) true);
+  "lowest" >:: (fun _ ->
+      assert_equal (PartialDeck.lowest PartialDeck.full Diamond) 
+        ({suite = Diamond; rank = Two}));
+  "highest" >:: (fun _ ->
+      assert_equal (PartialDeck.highest PartialDeck.full Heart) 
+        ({suite = Heart; rank = Ace}));
+  "voided01" >:: (fun _ -> assert_equal (PartialDeck.voided Spade deck1) false);
+  "voided02" >:: (fun _ -> assert_equal (PartialDeck.voided Heart deck1) true);
+  "member01" >:: (fun _ -> assert_equal 
+                     (PartialDeck.mem {suite = Spade; rank = King} deck1) true);
+  "member02" >:: (fun _ -> assert_equal 
+                     (PartialDeck.mem {suite = Heart; rank = King} deck1) false);
+  "highest not found" >:: (fun _ -> assert_raises CardNotFound 
+                              (fun () -> (PartialDeck.highest deck6 Club)));
+  "lowest not found" >:: (fun _ -> assert_raises CardNotFound 
+                             (fun () -> (PartialDeck.lowest deck6 Club)));
   "remove01" >:: (fun _ -> 
       assert_raises CardNotFound (fun () -> 
           deck6 |> PartialDeck.remove {suite=Spade; rank=Three}));
@@ -175,8 +206,19 @@ let commandtests = [
                         (fun () -> (parse "play t")));
   "malformed04" >:: (fun _ -> assert_raises Malformed 
                         (fun () -> (parse "quit 324")));
-  "malformed04" >:: (fun _ -> assert_raises Malformed 
+  "malformed05" >:: (fun _ -> assert_raises Malformed 
                         (fun () -> (parse "select")));
+  "malformed06" >:: (fun _ -> 
+      assert_raises (Malformed) (fun () -> parse "pass 1 2 2"));
+  "malformed07" >:: (fun _ -> assert_raises Malformed 
+                           (fun () -> (parse "back 3")));
+  "malformed08" >:: (fun _ -> assert_raises Malformed 
+                           (fun () -> (parse "quit 324")));
+  "malformed09" >:: (fun _ -> assert_raises Malformed 
+                                        (fun () -> (parse "play 2 3")));
+  "malformed10" >:: (fun _ -> assert_raises Malformed 
+                             (fun () -> (parse "select easy hard")));
+
 ]
 
 (* Round Tests *)
@@ -313,6 +355,24 @@ let roundtests = [
                          (fun acc y -> acc ^ string_of_int y ^ "; " ) "" x));
 ]
 
+(* Bot test *)
+let handbot = Round.bot_hand newround 2
+let handbot2 = Round.bot_hand newround 1
+let bottests = [
+  "pass_easy" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot "easy")));
+  "pass_medium" >:: (fun _ -> assert_equal 3 
+                        (List.length (Bot.pass handbot "medium")));
+  "pass_hard" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot "hard")));
+  "pass_easy" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot2 "easy")));
+  "pass_medium" >:: (fun _ -> assert_equal 3 
+                        (List.length (Bot.pass handbot2 "medium")));
+  "pass_hard" >:: (fun _ -> assert_equal 3 
+                      (List.length (Bot.pass handbot2 "hard")));
+]
+
 let suite =
   "test suite for Hearts"  >::: List.flatten [
     listqueuetests;
@@ -320,6 +380,7 @@ let suite =
     partialdecktests;
     commandtests;
     roundtests;
+    bottests;
   ]
 
 let _ = run_test_tt_main suite
