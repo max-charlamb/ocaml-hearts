@@ -39,7 +39,8 @@ module PartialDeck:PartialDeckSig = struct
     List.mem card t 
 
   let insert card (t:t) = 
-    if mem card t then raise DuplicateCard else (card :: t) |> List.sort compare
+    if mem card t then raise DuplicateCard 
+    else (card :: t) |> List.sort compare
 
   let empty = []
 

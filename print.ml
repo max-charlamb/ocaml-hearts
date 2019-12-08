@@ -303,7 +303,8 @@ module Print:PrintSig = struct
     set_cursor (1) (h/3);
     print_string [white; on_red] (spaces "♡" (w));
     set_cursor (w/2 - 32) (h/3 + 2);
-    print_string [on_default] "Select one of the three difficulty levels by typing ";
+    print_string [on_default] 
+      "Select one of the three difficulty levels by typing ";
     print_string [black; on_white] "select [level]";
     set_cursor (w/2 - 9) (h/3 + 3);
     print_string [on_default]  "easy | medium | hard";
@@ -321,7 +322,9 @@ module Print:PrintSig = struct
     set_cursor (1) (h/3);
     print_string [white; on_red] (spaces "♡" (w));
     set_cursor (w/2 - 38) (h/3 + 3);
-    print_string [on_default] "Type in your desired username for the game! It must be no more than 8 characters! ";
+    print_string [on_default] 
+      ("Type in your desired username for the game!" ^ 
+       "It must be no more than 8 characters! ");
     set_cursor (1) (h/3 + 6);
     print_string [white; on_red] (spaces "♡" (w));
     set_cursor 1 (h-1)
