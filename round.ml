@@ -406,7 +406,8 @@ module Round:RoundSig = struct
 
   let cards_passed_string c_ll order = 
     let cards = (List.map2 (fun a b -> (a,b)) order c_ll) |> List.assoc 0 in 
-    List.fold_left (fun acc card -> acc ^ (card_to_string card) ^ ", ") "" cards
+    List.fold_left (fun acc card -> 
+        acc ^ (card_to_string card) ^ ", ") "" cards
 
   let get_difficulty t = 
     match t.difficulty with
@@ -483,14 +484,17 @@ module Round:RoundSig = struct
         add_cards t (t1) (set_hand h1 new_hand st)
       | _,_ -> failwith "order not long enough"
     in
-    let pass_cards = [card_l; get_bot_pass 1; get_bot_pass 2; get_bot_pass 3] in
-    let t' = t |> (remove_cards pass_cards 0 ) |> (add_cards pass_cards (get_passing_order t)) in
+    let pass_cards = [card_l; get_bot_pass 1; 
+                      get_bot_pass 2; get_bot_pass 3] in
+    let t' = t |> (remove_cards pass_cards 0 ) |> 
+             (add_cards pass_cards (get_passing_order t)) in
     let new_history = 
       {
         hands = List.map (fun player -> player.hand) t'.players;
         pile = t.pile;
         round_score = List.map (fun player -> player.score) t'.players;
-        description = "You were passed:" ^ (cards_passed_string pass_cards (get_passing_order t));
+        description = "You were passed:" ^ 
+                      (cards_passed_string pass_cards (get_passing_order t));
       }
     in
     {
@@ -587,7 +591,8 @@ module Round:RoundSig = struct
 
   let rec string_of_pile pile = 
     match pile with 
-    | h::t -> "(" ^ (card_to_string (fst h)) ^ "," ^  string_of_int (snd h) ^ "), "
+    | h::t -> "(" ^ (card_to_string (fst h)) 
+              ^ "," ^  string_of_int (snd h) ^ "), "
     | [] -> ""
 
   let rec string_of_int_list l = 
