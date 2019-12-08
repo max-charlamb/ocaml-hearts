@@ -509,6 +509,7 @@ module Round:RoundSig = struct
 
   (** [internal_deal t] is [t] with the cards dealth to the player. *)
   and internal_deal t = 
+    check_deal t;
     let players' = deal_helper t.players PartialDeck.full in
     let new_history = {
       hands = List.map (fun player -> player.hand) players';
