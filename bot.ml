@@ -78,6 +78,18 @@ module Bot:BotSig = struct
       end
     | true -> card
 
+  and play_aux pile hand pile_suite queen_played queen_table =
+    if List.length pile <> 3 
+    then play_easy hand pile pile_suite []
+    else begin  
+      let c = play_highest hand pile pile_suite [] in   
+      if c = {rank = Queen; suite = Spade} 
+      then play_med_helper 
+          (PartialDeck.remove {rank = Queen; suite = Spade} hand) 
+          pile queen_played queen_table 
+      else c 
+    end 
+
   and play_med_helper hand pile queen_played queen_table = 
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in
     if PartialDeck.voided pile_suite hand then 
@@ -87,16 +99,7 @@ module Bot:BotSig = struct
       | true, false -> play_highest hand pile pile_suite []
       | true, true
       | false, true -> play_easy hand pile pile_suite []
-      | false, false -> if List.length pile <> 3 
-        then play_easy hand pile pile_suite []
-        else begin 
-          let c = play_highest hand pile pile_suite [] in   
-          if c = {rank = Queen; suite = Spade} 
-          then play_med_helper 
-              (PartialDeck.remove {rank = Queen; suite = Spade} hand) 
-              pile queen_played queen_table 
-          else c 
-        end 
+      | false, false -> play_aux pile hand pile_suite queen_played queen_table
 
   and play_med hand pile qspade qspadetable =
     let pile_suite = (fst (pile |> List.rev |> List.hd)).suite in 
