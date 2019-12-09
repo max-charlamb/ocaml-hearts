@@ -153,76 +153,28 @@ module Bot:BotSig = struct
       play_easy hand pile new_suit acc
     | Some c -> c 
 
-  (* 
-  let rec lead_medium hand pile (suit : Card.suite) suit_acc =
-    if suit = Spade then 
-      match get_lowest suit hand with 
-      | None -> begin 
-          let acc = suit :: suit_acc in
-          let new_suit = get_new_suit acc suits in
-          match get_highest new_suit hand with 
-          | None -> let acc = suit :: suit_acc in 
-            let new_suit = get_new_suit acc suits in 
-            lead_medium hand pile new_suit acc
-          | Some c -> c 
-        end 
-      | Some c -> c 
-    else match get_highest suit hand with 
-      | None -> let acc = suit :: suit_acc in 
-        let new_suit = get_new_suit acc suits in 
-        lead_medium hand pile new_suit acc
-      | Some c -> c 
-*) 
-
-  let lead_medium hand pile =
-    match PartialDeck.highest hand Club with
-    | exception CardNotFound ->
-      begin 
-        match PartialDeck.highest hand Diamond with
-        | exception CardNotFound ->
-          begin 
-            match PartialDeck.lowest hand Spade with
-            | exception CardNotFound ->
-              begin 
-                match PartialDeck.highest hand Heart with
-                | exception CardNotFound ->
-                  failwith "Hand has no cards"
-                | c -> c
-              end
-            | c -> c
-          end
-        | c -> c
-      end
-    | c -> c
-
-  let lead_hard hand pile =
-    match PartialDeck.highest hand Club with
-    | exception CardNotFound ->
-      begin 
-        match PartialDeck.highest hand Diamond with
-        | exception CardNotFound ->
-          begin 
-            match PartialDeck.lowest hand Spade with
-            | exception CardNotFound ->
-              begin 
-                match PartialDeck.lowest hand Heart with
-                | exception CardNotFound ->
-                  failwith "Hand has no cards"
-                | c -> c
-              end
-            | c -> c
-          end
-        | c -> c
-      end
-    | c -> c
+  let rec lead_med_hard hand pile suit =
+    if suit = Club || suit = Diamond then 
+      match PartialDeck.highest hand suit with 
+      | exception CardNotFound when suit = Club -> 
+        lead_med_hard hand pile Diamond
+      | exception CardNotFound when suit = Diamond -> 
+        lead_med_hard hand pile Spade
+      | c -> c 
+    else 
+      match PartialDeck.lowest hand suit with 
+      | exception CardNotFound when suit = Heart -> failwith "has no cards"
+      | exception CardNotFound when suit = Spade -> 
+        lead_med_hard hand pile Heart
+      | c -> c 
 
   let lead hand pile diff = 
     let twoclubs = {suite = Club; rank = Two} in 
     if PartialDeck.mem twoclubs hand then twoclubs else 
       match diff with 
       | "easy" -> lead_easy hand pile Club [] 
-      | "medium" -> lead_medium hand pile 
-      | "hard" -> lead_hard hand pile
+      | "medium" -> lead_med_hard hand pile Club
+      | "hard" -> lead_med_hard hand pile Club
       | _ -> lead_easy hand pile Club []
 
   let pass_spades deck = 
