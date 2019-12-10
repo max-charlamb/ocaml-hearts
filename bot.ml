@@ -32,7 +32,7 @@ module Bot:BotSig = struct
   ]
 
   (** [get_lowest suit hand] is the card with the lowest value in [suit]
-      in [hand]. If there is no card of suit [suit], then the result is None. *)
+      in [hand]. If there is no card of suit [suit], then the result is None.*)
   let get_lowest suit hand =
     match PartialDeck.lowest hand suit with 
     | exception CardNotFound -> None
@@ -225,7 +225,7 @@ module Bot:BotSig = struct
       | Some c -> if List.mem c acc then pass_easy deck acc 
         else pass_easy deck (c :: acc)
 
-  (** [pass_med deck suit suit_acc suits acc] is a list of three cards to pass. 
+  (** [pass_med deck suit suit_acc suits acc] is a list of three cards to pass.
       The list of cards selected consists of the highest [suit] cards. If there
       are no cards of [suit], then the highest cards of a different random 
       suit are selected. *)

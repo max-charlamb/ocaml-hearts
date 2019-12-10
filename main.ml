@@ -32,7 +32,8 @@ let rec home_loop bl state =
       exit 0
     | Pass (i1,i2,i3) -> 
       begin
-        match (get_card i1 state'), (get_card i2 state'), (get_card i3 state') with 
+        match (get_card i1 state'), 
+              (get_card i2 state'), (get_card i3 state') with 
         | Some x1, Some x2, Some x3 -> 
           begin
             match Round.pass [x1;x2;x3] state' with 
