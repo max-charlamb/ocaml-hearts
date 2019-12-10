@@ -700,7 +700,7 @@ module Round:RoundSig = struct
     } |> bot_actions
 
   let game_over t = 
-    let is_over = List.exists (fun s -> s >= 2) t.total_scores in 
+    let is_over = List.exists (fun s -> s >= 100) t.total_scores in 
     let winning_player = List.fold_left
         (fun int acc -> if int < acc then int else acc) 
         Int.max_int t.total_scores in
