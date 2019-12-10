@@ -67,9 +67,9 @@ module Print:PrintSig = struct
       let (w,h) = size () in
       set_cursor (leading) (height + n);
       print_string [white; on_green] "X";
-      set_cursor (w - leading) (height + n);
+      set_cursor (w - leading - 1) (height + n);
       print_string [white; on_green] "X";
-      print_hearts_border height (n-1) leading
+      print_x_border height (n-1) leading
     else ()
 
   let rec print_table n = 
@@ -250,18 +250,53 @@ module Print:PrintSig = struct
     move_cursor (10) 13;
     print_string [white; on_red] (spaces "♡" (4));
     set_cursor (1) (h-1);
-    Unix.sleepf 0.1;
+    Unix.sleep 2;
     set_cursor 1 (h-1)
+
+  let print_eyes w h = 
+    set_cursor w h;
+    move_cursor (6) (3);
+    print_string [white; on_green] "XXX";
+    move_cursor (-3) (1);
+    print_string [white; on_green] "XXXX";
+    move_cursor (-2) (1);
+    print_string [white; on_green] "XXXX";
+    move_cursor (-2) (1);
+    print_string [white; on_green] "XXXX";
+    move_cursor (-3) (1);
+    print_string [white; on_green] "XXX";
+    set_cursor (w + 31) (h + 3);
+    print_string [white; on_green] "XXX";
+    move_cursor (-4) (1);
+    print_string [white; on_green] "XXXX";
+    move_cursor (-6) (1);
+    print_string [white; on_green] "XXXX";
+    move_cursor (-6) (1);
+    print_string [white; on_green] "XXXX";
+    move_cursor (-4) (1);
+    print_string [white; on_green] "XXX";
+    set_cursor 1 (h-1)
+
+  let print_mouth w h = 
+    set_cursor w h;
+    print_string [white; on_green] " You lost to a bot! ";
+    move_cursor (-22) (1);
+    print_string [white; on_green] " Better luck next time! "
 
   let print_bot_win () = 
     let (w,h) = size () in
     erase Screen;  
-    set_cursor (1) (1);  
-    print_string [white; on_green] (spaces "X" (w-80));
-    set_cursor (1) (20);
-    print_string [white; on_green] (spaces "X" (w-80));
-    print_x_border (40) 18 40;
+    set_cursor (w/2 - 20) (h/2 - 9);  
+    print_string [white; on_green] (spaces "X" (40));
+    set_cursor (w/2 - 20) (h/2 + 9);
+    print_string [white; on_green] (spaces "X" (40));
+    print_x_border (h/2 - 9) 18 (w/2 - 20);
+    print_eyes (w/2 - 20) (h/2 - 9);  
+    print_mouth (w/2 - 10) (h/2 + 4);
+    Unix.sleep 2;
     set_cursor 1 (h-1)
+
+
 
   let print_help_menu () =
     let (w,h) = size () in
