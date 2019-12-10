@@ -26,8 +26,8 @@ exception Empty
 (** Raised when the user inputs a malformed command. *)
 exception Malformed
 
-(** Raised when the user inputs an index outside of the range of indices in the 
-    player's hand of cards. *)
+(** Raised when the user inputs an index outside of the range of 
+    indices in the player's hand of cards. *)
 exception InvalidIndex
 
 (** [parse str] is the command corresponding to the input entered by the user
