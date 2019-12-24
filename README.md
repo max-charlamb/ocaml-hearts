@@ -1,9 +1,7 @@
 
 # Install Dependencies
-The only package we use is ANSITerminal.
-```
-opam install ANSITerminal
-```
+Install OCaml following the instructions on the Cornell CS 3110 [2019 Fall course website](https://www.cs.cornell.edu/courses/cs3110/2019fa/). 
+
 
 # Run the program
 ```
